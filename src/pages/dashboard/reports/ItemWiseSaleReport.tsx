@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,7 @@ const ItemWiseSaleReport = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `itemwise-sale-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `itemwise-sale-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -124,7 +124,7 @@ const ItemWiseSaleReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Sale Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">${totals.amount.toFixed(2)}</p>
+            <p className="text-3xl font-bold">₹{totals.amount.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>
@@ -153,8 +153,8 @@ const ItemWiseSaleReport = () => {
                     <TableRow key={item.productId}>
                       <TableCell className="font-medium">{item.productName}</TableCell>
                       <TableCell className="text-right">{item.quantity.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${item.unitPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${item.amount.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.unitPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.amount.toFixed(2)}</TableCell>
                       <TableCell className="text-right">{item.saleCount}</TableCell>
                     </TableRow>
                   ))}
@@ -162,7 +162,7 @@ const ItemWiseSaleReport = () => {
                     <TableCell>TOTAL</TableCell>
                     <TableCell className="text-right">{totals.quantity.toFixed(2)}</TableCell>
                     <TableCell></TableCell>
-                    <TableCell className="text-right">${totals.amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.amount.toFixed(2)}</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableBody>

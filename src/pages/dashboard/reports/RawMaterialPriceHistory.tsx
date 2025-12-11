@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,7 +71,7 @@ const RawMaterialPriceHistory = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `rm-price-history-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `rm-price-history-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -133,9 +133,9 @@ const RawMaterialPriceHistory = () => {
                     <TableRow key={item.rmId}>
                       <TableCell className="font-medium">{item.rmName}</TableCell>
                       <TableCell className="text-right">{item.prices.length}</TableCell>
-                      <TableCell className="text-right">${item.averagePrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${item.minPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${item.maxPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.averagePrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.minPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.maxPrice.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

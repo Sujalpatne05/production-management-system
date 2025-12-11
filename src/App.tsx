@@ -31,24 +31,14 @@ import AddCustomer from "./pages/dashboard/parties/AddCustomer";
 import CustomerList from "./pages/dashboard/parties/CustomerList";
 import AddSupplier from "./pages/dashboard/parties/AddSupplier";
 import SupplierList from "./pages/dashboard/parties/SupplierList";
-import AddAttendance from "./pages/dashboard/attendance/AddAttendance";
-import AttendanceList from "./pages/dashboard/attendance/AttendanceList";
 import AddExpense from "./pages/dashboard/expenses/AddExpense";
 import ExpenseList from "./pages/dashboard/expenses/ExpenseList";
 import AddExpenseCategory from "./pages/dashboard/expenses/AddExpenseCategory";
 import ExpenseCategoryList from "./pages/dashboard/expenses/ExpenseCategoryList";
-import AddAccount from "./pages/dashboard/accounting/AddAccount";
-import AccountList from "./pages/dashboard/accounting/AccountList";
-import AddTransaction from "./pages/dashboard/accounting/AddTransaction";
-import TransactionList from "./pages/dashboard/accounting/TransactionList";
-import BalanceSheet from "./pages/dashboard/accounting/BalanceSheet";
-import TrialBalance from "./pages/dashboard/accounting/TrialBalance";
 import AddSupplierPayment from "./pages/dashboard/payments/AddSupplierPayment";
 import SupplierPaymentList from "./pages/dashboard/payments/SupplierPaymentList";
 import AddCustomerReceive from "./pages/dashboard/payments/AddCustomerReceive";
 import CustomerReceiveList from "./pages/dashboard/payments/CustomerReceiveList";
-import AddPayroll from "./pages/dashboard/payroll/AddPayroll";
-import PayrollList from "./pages/dashboard/payroll/PayrollList";
 import AddRMCategory from "./pages/dashboard/item-setup/AddRMCategory";
 import RMCategoryList from "./pages/dashboard/item-setup/RMCategoryList";
 import AddRawMaterial from "./pages/dashboard/item-setup/AddRawMaterial";
@@ -97,6 +87,9 @@ import ItemWiseSaleReport from "./pages/dashboard/reports/ItemWiseSaleReport";
 import CustomerDueReport from "./pages/dashboard/reports/CustomerDueReport";
 import CustomerLedger from "./pages/dashboard/reports/CustomerLedger";
 import ProductProfitReport from "./pages/dashboard/reports/ProductProfitReport";
+import Sectors from "./pages/dashboard/reports/Sectors";
+import AddSector from "./pages/dashboard/reports/AddSector";
+import EditSector from "./pages/dashboard/reports/EditSector";
 import TaxSettings from "./pages/dashboard/settings/TaxSettings";
 import WhiteLabel from "./pages/dashboard/settings/WhiteLabel";
 import EmailSettings from "./pages/dashboard/settings/EmailSettings";
@@ -130,10 +123,12 @@ const App = () => (
             <Route path="change-password" element={<ChangePassword />} />
             <Route path="security-question" element={<SecurityQuestion />} />
             
-            {/* Outlets */}
-            <Route path="outlets" element={<Navigate to="/dashboard/outlets/list" replace />} />
-            <Route path="outlets/add" element={<AddOutlet />} />
-            <Route path="outlets/list" element={<OutletsList />} />
+            {/* Factories (formerly Outlets) */}
+            <Route path="factories" element={<Navigate to="/dashboard/factories/list" replace />} />
+            <Route path="factories/add" element={<AddOutlet />} />
+            <Route path="factories/list" element={<OutletsList />} />
+            {/* Backward compatibility for old outlets paths */}
+            <Route path="outlets/*" element={<Navigate to="/dashboard/factories/list" replace />} />
             
             {/* Production */}
             <Route path="production/add" element={<AddProduction />} />
@@ -172,33 +167,17 @@ const App = () => (
             <Route path="rm-stock/add-adjustment" element={<RawMaterialStock />} />
             <Route path="rm-stock/adjustments" element={<RawMaterialStock />} />
             
-            {/* Attendance */}
-            <Route path="attendance/add" element={<AddAttendance />} />
-            <Route path="attendance/list" element={<AttendanceList />} />
-            
             {/* Expenses */}
             <Route path="expenses/add" element={<AddExpense />} />
             <Route path="expenses/list" element={<ExpenseList />} />
             <Route path="expenses/add-category" element={<AddExpenseCategory />} />
             <Route path="expenses/categories" element={<ExpenseCategoryList />} />
             
-            {/* Accounting */}
-            <Route path="accounting/add-account" element={<AddAccount />} />
-            <Route path="accounting/accounts" element={<AccountList />} />
-            <Route path="accounting/add-transaction" element={<AddTransaction />} />
-            <Route path="accounting/transactions" element={<TransactionList />} />
-            <Route path="accounting/balance-sheet" element={<BalanceSheet />} />
-            <Route path="accounting/trial-balance" element={<TrialBalance />} />
-            
             {/* Payments */}
             <Route path="supplier-payments/add" element={<AddSupplierPayment />} />
             <Route path="supplier-payments/list" element={<SupplierPaymentList />} />
             <Route path="customer-receives/add" element={<AddCustomerReceive />} />
             <Route path="customer-receives/list" element={<CustomerReceiveList />} />
-            
-            {/* Payroll */}
-            <Route path="payroll/add" element={<AddPayroll />} />
-            <Route path="payroll/list" element={<PayrollList />} />
             
             {/* Item Setup */}
             <Route path="item-setup/add-rm-category" element={<AddRMCategory />} />
@@ -241,6 +220,9 @@ const App = () => (
             <Route path="reports/customer-due" element={<CustomerDueReport />} />
             <Route path="reports/customer-ledger" element={<CustomerLedger />} />
             <Route path="reports/product-profit" element={<ProductProfitReport />} />
+            <Route path="reports/sectors" element={<Sectors />} />
+            <Route path="reports/sectors/add" element={<AddSector />} />
+            <Route path="reports/sectors/edit/:id" element={<EditSector />} />
             
             {/* Users */}
             <Route path="users/add-role" element={<AddRole />} />

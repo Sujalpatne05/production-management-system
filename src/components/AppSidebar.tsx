@@ -6,16 +6,16 @@ import {
   Factory, 
   Package, 
   ShoppingCart, 
-  DollarSign,
+  TrendingUp,
   ShoppingBag,
   Users,
   Box,
-  Clock,
   Receipt,
   PieChart,
-  Calculator,
   CreditCard,
   Wallet,
+  IndianRupee,
+  FileText,
   User as UserIcon,
   Settings as SettingsIcon,
   Database,
@@ -54,7 +54,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { title: "Home", url: "/dashboard", icon: Home },
   { title: "Dashboard", url: "/dashboard/overview", icon: LayoutDashboard },
-  { title: "Outlets", url: "/dashboard/outlets", icon: Store },
+  { title: "Factories", url: "/dashboard/factories", icon: Store },
   { 
     title: "Production", 
     url: "/dashboard/production", 
@@ -81,7 +81,7 @@ const menuItems: MenuItem[] = [
   { 
     title: "Sales", 
     url: "/dashboard/sales", 
-    icon: DollarSign,
+    icon: TrendingUp,
     subItems: [
       { title: "Add Sale", url: "/dashboard/sales/add" },
       { title: "Sale List", url: "/dashboard/sales/list" },
@@ -118,36 +118,14 @@ const menuItems: MenuItem[] = [
     ]
   },
   { 
-    title: "Attendance", 
-    url: "/dashboard/attendance", 
-    icon: Clock,
-    subItems: [
-      { title: "Add Attendance", url: "/dashboard/attendance/add" },
-      { title: "Attendance List", url: "/dashboard/attendance/list" },
-    ]
-  },
-  { 
     title: "Expenses", 
     url: "/dashboard/expenses", 
-    icon: Receipt,
+    icon: IndianRupee,
     subItems: [
       { title: "Add Expense", url: "/dashboard/expenses/add" },
       { title: "Expense List", url: "/dashboard/expenses/list" },
       { title: "Add Expense Category", url: "/dashboard/expenses/add-category" },
       { title: "Expense Category List", url: "/dashboard/expenses/categories" },
-    ]
-  },
-  { 
-    title: "Accounting", 
-    url: "/dashboard/accounting", 
-    icon: Calculator,
-    subItems: [
-      { title: "Add Account", url: "/dashboard/accounting/add-account" },
-      { title: "Account List", url: "/dashboard/accounting/accounts" },
-      { title: "Add Deposit/Withdraw", url: "/dashboard/accounting/add-transaction" },
-      { title: "Deposit/Withdraw List", url: "/dashboard/accounting/transactions" },
-      { title: "Balance Sheet", url: "/dashboard/accounting/balance-sheet" },
-      { title: "Trial Balance", url: "/dashboard/accounting/trial-balance" },
     ]
   },
   { 
@@ -166,15 +144,6 @@ const menuItems: MenuItem[] = [
     subItems: [
       { title: "Add Customer Receive", url: "/dashboard/customer-receives/add" },
       { title: "Customer Receive List", url: "/dashboard/customer-receives/list" },
-    ]
-  },
-  { 
-    title: "Payroll", 
-    url: "/dashboard/payroll", 
-    icon: DollarSign,
-    subItems: [
-      { title: "Add Payroll", url: "/dashboard/payroll/add" },
-      { title: "Payroll List", url: "/dashboard/payroll/list" },
     ]
   },
   { 
@@ -215,7 +184,7 @@ const menuItems: MenuItem[] = [
   { 
     title: "Quotations", 
     url: "/dashboard/quotations", 
-    icon: Receipt,
+    icon: FileText,
     subItems: [
       { title: "Add Quotation", url: "/dashboard/quotations/add" },
       { title: "Quotation List", url: "/dashboard/quotations/list" },
@@ -226,22 +195,23 @@ const menuItems: MenuItem[] = [
     url: "/dashboard/reports", 
     icon: PieChart,
     subItems: [
-      { title: "Product Price History", url: "/dashboard/reports/product-price-history" },
-      { title: "Raw Material Price History", url: "/dashboard/reports/rm-price-history" },
-      { title: "RM Purchase Report", url: "/dashboard/reports/rm-purchase" },
-      { title: "RM Item Wise Purchase Report", url: "/dashboard/reports/rm-item-purchase" },
-      { title: "RM Stock Report", url: "/dashboard/reports/rm-stock" },
-      { title: "Supplier Due Report", url: "/dashboard/reports/supplier-due" },
-      { title: "Supplier Balance Report", url: "/dashboard/reports/supplier-balance" },
-      { title: "Supplier Ledger", url: "/dashboard/reports/supplier-ledger" },
-      { title: "Production Report", url: "/dashboard/reports/production" },
-      { title: "Product Production Report", url: "/dashboard/reports/product-production" },
-      { title: "Sale Report", url: "/dashboard/reports/sale" },
-      { title: "Item Wise Sale Report", url: "/dashboard/reports/item-sale" },
-      { title: "Customer Due Report", url: "/dashboard/reports/customer-due" },
-      { title: "Customer Ledger", url: "/dashboard/reports/customer-ledger" },
-      { title: "Profit & Loss Report", url: "/dashboard/reports/profit-loss" },
-      { title: "Product Profit Report", url: "/dashboard/reports/product-profit" },
+      // { title: "Product Price History", url: "/dashboard/reports/product-price-history" },
+      // { title: "Raw Material Price History", url: "/dashboard/reports/rm-price-history" },
+      // { title: "RM Purchase Report", url: "/dashboard/reports/rm-purchase" },
+      // { title: "RM Item Wise Purchase Report", url: "/dashboard/reports/rm-item-purchase" },
+      // { title: "RM Stock Report", url: "/dashboard/reports/rm-stock" },
+      // { title: "Supplier Due Report", url: "/dashboard/reports/supplier-due" },
+      // { title: "Supplier Balance Report", url: "/dashboard/reports/supplier-balance" },
+      // { title: "Supplier Ledger", url: "/dashboard/reports/supplier-ledger" },
+      // { title: "Production Report", url: "/dashboard/reports/production" },
+      // { title: "Product Production Report", url: "/dashboard/reports/product-production" },
+      // { title: "Sale Report", url: "/dashboard/reports/sale" },
+      // { title: "Item Wise Sale Report", url: "/dashboard/reports/item-sale" },
+      // { title: "Customer Due Report", url: "/dashboard/reports/customer-due" },
+      // { title: "Customer Ledger", url: "/dashboard/reports/customer-ledger" },
+      // { title: "Profit & Loss Report", url: "/dashboard/reports/profit-loss" },
+      // { title: "Product Profit Report", url: "/dashboard/reports/product-profit" },
+      { title: "Sectors", url: "/dashboard/reports/sectors" },
     ]
   },
   { 

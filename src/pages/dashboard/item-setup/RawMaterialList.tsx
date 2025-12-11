@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -116,7 +116,7 @@ const RawMaterialList = () => {
                       <TableCell className="font-medium">{material.name}</TableCell>
                       <TableCell>{material.sku}</TableCell>
                       <TableCell>{getCategoryName(material.categoryId)}</TableCell>
-                      <TableCell>${material.price.toFixed(2)}</TableCell>
+                      <TableCell>₹{material.price.toFixed(2)}</TableCell>
                       <TableCell>
                         <span className={material.stock <= material.minStock ? "text-red-600 font-semibold" : ""}>
                           {material.stock} {material.unit}

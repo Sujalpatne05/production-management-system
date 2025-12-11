@@ -56,7 +56,7 @@ const AccountList = () => {
 
       <Card>
         <CardContent className="pt-6">
-          <div className="text-2xl font-bold">${totalBalance.toFixed(2)}</div>
+          <div className="text-2xl font-bold">₹{totalBalance.toFixed(2)}</div>
           <p className="text-muted-foreground">Total Balance</p>
         </CardContent>
       </Card>
@@ -90,7 +90,7 @@ const AccountList = () => {
                         <Badge variant="outline">{account.type}</Badge>
                       </TableCell>
                       <TableCell>{account.accountNumber || "-"}</TableCell>
-                      <TableCell>${account.balance.toFixed(2)}</TableCell>
+                      <TableCell>₹{account.balance.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="ghost" size="icon" onClick={() => handleEdit(account)}>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -158,14 +158,14 @@ const ProfitLossReport = () => {
       ["Gross Profit", summaryStats.grossProfit.toFixed(2)],
       ["Operating Expenses", summaryStats.totalExpenses.toFixed(2)],
       ["Net Profit", summaryStats.netProfit.toFixed(2)],
-      ["Profit Margin", `${summaryStats.profitMargin.toFixed(2)}%`]
+      ["Profit Margin", `₹{summaryStats.profitMargin.toFixed(2)}%`]
     ];
     const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `profit-loss-report-${startDate}-to-${endDate}.csv`;
+    a.download = `profit-loss-report-₹{startDate}-to-₹{endDate}.csv`;
     a.click();
   };
 
@@ -217,7 +217,7 @@ const ProfitLossReport = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${summaryStats.totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">₹{summaryStats.totalRevenue.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -226,7 +226,7 @@ const ProfitLossReport = () => {
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${summaryStats.totalCOGS.toFixed(2)}</div>
+            <div className="text-2xl font-bold">₹{summaryStats.totalCOGS.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -235,7 +235,7 @@ const ProfitLossReport = () => {
             <TrendingUp className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">${summaryStats.grossProfit.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-success">₹{summaryStats.grossProfit.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -244,7 +244,7 @@ const ProfitLossReport = () => {
             <TrendingDown className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">${summaryStats.totalExpenses.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-destructive">₹{summaryStats.totalExpenses.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -253,8 +253,8 @@ const ProfitLossReport = () => {
             <Target className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${summaryStats.netProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
-              ${summaryStats.netProfit.toFixed(2)}
+            <div className={`text-2xl font-bold ₹{summaryStats.netProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+              ₹{summaryStats.netProfit.toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -264,7 +264,7 @@ const ProfitLossReport = () => {
             <Target className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${summaryStats.profitMargin >= 0 ? 'text-success' : 'text-destructive'}`}>
+            <div className={`text-2xl font-bold ₹{summaryStats.profitMargin >= 0 ? 'text-success' : 'text-destructive'}`}>
               {summaryStats.profitMargin.toFixed(1)}%
             </div>
           </CardContent>
@@ -317,8 +317,8 @@ const ProfitLossReport = () => {
                   borderRadius: '8px'
                 }}
                 formatter={(value: number, name: string) => {
-                  if (name === 'profit') return [`$${value.toFixed(2)}`, 'Profit'];
-                  return [`$${value.toFixed(2)}`, name];
+                  if (name === 'profit') return [`₹{value.toFixed(2)}`, 'Profit'];
+                  return [`₹{value.toFixed(2)}`, name];
                 }}
               />
               <Bar dataKey="profit" fill="hsl(142, 76%, 36%)" radius={[0, 4, 4, 0]} />
@@ -343,24 +343,24 @@ const ProfitLossReport = () => {
             <TableBody>
               <TableRow>
                 <TableCell className="font-medium">Revenue (Sales)</TableCell>
-                <TableCell className="text-right font-medium">${summaryStats.totalRevenue.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-medium">₹{summaryStats.totalRevenue.toFixed(2)}</TableCell>
               </TableRow>
               <TableRow className="bg-muted/30">
                 <TableCell className="font-medium pl-8">Less: Cost of Goods Sold</TableCell>
-                <TableCell className="text-right text-destructive">-${summaryStats.totalCOGS.toFixed(2)}</TableCell>
+                <TableCell className="text-right text-destructive">-₹{summaryStats.totalCOGS.toFixed(2)}</TableCell>
               </TableRow>
               <TableRow className="border-t-2">
                 <TableCell className="font-bold">Gross Profit</TableCell>
-                <TableCell className="text-right font-bold text-success">${summaryStats.grossProfit.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-bold text-success">₹{summaryStats.grossProfit.toFixed(2)}</TableCell>
               </TableRow>
               <TableRow className="bg-muted/30">
                 <TableCell className="font-medium pl-8">Less: Operating Expenses</TableCell>
-                <TableCell className="text-right text-destructive">-${summaryStats.totalExpenses.toFixed(2)}</TableCell>
+                <TableCell className="text-right text-destructive">-₹{summaryStats.totalExpenses.toFixed(2)}</TableCell>
               </TableRow>
               <TableRow className="border-t-2 bg-primary/5">
                 <TableCell className="font-bold text-lg">Net Profit / (Loss)</TableCell>
-                <TableCell className={`text-right font-bold text-lg ${summaryStats.netProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  ${summaryStats.netProfit.toFixed(2)}
+                <TableCell className={`text-right font-bold text-lg ₹{summaryStats.netProfit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                  ₹{summaryStats.netProfit.toFixed(2)}
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -388,10 +388,10 @@ const ProfitLossReport = () => {
               {productProfitData.map(product => (
                 <TableRow key={product.name}>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell className="text-right">${product.revenue.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">${product.cost.toFixed(2)}</TableCell>
-                  <TableCell className={`text-right font-medium ${product.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    ${product.profit.toFixed(2)}
+                  <TableCell className="text-right">₹{product.revenue.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">₹{product.cost.toFixed(2)}</TableCell>
+                  <TableCell className={`text-right font-medium ₹{product.profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    ₹{product.profit.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">{product.margin}%</TableCell>
                 </TableRow>

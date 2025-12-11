@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -238,7 +238,7 @@ const DemandForecastingByProduct = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">${stats.totalValue.toFixed(2)}</p>
+            <p className="text-2xl font-bold">₹{stats.totalValue.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>
@@ -290,7 +290,7 @@ const DemandForecastingByProduct = () => {
                     cy="50%"
                     labelLine={false}
                     label={({ name, value }) =>
-                      `${name}: ${value}`
+                      `₹{name}: ₹{value}`
                     }
                     outerRadius={80}
                     fill="#8884d8"
@@ -298,7 +298,7 @@ const DemandForecastingByProduct = () => {
                   >
                     {pieData.map((entry, index) => (
                       <Cell
-                        key={`cell-${index}`}
+                        key={`cell-₹{index}`}
                         fill={COLORS[index % COLORS.length]}
                       />
                     ))}
@@ -387,7 +387,7 @@ const DemandForecastingByProduct = () => {
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`font-semibold ${
+                          className={`font-semibold ₹{
                             product.demandChange > 0
                               ? "text-green-600"
                               : product.demandChange < 0
@@ -401,7 +401,7 @@ const DemandForecastingByProduct = () => {
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ₹{
                             product.trend === "up"
                               ? "bg-green-100 text-green-800"
                               : product.trend === "down"
@@ -413,7 +413,7 @@ const DemandForecastingByProduct = () => {
                             product.trend.slice(1)}
                         </span>
                       </TableCell>
-                      <TableCell>${product.totalValue.toFixed(2)}</TableCell>
+                      <TableCell>₹{product.totalValue.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

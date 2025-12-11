@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -88,7 +88,7 @@ const CustomerDueReport = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `customer-due-report-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `customer-due-report-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -121,7 +121,7 @@ const CustomerDueReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Amount</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">${totals.amount.toFixed(2)}</p>
+            <p className="text-3xl font-bold">₹{totals.amount.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -129,7 +129,7 @@ const CustomerDueReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Paid</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600">${totals.paid.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-green-600">₹{totals.paid.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -137,7 +137,7 @@ const CustomerDueReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Due</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-red-600">${totals.due.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-red-600">₹{totals.due.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>
@@ -166,13 +166,13 @@ const CustomerDueReport = () => {
                   {reportData.map((item) => (
                     <TableRow key={item.customerId}>
                       <TableCell className="font-medium">{item.customerName}</TableCell>
-                      <TableCell className="text-right">${item.totalAmount.toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-green-600">${item.paid.toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-red-600">${item.due.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.totalAmount.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-green-600">₹{item.paid.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-red-600">₹{item.due.toFixed(2)}</TableCell>
                       <TableCell className="text-right">{item.invoiceCount}</TableCell>
                       <TableCell>
                         <span
-                          className={`px-2 py-1 rounded text-xs font-semibold ${
+                          className={`px-2 py-1 rounded text-xs font-semibold ₹{
                             item.dueStatus === "paid"
                               ? "bg-green-100 text-green-800"
                               : item.dueStatus === "partial"
@@ -187,9 +187,9 @@ const CustomerDueReport = () => {
                   ))}
                   <TableRow className="font-bold bg-gray-100 border-t-2">
                     <TableCell>TOTAL</TableCell>
-                    <TableCell className="text-right">${totals.amount.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${totals.paid.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${totals.due.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.paid.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.due.toFixed(2)}</TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
                   </TableRow>

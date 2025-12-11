@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -99,7 +99,7 @@ const SaleReport = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `sale-report-${startDate}-to-${endDate}.csv`;
+    a.download = `sale-report-₹{startDate}-to-₹{endDate}.csv`;
     a.click();
   };
 
@@ -151,7 +151,7 @@ const SaleReport = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${summaryStats.totalSales.toFixed(2)}</div>
+            <div className="text-2xl font-bold">₹{summaryStats.totalSales.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -160,7 +160,7 @@ const SaleReport = () => {
             <TrendingUp className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">${summaryStats.totalPaid.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-success">₹{summaryStats.totalPaid.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -169,7 +169,7 @@ const SaleReport = () => {
             <DollarSign className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">${summaryStats.totalDue.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-destructive">₹{summaryStats.totalDue.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -226,13 +226,13 @@ const SaleReport = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  label={({ name, percent }) => `₹{name} (₹{(percent * 100).toFixed(0)}%)`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
                 >
                   {customerSalesData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-₹{index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -298,11 +298,11 @@ const SaleReport = () => {
                     <TableCell className="font-medium">{sale.invoiceNo}</TableCell>
                     <TableCell>{customer?.name || "Unknown"}</TableCell>
                     <TableCell>{format(parseISO(sale.date), 'MMM dd, yyyy')}</TableCell>
-                    <TableCell className="text-right">${sale.total.toFixed(2)}</TableCell>
-                    <TableCell className="text-right text-success">${sale.paid.toFixed(2)}</TableCell>
-                    <TableCell className="text-right text-destructive">${sale.due.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{sale.total.toFixed(2)}</TableCell>
+                    <TableCell className="text-right text-success">₹{sale.paid.toFixed(2)}</TableCell>
+                    <TableCell className="text-right text-destructive">₹{sale.due.toFixed(2)}</TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ₹{
                         sale.status === 'paid' ? 'bg-success/10 text-success' :
                         sale.status === 'partial' ? 'bg-warning/10 text-warning' :
                         'bg-destructive/10 text-destructive'

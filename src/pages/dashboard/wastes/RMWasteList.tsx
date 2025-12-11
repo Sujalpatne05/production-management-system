@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,7 +74,7 @@ const RMWasteList = () => {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-destructive">${totalWasteValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-destructive">₹{totalWasteValue.toFixed(2)}</div>
             <p className="text-sm text-muted-foreground">Total Waste Value</p>
           </CardContent>
         </Card>
@@ -112,7 +112,7 @@ const RMWasteList = () => {
                     <TableCell className="font-medium">{getRawMaterialName(waste.rawMaterialId)}</TableCell>
                     <TableCell>{waste.quantity} {getRawMaterialUnit(waste.rawMaterialId)}</TableCell>
                     <TableCell className="text-destructive">
-                      ${(waste.quantity * (material?.price || 0)).toFixed(2)}
+                      ₹{(waste.quantity * (material?.price || 0)).toFixed(2)}
                     </TableCell>
                     <TableCell>{waste.reason || "-"}</TableCell>
                   </TableRow>

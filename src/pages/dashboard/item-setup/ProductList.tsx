@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -104,8 +104,8 @@ const ProductList = () => {
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell>{product.sku}</TableCell>
                       <TableCell>{getCategoryName(product.categoryId)}</TableCell>
-                      <TableCell>${product.price.toFixed(2)}</TableCell>
-                      <TableCell>${product.cost.toFixed(2)}</TableCell>
+                      <TableCell>₹{product.price.toFixed(2)}</TableCell>
+                      <TableCell>₹{product.cost.toFixed(2)}</TableCell>
                       <TableCell>{product.stock} {product.unit}</TableCell>
                       <TableCell>
                         <Badge variant={product.status === "active" ? "default" : "secondary"}>{product.status}</Badge>

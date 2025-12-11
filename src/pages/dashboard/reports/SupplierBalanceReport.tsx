@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,7 +77,7 @@ const SupplierBalanceReport = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `supplier-balance-report-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `supplier-balance-report-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -110,7 +110,7 @@ const SupplierBalanceReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Purchases</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">${totals.purchases.toFixed(2)}</p>
+            <p className="text-3xl font-bold">₹{totals.purchases.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -118,7 +118,7 @@ const SupplierBalanceReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Paid</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600">${totals.paid.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-green-600">₹{totals.paid.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -127,7 +127,7 @@ const SupplierBalanceReport = () => {
           </CardHeader>
           <CardContent>
             <p className={`text-3xl font-bold ${totals.balance > 0 ? "text-red-600" : "text-green-600"}`}>
-              ${Math.abs(totals.balance).toFixed(2)}
+              ₹{Math.abs(totals.balance).toFixed(2)}
             </p>
           </CardContent>
         </Card>
@@ -155,19 +155,19 @@ const SupplierBalanceReport = () => {
                   {reportData.map((item) => (
                     <TableRow key={item.supplierId}>
                       <TableCell className="font-medium">{item.supplierName}</TableCell>
-                      <TableCell className="text-right">${item.totalPurchases.toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-green-600">${item.totalPaid.toFixed(2)}</TableCell>
-                      <TableCell className={`text-right font-medium ${item.balance > 0 ? "text-red-600" : "text-green-600"}`}>
-                        ${item.balance.toFixed(2)}
+                      <TableCell className="text-right">₹{item.totalPurchases.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-green-600">₹{item.totalPaid.toFixed(2)}</TableCell>
+                      <TableCell className={`text-right font-medium ₹{item.balance > 0 ? "text-red-600" : "text-green-600"}`}>
+                        ₹{item.balance.toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))}
                   <TableRow className="font-bold bg-gray-100 border-t-2">
                     <TableCell>TOTAL</TableCell>
-                    <TableCell className="text-right">${totals.purchases.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${totals.paid.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.purchases.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.paid.toFixed(2)}</TableCell>
                     <TableCell className={`text-right ${totals.balance > 0 ? "text-red-600" : "text-green-600"}`}>
-                      ${Math.abs(totals.balance).toFixed(2)}
+                      ₹{Math.abs(totals.balance).toFixed(2)}
                     </TableCell>
                   </TableRow>
                 </TableBody>

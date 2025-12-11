@@ -77,9 +77,9 @@ const SaleList = () => {
                         <TableCell className="font-medium">{sale.invoiceNo}</TableCell>
                         <TableCell>{customer?.name || "N/A"}</TableCell>
                         <TableCell>{sale.date}</TableCell>
-                        <TableCell>${sale.total.toFixed(2)}</TableCell>
-                        <TableCell>${sale.paid.toFixed(2)}</TableCell>
-                        <TableCell>${sale.due.toFixed(2)}</TableCell>
+                        <TableCell>₹{sale.total.toFixed(2)}</TableCell>
+                        <TableCell>₹{sale.paid.toFixed(2)}</TableCell>
+                        <TableCell>₹{sale.due.toFixed(2)}</TableCell>
                         <TableCell>{getStatusBadge(sale.status)}</TableCell>
                         <TableCell className="text-right">
                           <Button variant="ghost" size="icon" onClick={() => setViewingSale(sale)}>
@@ -135,17 +135,17 @@ const SaleList = () => {
                       <TableRow key={index}>
                         <TableCell>{product?.name}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
-                        <TableCell>${item.price.toFixed(2)}</TableCell>
-                        <TableCell>${(item.quantity * item.price).toFixed(2)}</TableCell>
+                        <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                        <TableCell>₹{(item.quantity * item.price).toFixed(2)}</TableCell>
                       </TableRow>
                     );
                   })}
                 </TableBody>
               </Table>
               <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between"><span>Total:</span><span>${viewingSale.total.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span>Paid:</span><span>${viewingSale.paid.toFixed(2)}</span></div>
-                <div className="flex justify-between font-semibold"><span>Due:</span><span>${viewingSale.due.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>Total:</span><span>₹{viewingSale.total.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span>Paid:</span><span>₹{viewingSale.paid.toFixed(2)}</span></div>
+                <div className="flex justify-between font-semibold"><span>Due:</span><span>₹{viewingSale.due.toFixed(2)}</span></div>
               </div>
             </div>
           )}

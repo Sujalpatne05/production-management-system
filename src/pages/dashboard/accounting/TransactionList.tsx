@@ -56,7 +56,7 @@ const TransactionList = () => {
           <CardContent className="pt-6 flex items-center gap-4">
             <ArrowUpCircle className="w-10 h-10 text-green-500" />
             <div>
-              <div className="text-2xl font-bold text-green-600">${totalDeposits.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-green-600">₹{totalDeposits.toFixed(2)}</div>
               <p className="text-muted-foreground">Total Deposits</p>
             </div>
           </CardContent>
@@ -65,7 +65,7 @@ const TransactionList = () => {
           <CardContent className="pt-6 flex items-center gap-4">
             <ArrowDownCircle className="w-10 h-10 text-red-500" />
             <div>
-              <div className="text-2xl font-bold text-red-600">${totalWithdrawals.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-red-600">₹{totalWithdrawals.toFixed(2)}</div>
               <p className="text-muted-foreground">Total Withdrawals</p>
             </div>
           </CardContent>
@@ -103,7 +103,7 @@ const TransactionList = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className={t.type === "deposit" ? "text-green-600" : "text-red-600"}>
-                        {t.type === "deposit" ? "+" : "-"}${t.amount.toFixed(2)}
+                        {t.type === "deposit" ? "+" : "-"}₹{t.amount.toFixed(2)}
                       </TableCell>
                       <TableCell>{t.date}</TableCell>
                       <TableCell className="max-w-xs truncate">{t.description}</TableCell>

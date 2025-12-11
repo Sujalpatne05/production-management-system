@@ -250,6 +250,14 @@ export interface ProductionStage {
   order: number;
 }
 
+export interface Sector {
+  id: string;
+  name: string;
+  description: string;
+  status: "active" | "inactive";
+  createdAt: string;
+}
+
 export interface StockAdjustment {
   id: string;
   rawMaterialId: string;
@@ -325,6 +333,7 @@ interface StoreState {
   units: Unit[];
   currencies: Currency[];
   productionStages: ProductionStage[];
+  sectors: Sector[];
   stockAdjustments: StockAdjustment[];
   companyProfile: CompanyProfile;
   
@@ -429,6 +438,10 @@ interface StoreState {
   addProductionStage: (stage: Omit<ProductionStage, 'id'>) => void;
   updateProductionStage: (id: string, stage: Partial<ProductionStage>) => void;
   deleteProductionStage: (id: string) => void;
+  
+  addSector: (sector: Omit<Sector, 'id' | 'createdAt'>) => void;
+  updateSector: (id: string, sector: Partial<Sector>) => void;
+  deleteSector: (id: string) => void;
   
   addStockAdjustment: (adjustment: Omit<StockAdjustment, 'id'>) => void;
   
@@ -550,7 +563,7 @@ const initialState = {
     { id: '4', name: 'Liter', shortName: 'L' },
   ],
   currencies: [
-    { id: '1', name: 'US Dollar', code: 'USD', symbol: '$', rate: 1 },
+    { id: '1', name: 'Indian Rupee', code: 'INR', symbol: '₹', rate: 1 },
     { id: '2', name: 'Euro', code: 'EUR', symbol: '€', rate: 0.85 },
   ],
   productionStages: [
@@ -558,6 +571,14 @@ const initialState = {
     { id: '2', name: 'Assembly', order: 2 },
     { id: '3', name: 'Quality Check', order: 3 },
     { id: '4', name: 'Packaging', order: 4 },
+  ],
+  sectors: [
+    { id: '1', name: 'Design & Development', description: 'Product design and development phase', status: 'active' as const, createdAt: '2024-01-01T00:00:00Z' },
+    { id: '2', name: 'Foundry', description: 'Metal casting and molding operations', status: 'active' as const, createdAt: '2024-01-01T00:00:00Z' },
+    { id: '3', name: 'Machining', description: 'Precision machining and cutting operations', status: 'active' as const, createdAt: '2024-01-01T00:00:00Z' },
+    { id: '4', name: 'Painting', description: 'Surface finishing and painting operations', status: 'active' as const, createdAt: '2024-01-01T00:00:00Z' },
+    { id: '5', name: 'Assembly', description: 'Final product assembly and integration', status: 'active' as const, createdAt: '2024-01-01T00:00:00Z' },
+    { id: '6', name: 'Packaging', description: 'Product packaging and shipping preparation', status: 'active' as const, createdAt: '2024-01-01T00:00:00Z' },
   ],
   stockAdjustments: [],
   companyProfile: {
@@ -567,7 +588,7 @@ const initialState = {
     address: '123 Business Park, City, Country',
     logo: '',
     taxNumber: 'TAX-123456',
-    currency: 'USD',
+    currency: 'INR',
   },
 };
 
@@ -892,6 +913,17 @@ export const useStore = create<StoreState>()(
       })),
       deleteProductionStage: (id) => set((state) => ({
         productionStages: state.productionStages.filter((s) => s.id !== id)
+      })),
+      
+      // Sectors
+      addSector: (sector) => set((state) => ({
+        sectors: [...state.sectors, { ...sector, id: generateId(), createdAt: new Date().toISOString() }]
+      })),
+      updateSector: (id, sector) => set((state) => ({
+        sectors: state.sectors.map((s) => s.id === id ? { ...s, ...sector } : s)
+      })),
+      deleteSector: (id) => set((state) => ({
+        sectors: state.sectors.filter((s) => s.id !== id)
       })),
       
       // Stock Adjustments

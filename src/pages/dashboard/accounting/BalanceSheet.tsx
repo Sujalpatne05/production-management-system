@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -98,7 +98,7 @@ const BalanceSheet = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `balance-sheet-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `balance-sheet-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -153,14 +153,14 @@ const BalanceSheet = () => {
                         <TableRow key={index}>
                           <TableCell>{asset.name}</TableCell>
                           <TableCell className="text-right">
-                            ${asset.balance.toFixed(2)}
+                            ₹{asset.balance.toFixed(2)}
                           </TableCell>
                         </TableRow>
                       ))}
                       <TableRow className="font-bold bg-gray-100">
                         <TableCell>Total Assets</TableCell>
                         <TableCell className="text-right">
-                          ${balanceSheetData.totalAssets.toFixed(2)}
+                          ₹{balanceSheetData.totalAssets.toFixed(2)}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -184,14 +184,14 @@ const BalanceSheet = () => {
                             <TableRow key={index}>
                               <TableCell>{liability.name}</TableCell>
                               <TableCell className="text-right">
-                                ${liability.balance.toFixed(2)}
+                                ₹{liability.balance.toFixed(2)}
                               </TableCell>
                             </TableRow>
                           ))}
                           <TableRow className="font-bold bg-gray-100">
                             <TableCell>Total Liabilities</TableCell>
                             <TableCell className="text-right">
-                              ${balanceSheetData.totalLiabilities.toFixed(2)}
+                              ₹{balanceSheetData.totalLiabilities.toFixed(2)}
                             </TableCell>
                           </TableRow>
                         </>
@@ -216,7 +216,7 @@ const BalanceSheet = () => {
                   <div className="flex justify-between">
                     <span className="font-medium">Total Equity:</span>
                     <span className="font-bold text-blue-600">
-                      ${balanceSheetData.equity.toFixed(2)}
+                      ₹{balanceSheetData.equity.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -229,25 +229,25 @@ const BalanceSheet = () => {
                   <div className="flex justify-between border-b pb-2">
                     <span>Total Assets:</span>
                     <span className="font-semibold">
-                      ${balanceSheetData.totalAssets.toFixed(2)}
+                      ₹{balanceSheetData.totalAssets.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between border-b pb-2">
                     <span>Total Liabilities:</span>
                     <span className="font-semibold">
-                      ${balanceSheetData.totalLiabilities.toFixed(2)}
+                      ₹{balanceSheetData.totalLiabilities.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between pb-2">
                     <span>Total Equity:</span>
                     <span className="font-semibold">
-                      ${balanceSheetData.equity.toFixed(2)}
+                      ₹{balanceSheetData.equity.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t-2 pt-3 mt-3">
                     <span>Total Liabilities & Equity:</span>
                     <span className="text-green-600">
-                      ${(balanceSheetData.totalLiabilities + balanceSheetData.equity).toFixed(2)}
+                      ₹{(balanceSheetData.totalLiabilities + balanceSheetData.equity).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -261,7 +261,7 @@ const BalanceSheet = () => {
                     <p className="text-green-600 font-semibold">✓ Balance Sheet is Balanced</p>
                   ) : (
                     <p className="text-red-600 font-semibold">
-                      ✗ Balance Sheet is not balanced. Difference: $
+                      ✗ Balance Sheet is not balanced. Difference: ₹
                       {Math.abs(
                         balanceSheetData.totalAssets -
                           (balanceSheetData.totalLiabilities + balanceSheetData.equity)

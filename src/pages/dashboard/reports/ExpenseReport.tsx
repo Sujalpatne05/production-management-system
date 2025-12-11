@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -98,7 +98,7 @@ const ExpenseReport = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `expense-report-${startDate}-to-${endDate}.csv`;
+    a.download = `expense-report-₹{startDate}-to-₹{endDate}.csv`;
     a.click();
   };
 
@@ -150,7 +150,7 @@ const ExpenseReport = () => {
             <TrendingDown className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">${summaryStats.totalExpenses.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-destructive">₹{summaryStats.totalExpenses.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
@@ -168,7 +168,7 @@ const ExpenseReport = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${summaryStats.avgExpense.toFixed(2)}</div>
+            <div className="text-2xl font-bold">₹{summaryStats.avgExpense.toFixed(2)}</div>
           </CardContent>
         </Card>
       </div>
@@ -187,13 +187,13 @@ const ExpenseReport = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  label={({ name, percent }) => `₹{name} (₹{(percent * 100).toFixed(0)}%)`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
                 >
                   {categoryData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-₹{index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -202,7 +202,7 @@ const ExpenseReport = () => {
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                  formatter={(value: number) => [`₹{value.toFixed(2)}`, 'Amount']}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -225,7 +225,7 @@ const ExpenseReport = () => {
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px'
                   }}
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                  formatter={(value: number) => [`₹{value.toFixed(2)}`, 'Amount']}
                 />
                 <Bar dataKey="value" fill="hsl(262, 83%, 58%)" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -251,7 +251,7 @@ const ExpenseReport = () => {
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px'
                 }}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Total']}
+                formatter={(value: number) => [`₹{value.toFixed(2)}`, 'Total']}
               />
               <Line 
                 type="monotone" 
@@ -282,7 +282,7 @@ const ExpenseReport = () => {
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px'
                 }}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                formatter={(value: number) => [`₹{value.toFixed(2)}`, 'Amount']}
               />
               <Bar dataKey="value" fill="hsl(0, 84%, 60%)" radius={[0, 4, 4, 0]} />
             </BarChart>
@@ -313,7 +313,7 @@ const ExpenseReport = () => {
                   <TableRow key={expense.id}>
                     <TableCell>{format(parseISO(expense.date), 'MMM dd, yyyy')}</TableCell>
                     <TableCell>{category?.name || "Uncategorized"}</TableCell>
-                    <TableCell className="text-right text-destructive font-medium">${expense.amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right text-destructive font-medium">₹{expense.amount.toFixed(2)}</TableCell>
                     <TableCell>{expense.description}</TableCell>
                     <TableCell>
                       <span className="px-2 py-1 rounded-full text-xs font-medium bg-muted">

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -208,7 +208,7 @@ const DemandForecastingByOrder = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">${stats.totalValue.toFixed(2)}</p>
+            <p className="text-2xl font-bold">₹{stats.totalValue.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>
@@ -319,7 +319,7 @@ const DemandForecastingByOrder = () => {
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`font-semibold ${
+                          className={`font-semibold ₹{
                             order.demandChange > 0
                               ? "text-green-600"
                               : order.demandChange < 0
@@ -333,7 +333,7 @@ const DemandForecastingByOrder = () => {
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ₹{
                             order.trend === "up"
                               ? "bg-green-100 text-green-800"
                               : order.trend === "down"
@@ -345,7 +345,7 @@ const DemandForecastingByOrder = () => {
                             order.trend.slice(1)}
                         </span>
                       </TableCell>
-                      <TableCell>${order.totalValue.toFixed(2)}</TableCell>
+                      <TableCell>₹{order.totalValue.toFixed(2)}</TableCell>
                       <TableCell>{order.date}</TableCell>
                     </TableRow>
                   ))}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -82,7 +82,7 @@ const CustomerList = () => {
                       <TableCell>{customer.phone}</TableCell>
                       <TableCell>{customer.email}</TableCell>
                       <TableCell className={customer.balance > 0 ? "text-red-500" : "text-green-500"}>
-                        ${customer.balance.toFixed(2)}
+                        ₹{customer.balance.toFixed(2)}
                       </TableCell>
                       <TableCell className="max-w-xs truncate">{customer.address}</TableCell>
                       <TableCell className="text-right">

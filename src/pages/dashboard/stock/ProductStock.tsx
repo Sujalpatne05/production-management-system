@@ -184,7 +184,7 @@ const ProductStock = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Stock Value</p>
-                <p className="text-2xl font-bold">${totalValue.toLocaleString()}</p>
+                <p className="text-2xl font-bold">₹{totalValue.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -257,9 +257,9 @@ const ProductStock = () => {
                         <TableCell>{getCategoryName(product.categoryId)}</TableCell>
                         <TableCell className="text-right font-medium">{product.stock}</TableCell>
                         <TableCell>{product.unit}</TableCell>
-                        <TableCell className="text-right">${product.cost.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">₹{product.cost.toFixed(2)}</TableCell>
                         <TableCell className="text-right font-medium">
-                          ${(product.stock * product.cost).toFixed(2)}
+                          ₹{(product.stock * product.cost).toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <Badge variant={status.variant}>{status.label}</Badge>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +48,7 @@ const QuotationList = () => {
     updateQuotation(id, { status: status as "draft" | "sent" | "accepted" | "rejected" });
     toast({
       title: "Status Updated",
-      description: `Quotation status changed to ${status}`,
+      description: `Quotation status changed to ₹{status}`,
     });
   };
 
@@ -116,7 +116,7 @@ const QuotationList = () => {
                 <TableRow key={quotation.id}>
                   <TableCell className="font-medium">{quotation.quotationNo}</TableCell>
                   <TableCell>{getCustomerName(quotation.customerId)}</TableCell>
-                  <TableCell>${quotation.total.toFixed(2)}</TableCell>
+                  <TableCell>₹{quotation.total.toFixed(2)}</TableCell>
                   <TableCell>{quotation.validUntil}</TableCell>
                   <TableCell>{getStatusBadge(quotation.status)}</TableCell>
                   <TableCell>
@@ -206,14 +206,14 @@ const QuotationList = () => {
                     <TableRow key={index}>
                       <TableCell>{getProductName(item.productId)}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
-                      <TableCell>${item.price.toFixed(2)}</TableCell>
-                      <TableCell>${(item.quantity * item.price).toFixed(2)}</TableCell>
+                      <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                      <TableCell>₹{(item.quantity * item.price).toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
               <div className="text-right text-xl font-bold">
-                Total: ${selectedQuotation.total.toFixed(2)}
+                Total: ₹{selectedQuotation.total.toFixed(2)}
               </div>
             </div>
           )}

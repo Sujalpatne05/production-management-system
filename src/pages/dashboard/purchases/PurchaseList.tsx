@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -80,9 +80,9 @@ const PurchaseList = () => {
                     <TableRow key={purchase.id}>
                       <TableCell className="font-medium">{purchase.invoiceNo}</TableCell>
                       <TableCell>{getSupplierName(purchase.supplierId)}</TableCell>
-                      <TableCell>${purchase.total.toFixed(2)}</TableCell>
-                      <TableCell>${purchase.paid.toFixed(2)}</TableCell>
-                      <TableCell>${purchase.due.toFixed(2)}</TableCell>
+                      <TableCell>₹{purchase.total.toFixed(2)}</TableCell>
+                      <TableCell>₹{purchase.paid.toFixed(2)}</TableCell>
+                      <TableCell>₹{purchase.due.toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge variant={purchase.status === "paid" ? "default" : purchase.status === "partial" ? "secondary" : "destructive"}>
                           {purchase.status}
@@ -135,17 +135,17 @@ const PurchaseList = () => {
                       <TableRow key={i}>
                         <TableCell>{getMaterialName(item.rawMaterialId)}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
-                        <TableCell>${item.price.toFixed(2)}</TableCell>
-                        <TableCell>${(item.quantity * item.price).toFixed(2)}</TableCell>
+                        <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                        <TableCell>₹{(item.quantity * item.price).toFixed(2)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
               <div className="grid grid-cols-3 gap-4 text-right">
-                <div><strong>Total:</strong> ${selectedPurchase.total.toFixed(2)}</div>
-                <div><strong>Paid:</strong> ${selectedPurchase.paid.toFixed(2)}</div>
-                <div><strong>Due:</strong> ${selectedPurchase.due.toFixed(2)}</div>
+                <div><strong>Total:</strong> ₹{selectedPurchase.total.toFixed(2)}</div>
+                <div><strong>Paid:</strong> ₹{selectedPurchase.paid.toFixed(2)}</div>
+                <div><strong>Due:</strong> ₹{selectedPurchase.due.toFixed(2)}</div>
               </div>
             </div>
           )}

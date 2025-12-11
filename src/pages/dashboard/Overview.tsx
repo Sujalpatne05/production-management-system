@@ -34,7 +34,7 @@ const Overview = () => {
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">$0</div>
+            <div className="text-3xl font-bold">₹0</div>
             <p className="text-xs text-muted-foreground mt-1">No data</p>
           </CardContent>
         </Card>

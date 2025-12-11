@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -76,7 +76,7 @@ const AddOrder = () => {
       return;
     }
 
-    const quotationNo = `ORD-${String(quotations.length + 1).padStart(3, "0")}`;
+    const quotationNo = `ORD-₹{String(quotations.length + 1).padStart(3, "0")}`;
 
     try {
       addQuotation({
@@ -271,8 +271,8 @@ const AddOrder = () => {
                       <TableRow key={index}>
                         <TableCell>{product?.name}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
-                        <TableCell>${item.price.toFixed(2)}</TableCell>
-                        <TableCell>${(item.quantity * item.price).toFixed(2)}</TableCell>
+                        <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                        <TableCell>₹{(item.quantity * item.price).toFixed(2)}</TableCell>
                         <TableCell className="text-right">
                           <Button
                             variant="ghost"
@@ -287,7 +287,7 @@ const AddOrder = () => {
                   })}
                   <TableRow className="font-bold">
                     <TableCell colSpan={3}>Total:</TableCell>
-                    <TableCell>${total.toFixed(2)}</TableCell>
+                    <TableCell>₹{total.toFixed(2)}</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableBody>

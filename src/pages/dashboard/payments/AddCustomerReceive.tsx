@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,7 +35,7 @@ const AddCustomerReceive = () => {
       amount,
       date: form.date,
       paymentMethod: form.paymentMethod,
-      reference: form.reference || `REC-${String(Date.now()).slice(-6)}`,
+      reference: form.reference || `REC-₹{String(Date.now()).slice(-6)}`,
     });
 
     if (selectedCustomer) {
@@ -61,14 +61,14 @@ const AddCustomerReceive = () => {
                 <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
                 <SelectContent>
                   {customers.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.name} (Due: ${c.balance.toFixed(2)})</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>{c.name} (Due: ₹{c.balance.toFixed(2)})</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             {selectedCustomer && (
               <div className="p-4 bg-muted rounded-lg">
-                <p className="text-sm">Current Balance Due: <strong>${selectedCustomer.balance.toFixed(2)}</strong></p>
+                <p className="text-sm">Current Balance Due: <strong>₹{selectedCustomer.balance.toFixed(2)}</strong></p>
               </div>
             )}
             <div className="grid md:grid-cols-2 gap-4">

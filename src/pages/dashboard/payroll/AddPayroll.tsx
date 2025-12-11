@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -95,7 +95,7 @@ const AddPayroll = () => {
               </div>
             </div>
             <div className="p-4 bg-muted rounded-lg">
-              <p className="text-lg font-semibold">Net Salary: ${netSalary.toFixed(2)}</p>
+              <p className="text-lg font-semibold">Net Salary: ₹{netSalary.toFixed(2)}</p>
             </div>
             <Button type="submit" className="w-full">Create Payroll</Button>
           </form>

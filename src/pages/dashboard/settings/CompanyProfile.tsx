@@ -102,7 +102,7 @@ const CompanyProfile = () => {
                   id="currency"
                   value={formData.currency}
                   onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  placeholder="e.g., USD"
+                  placeholder="e.g., INR"
                 />
               </div>
             </div>

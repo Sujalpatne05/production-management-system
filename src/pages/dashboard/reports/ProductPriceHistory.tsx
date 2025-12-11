@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,7 +74,7 @@ const ProductPriceHistory = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `product-price-history-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `product-price-history-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -136,9 +136,9 @@ const ProductPriceHistory = () => {
                     <TableRow key={item.productId}>
                       <TableCell className="font-medium">{item.productName}</TableCell>
                       <TableCell className="text-right">{item.prices.length}</TableCell>
-                      <TableCell className="text-right">${item.averagePrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${item.minPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${item.maxPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.averagePrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.minPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.maxPrice.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

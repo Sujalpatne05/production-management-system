@@ -193,7 +193,7 @@ const RawMaterialStock = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Stock Value</p>
-                <p className="text-2xl font-bold">${totalValue.toLocaleString()}</p>
+                <p className="text-2xl font-bold">₹{totalValue.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -268,9 +268,9 @@ const RawMaterialStock = () => {
                         <TableCell className="text-right font-medium">{material.stock}</TableCell>
                         <TableCell className="text-right text-muted-foreground">{material.minStock}</TableCell>
                         <TableCell>{material.unit}</TableCell>
-                        <TableCell className="text-right">${material.price.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">₹{material.price.toFixed(2)}</TableCell>
                         <TableCell className="text-right font-medium">
-                          ${(material.stock * material.price).toFixed(2)}
+                          ₹{(material.stock * material.price).toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <Badge variant={status.variant}>{status.label}</Badge>

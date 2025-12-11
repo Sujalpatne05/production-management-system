@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ const CustomerReceiveList = () => {
 
       <Card>
         <CardContent className="pt-6">
-          <div className="text-2xl font-bold">${totalReceived.toFixed(2)}</div>
+          <div className="text-2xl font-bold">₹{totalReceived.toFixed(2)}</div>
           <p className="text-muted-foreground">Total Received</p>
         </CardContent>
       </Card>
@@ -81,7 +81,7 @@ const CustomerReceiveList = () => {
                     <TableRow key={receive.id}>
                       <TableCell className="font-medium">{receive.reference}</TableCell>
                       <TableCell>{getCustomerName(receive.customerId)}</TableCell>
-                      <TableCell>${receive.amount.toFixed(2)}</TableCell>
+                      <TableCell>₹{receive.amount.toFixed(2)}</TableCell>
                       <TableCell>{receive.date}</TableCell>
                       <TableCell>{receive.paymentMethod}</TableCell>
                     </TableRow>

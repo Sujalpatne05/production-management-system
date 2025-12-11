@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -95,7 +95,7 @@ const ProductProfitReport = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `product-profit-report-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `product-profit-report-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -120,7 +120,7 @@ const ProductProfitReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">${totals.revenue.toFixed(2)}</p>
+            <p className="text-3xl font-bold">₹{totals.revenue.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -128,7 +128,7 @@ const ProductProfitReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Cost</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">${totals.cost.toFixed(2)}</p>
+            <p className="text-3xl font-bold">₹{totals.cost.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -136,8 +136,8 @@ const ProductProfitReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Profit</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${totals.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
-              ${totals.profit.toFixed(2)}
+            <p className={`text-3xl font-bold ₹{totals.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
+              ₹{totals.profit.toFixed(2)}
             </p>
           </CardContent>
         </Card>
@@ -146,7 +146,7 @@ const ProductProfitReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Avg Profit Margin</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${avgMargin >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <p className={`text-3xl font-bold ₹{avgMargin >= 0 ? "text-green-600" : "text-red-600"}`}>
               {avgMargin.toFixed(2)}%
             </p>
           </CardContent>
@@ -178,12 +178,12 @@ const ProductProfitReport = () => {
                     <TableRow key={item.productId}>
                       <TableCell className="font-medium">{item.productName}</TableCell>
                       <TableCell className="text-right">{item.quantity}</TableCell>
-                      <TableCell className="text-right">${item.revenue.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${item.cost.toFixed(2)}</TableCell>
-                      <TableCell className={`text-right font-medium ${item.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
-                        ${item.profit.toFixed(2)}
+                      <TableCell className="text-right">₹{item.revenue.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.cost.toFixed(2)}</TableCell>
+                      <TableCell className={`text-right font-medium ₹{item.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        ₹{item.profit.toFixed(2)}
                       </TableCell>
-                      <TableCell className={`text-right ${item.profitMargin >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      <TableCell className={`text-right ₹{item.profitMargin >= 0 ? "text-green-600" : "text-red-600"}`}>
                         {item.profitMargin.toFixed(2)}%
                       </TableCell>
                     </TableRow>
@@ -191,10 +191,10 @@ const ProductProfitReport = () => {
                   <TableRow className="font-bold bg-gray-100 border-t-2">
                     <TableCell>TOTAL</TableCell>
                     <TableCell className="text-right">{totals.quantity}</TableCell>
-                    <TableCell className="text-right">${totals.revenue.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${totals.cost.toFixed(2)}</TableCell>
-                    <TableCell className={`text-right ${totals.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      ${totals.profit.toFixed(2)}
+                    <TableCell className="text-right">₹{totals.revenue.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.cost.toFixed(2)}</TableCell>
+                    <TableCell className={`text-right ₹{totals.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      ₹{totals.profit.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">{avgMargin.toFixed(2)}%</TableCell>
                   </TableRow>

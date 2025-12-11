@@ -47,7 +47,7 @@ const Home = () => {
     {
       id: "starter",
       name: "Starter Plan",
-      price: "$49",
+      price: "₹49",
       period: "/month",
       features: [
         "Up to 10 users",
@@ -61,7 +61,7 @@ const Home = () => {
     {
       id: "professional",
       name: "Professional Plan",
-      price: "$99",
+      price: "₹99",
       period: "/month",
       features: [
         "Up to 50 users",
@@ -76,7 +76,7 @@ const Home = () => {
     {
       id: "enterprise",
       name: "Enterprise Plan",
-      price: "$299",
+      price: "₹299",
       period: "/month",
       features: [
         "Unlimited users",

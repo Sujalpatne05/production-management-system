@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+﻿import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -169,7 +169,7 @@ const OrderDetails = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ₹{getStatusColor(order.status)}`}>
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </span>
                 </div>
@@ -210,8 +210,8 @@ const OrderDetails = () => {
                             {product?.name || "Unknown"}
                           </TableCell>
                           <TableCell>{item.quantity}</TableCell>
-                          <TableCell>${item.price.toFixed(2)}</TableCell>
-                          <TableCell>${(item.quantity * item.price).toFixed(2)}</TableCell>
+                          <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                          <TableCell>₹{(item.quantity * item.price).toFixed(2)}</TableCell>
                         </TableRow>
                       );
                     })}
@@ -255,11 +255,11 @@ const OrderDetails = () => {
             <CardContent className="space-y-3">
               <div className="flex justify-between">
                 <p className="text-muted-foreground">Subtotal:</p>
-                <p className="font-semibold">${order.total.toFixed(2)}</p>
+                <p className="font-semibold">₹{order.total.toFixed(2)}</p>
               </div>
               <div className="flex justify-between text-lg font-bold border-t pt-3">
                 <p>Total:</p>
-                <p className="text-green-600">${order.total.toFixed(2)}</p>
+                <p className="text-green-600">₹{order.total.toFixed(2)}</p>
               </div>
               <div className="flex justify-between text-sm">
                 <p className="text-muted-foreground">Number of Items:</p>

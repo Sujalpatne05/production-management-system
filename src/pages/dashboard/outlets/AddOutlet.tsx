@@ -35,21 +35,21 @@ const AddOutlet = () => {
 
   const handleSubmit = (values: z.infer<typeof outletSchema>) => {
     toast({
-      title: "Outlet Added",
-      description: "The outlet has been added successfully.",
+      title: "Factory Added",
+      description: "The factory has been added successfully.",
     });
-    navigate("/dashboard/outlets/list");
+    navigate("/dashboard/factories/list");
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Add Outlet</h1>
+        <h1 className="text-3xl font-bold">Add Factory</h1>
       </div>
 
       <Card className="max-w-2xl">
         <CardHeader>
-          <CardTitle>Outlet Information</CardTitle>
+          <CardTitle>Factory Information</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -60,9 +60,9 @@ const AddOutlet = () => {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Outlet Name *</FormLabel>
+                      <FormLabel>Factory Name *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Outlet Name" {...field} />
+                        <Input placeholder="Factory Name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -74,9 +74,9 @@ const AddOutlet = () => {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Outlet Phone</FormLabel>
+                      <FormLabel>Factory Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="Outlet Phone" {...field} />
+                        <Input placeholder="Factory Phone" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -90,9 +90,9 @@ const AddOutlet = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Outlet Email</FormLabel>
+                      <FormLabel>Factory Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="Outlet Email" {...field} />
+                        <Input type="email" placeholder="Factory Email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -104,7 +104,7 @@ const AddOutlet = () => {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Outlet Status</FormLabel>
+                      <FormLabel>Factory Status</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -127,9 +127,9 @@ const AddOutlet = () => {
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Outlet Address</FormLabel>
+                    <FormLabel>Factory Address</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Outlet Address" rows={4} {...field} />
+                      <Textarea placeholder="Factory Address" rows={4} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

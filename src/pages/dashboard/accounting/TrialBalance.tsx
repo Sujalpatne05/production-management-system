@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -109,7 +109,7 @@ const TrialBalance = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `trial-balance-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `trial-balance-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -150,7 +150,7 @@ const TrialBalance = () => {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-blue-600">
-              ${trialBalanceData.totalDebit.toFixed(2)}
+              ₹{trialBalanceData.totalDebit.toFixed(2)}
             </p>
           </CardContent>
         </Card>
@@ -162,7 +162,7 @@ const TrialBalance = () => {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600">
-              ${trialBalanceData.totalCredit.toFixed(2)}
+              ₹{trialBalanceData.totalCredit.toFixed(2)}
             </p>
           </CardContent>
         </Card>
@@ -174,7 +174,7 @@ const TrialBalance = () => {
           </CardHeader>
           <CardContent>
             <p
-              className={`text-2xl font-bold ${
+              className={`text-2xl font-bold ₹{
                 trialBalanceData.isBalanced ? "text-green-600" : "text-red-600"
               }`}
             >
@@ -201,8 +201,8 @@ const TrialBalance = () => {
                   <TableRow>
                     <TableHead>Account Name</TableHead>
                     <TableHead>Account Type</TableHead>
-                    <TableHead className="text-right">Debit ($)</TableHead>
-                    <TableHead className="text-right">Credit ($)</TableHead>
+                    <TableHead className="text-right">Debit (₹)</TableHead>
+                    <TableHead className="text-right">Credit (₹)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -215,20 +215,20 @@ const TrialBalance = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        {account.debit > 0 ? `$${account.debit.toFixed(2)}` : "-"}
+                        {account.debit > 0 ? `₹₹{account.debit.toFixed(2)}` : "-"}
                       </TableCell>
                       <TableCell className="text-right">
-                        {account.credit > 0 ? `$${account.credit.toFixed(2)}` : "-"}
+                        {account.credit > 0 ? `₹₹{account.credit.toFixed(2)}` : "-"}
                       </TableCell>
                     </TableRow>
                   ))}
                   <TableRow className="font-bold bg-gray-100 border-t-2">
                     <TableCell colSpan={2}>TOTAL</TableCell>
                     <TableCell className="text-right">
-                      ${trialBalanceData.totalDebit.toFixed(2)}
+                      ₹{trialBalanceData.totalDebit.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      ${trialBalanceData.totalCredit.toFixed(2)}
+                      ₹{trialBalanceData.totalCredit.toFixed(2)}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -248,17 +248,17 @@ const TrialBalance = () => {
             <div className="flex justify-between items-center p-4 rounded-lg bg-gray-50">
               <span className="font-medium">Total Debits:</span>
               <span className="text-xl font-bold text-blue-600">
-                ${trialBalanceData.totalDebit.toFixed(2)}
+                ₹{trialBalanceData.totalDebit.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between items-center p-4 rounded-lg bg-gray-50">
               <span className="font-medium">Total Credits:</span>
               <span className="text-xl font-bold text-green-600">
-                ${trialBalanceData.totalCredit.toFixed(2)}
+                ₹{trialBalanceData.totalCredit.toFixed(2)}
               </span>
             </div>
             <div
-              className={`flex justify-between items-center p-4 rounded-lg border-2 ${
+              className={`flex justify-between items-center p-4 rounded-lg border-2 ₹{
                 trialBalanceData.isBalanced
                   ? "bg-green-50 border-green-500"
                   : "bg-red-50 border-red-500"
@@ -266,11 +266,11 @@ const TrialBalance = () => {
             >
               <span className="font-bold">Difference:</span>
               <span
-                className={`text-xl font-bold ${
+                className={`text-xl font-bold ₹{
                   trialBalanceData.isBalanced ? "text-green-600" : "text-red-600"
                 }`}
               >
-                ${Math.abs(trialBalanceData.totalDebit - trialBalanceData.totalCredit).toFixed(2)}
+                ₹{Math.abs(trialBalanceData.totalDebit - trialBalanceData.totalCredit).toFixed(2)}
               </span>
             </div>
 

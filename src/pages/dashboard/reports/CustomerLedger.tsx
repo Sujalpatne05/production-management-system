@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ const CustomerLedger = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `customer-ledger-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `customer-ledger-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -130,10 +130,10 @@ const CustomerLedger = () => {
                       <TableRow key={idx}>
                         <TableCell>{entry.date}</TableCell>
                         <TableCell className="font-medium">{entry.invoiceNo}</TableCell>
-                        <TableCell className="text-right">${entry.amount.toFixed(2)}</TableCell>
-                        <TableCell className="text-right text-green-600">${entry.paid.toFixed(2)}</TableCell>
-                        <TableCell className={`text-right font-medium ${entry.balance > 0 ? "text-red-600" : "text-green-600"}`}>
-                          ${entry.balance.toFixed(2)}
+                        <TableCell className="text-right">₹{entry.amount.toFixed(2)}</TableCell>
+                        <TableCell className="text-right text-green-600">₹{entry.paid.toFixed(2)}</TableCell>
+                        <TableCell className={`text-right font-medium ₹{entry.balance > 0 ? "text-red-600" : "text-green-600"}`}>
+                          ₹{entry.balance.toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}

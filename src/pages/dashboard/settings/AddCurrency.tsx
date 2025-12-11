@@ -36,8 +36,8 @@ const AddCurrency = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
             <div className="space-y-2"><Label htmlFor="name">Name *</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., US Dollar" required /></div>
-            <div className="space-y-2"><Label htmlFor="code">Code *</Label><Input id="code" value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g., USD" required /></div>
-            <div className="space-y-2"><Label htmlFor="symbol">Symbol *</Label><Input id="symbol" value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="e.g., $" required /></div>
+            <div className="space-y-2"><Label htmlFor="code">Code *</Label><Input id="code" value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g., INR" required /></div>
+            <div className="space-y-2"><Label htmlFor="symbol">Symbol *</Label><Input id="symbol" value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="e.g., ₹" required /></div>
             <div className="space-y-2"><Label htmlFor="rate">Exchange Rate</Label><Input id="rate" type="number" step="0.0001" value={rate} onChange={(e) => setRate(e.target.value)} /></div>
             <div className="flex gap-4 pt-4">
               <Button type="submit">Create Currency</Button>

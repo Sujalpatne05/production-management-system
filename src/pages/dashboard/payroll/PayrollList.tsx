@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -59,13 +59,13 @@ const PayrollList = () => {
       <div className="grid md:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-green-600">${totalPaid.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-green-600">₹{totalPaid.toFixed(2)}</div>
             <p className="text-muted-foreground">Total Paid</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-yellow-600">${totalPending.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-yellow-600">₹{totalPending.toFixed(2)}</div>
             <p className="text-muted-foreground">Pending Payment</p>
           </CardContent>
         </Card>
@@ -100,10 +100,10 @@ const PayrollList = () => {
                     <TableRow key={payroll.id}>
                       <TableCell className="font-medium">{payroll.employeeName}</TableCell>
                       <TableCell>{payroll.month}</TableCell>
-                      <TableCell>${payroll.basicSalary.toFixed(2)}</TableCell>
-                      <TableCell>${payroll.bonus.toFixed(2)}</TableCell>
-                      <TableCell>${payroll.deductions.toFixed(2)}</TableCell>
-                      <TableCell className="font-semibold">${payroll.netSalary.toFixed(2)}</TableCell>
+                      <TableCell>₹{payroll.basicSalary.toFixed(2)}</TableCell>
+                      <TableCell>₹{payroll.bonus.toFixed(2)}</TableCell>
+                      <TableCell>₹{payroll.deductions.toFixed(2)}</TableCell>
+                      <TableCell className="font-semibold">₹{payroll.netSalary.toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge variant={payroll.status === "paid" ? "default" : "secondary"}>
                           {payroll.status}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ const OrderList = () => {
   });
 
   const handleViewOrder = (id: string) => {
-    navigate(`/dashboard/orders/${id}`);
+    navigate(`/dashboard/orders/₹{id}`);
   };
 
   const handleAcceptOrder = (id: string) => {
@@ -197,7 +197,7 @@ const OrderList = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">${stats.totalValue.toFixed(2)}</p>
+            <p className="text-2xl font-bold">₹{stats.totalValue.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>
@@ -275,11 +275,11 @@ const OrderList = () => {
                         <TableCell>{customer?.name || "Unknown"}</TableCell>
                         <TableCell>{order.items.length} items</TableCell>
                         <TableCell className="font-semibold">
-                          ${order.total.toFixed(2)}
+                          ₹{order.total.toFixed(2)}
                         </TableCell>
                         <TableCell>{order.validUntil}</TableCell>
                         <TableCell>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ₹{getStatusColor(order.status)}`}>
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </span>
                         </TableCell>

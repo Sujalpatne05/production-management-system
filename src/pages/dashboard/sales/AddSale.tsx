@@ -138,7 +138,7 @@ const AddSale = () => {
                       <SelectContent>
                         {products.map((product) => (
                           <SelectItem key={product.id} value={product.id}>
-                            {product.name} - ${product.price}
+                            {product.name} - ₹{product.price}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -173,7 +173,7 @@ const AddSale = () => {
                 <div className="pt-4 border-t space-y-2">
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total:</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
                 
@@ -210,8 +210,8 @@ const AddSale = () => {
                     <TableRow key={index}>
                       <TableCell>{product?.name}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
-                      <TableCell>${item.price.toFixed(2)}</TableCell>
-                      <TableCell>${(item.quantity * item.price).toFixed(2)}</TableCell>
+                      <TableCell>₹{item.price.toFixed(2)}</TableCell>
+                      <TableCell>₹{(item.quantity * item.price).toFixed(2)}</TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => removeItem(index)}>
                           <Trash2 className="w-4 h-4 text-destructive" />

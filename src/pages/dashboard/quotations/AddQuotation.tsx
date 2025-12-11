@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ const AddQuotation = () => {
     { productId: "", quantity: 1, price: 0 }
   ]);
 
-  const quotationNo = `QT-${String(quotations.length + 1).padStart(3, '0')}`;
+  const quotationNo = `QT-₹{String(quotations.length + 1).padStart(3, '0')}`;
 
   const addItem = () => {
     setItems([...items, { productId: "", quantity: 1, price: 0 }]);
@@ -72,7 +72,7 @@ const AddQuotation = () => {
 
     toast({
       title: "Quotation Created",
-      description: `Quotation ${quotationNo} has been created successfully.`,
+      description: `Quotation ₹{quotationNo} has been created successfully.`,
     });
 
     navigate("/dashboard/quotations/list");
@@ -186,7 +186,7 @@ const AddQuotation = () => {
 
               <div className="flex justify-end">
                 <div className="text-xl font-bold">
-                  Total: ${total.toFixed(2)}
+                  Total: ₹{total.toFixed(2)}
                 </div>
               </div>
             </div>

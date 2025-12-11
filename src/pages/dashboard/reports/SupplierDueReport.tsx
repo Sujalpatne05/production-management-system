@@ -121,7 +121,7 @@ const SupplierDueReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Amount</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">${totals.amount.toFixed(2)}</p>
+            <p className="text-3xl font-bold">₹{totals.amount.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -129,7 +129,7 @@ const SupplierDueReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Paid</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600">${totals.paid.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-green-600">₹{totals.paid.toFixed(2)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -137,7 +137,7 @@ const SupplierDueReport = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Due</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-red-600">${totals.due.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-red-600">₹{totals.due.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>
@@ -166,9 +166,9 @@ const SupplierDueReport = () => {
                   {reportData.map((item) => (
                     <TableRow key={item.supplierId}>
                       <TableCell className="font-medium">{item.supplierName}</TableCell>
-                      <TableCell className="text-right">${item.totalAmount.toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-green-600">${item.paid.toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-red-600">${item.due.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.totalAmount.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-green-600">₹{item.paid.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-red-600">₹{item.due.toFixed(2)}</TableCell>
                       <TableCell className="text-right">{item.invoiceCount}</TableCell>
                       <TableCell>
                         <span
@@ -187,9 +187,9 @@ const SupplierDueReport = () => {
                   ))}
                   <TableRow className="font-bold bg-gray-100 border-t-2">
                     <TableCell>TOTAL</TableCell>
-                    <TableCell className="text-right">${totals.amount.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${totals.paid.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">${totals.due.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.paid.toFixed(2)}</TableCell>
+                    <TableCell className="text-right">₹{totals.due.toFixed(2)}</TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
                   </TableRow>

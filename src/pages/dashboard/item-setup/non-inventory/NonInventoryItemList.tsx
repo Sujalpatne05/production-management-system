@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ const NonInventoryItemList = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `non-inventory-items-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `non-inventory-items-₹{new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -209,7 +209,7 @@ const NonInventoryItemList = () => {
                         </span>
                       </TableCell>
                       <TableCell>{item.unit}</TableCell>
-                      <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{item.price.toFixed(2)}</TableCell>
                       <TableCell className="text-right">{item.tax.toFixed(2)}%</TableCell>
                       <TableCell>{item.supplier || "-"}</TableCell>
                       <TableCell className="text-right">

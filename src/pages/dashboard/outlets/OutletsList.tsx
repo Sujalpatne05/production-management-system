@@ -56,14 +56,14 @@ const OutletsList = () => {
   const handleSaveEdit = () => {
     if (editingOutlet) {
       updateOutlet(editingOutlet.id, editForm);
-      toast({ title: "Success", description: "Outlet updated successfully" });
+      toast({ title: "Success", description: "Factory updated successfully" });
       setEditingOutlet(null);
     }
   };
 
   const handleDelete = (id: string) => {
     deleteOutlet(id);
-    toast({ title: "Success", description: "Outlet deleted successfully" });
+    toast({ title: "Success", description: "Factory deleted successfully" });
   };
 
   const handleExport = () => {
@@ -71,38 +71,38 @@ const OutletsList = () => {
       ["Name", "Phone", "Email", "Status", "Address", "Created At"],
       ...filteredOutlets.map(o => [o.name, o.phone, o.email, o.status, o.address, o.createdAt])
     ].map(row => row.join(",")).join("\n");
-    
+
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "outlets.csv";
+    a.download = "factories.csv";
     a.click();
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Outlets List</h1>
+        <h1 className="text-3xl font-bold">Factories List</h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExport} className="gap-2">
             <Download className="w-4 h-4" />
             Export
           </Button>
-          <Button onClick={() => navigate("/dashboard/outlets/add")} className="gap-2">
+          <Button onClick={() => navigate("/dashboard/factories/add")} className="gap-2">
             <Plus className="w-4 h-4" />
-            Add Outlet
+            Add Factory
           </Button>
         </div>
       </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle>All Outlets ({filteredOutlets.length})</CardTitle>
+          <CardTitle>All Factories ({filteredOutlets.length})</CardTitle>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search outlets..."
+              placeholder="Search factories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 w-64"
@@ -148,7 +148,7 @@ const OutletsList = () => {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Outlet</AlertDialogTitle>
+                                <AlertDialogTitle>Delete Factory</AlertDialogTitle>
                                 <AlertDialogDescription>
                                   Are you sure you want to delete "{outlet.name}"? This action cannot be undone.
                                 </AlertDialogDescription>
@@ -166,7 +166,7 @@ const OutletsList = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                      No outlets found
+                      No factories found
                     </TableCell>
                   </TableRow>
                 )}
@@ -179,7 +179,7 @@ const OutletsList = () => {
       <Dialog open={!!editingOutlet} onOpenChange={() => setEditingOutlet(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Outlet</DialogTitle>
+            <DialogTitle>Edit Factory</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>

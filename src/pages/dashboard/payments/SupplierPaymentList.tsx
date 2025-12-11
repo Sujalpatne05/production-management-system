@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ const SupplierPaymentList = () => {
 
       <Card>
         <CardContent className="pt-6">
-          <div className="text-2xl font-bold">${totalPayments.toFixed(2)}</div>
+          <div className="text-2xl font-bold">₹{totalPayments.toFixed(2)}</div>
           <p className="text-muted-foreground">Total Payments Made</p>
         </CardContent>
       </Card>
@@ -81,7 +81,7 @@ const SupplierPaymentList = () => {
                     <TableRow key={payment.id}>
                       <TableCell className="font-medium">{payment.reference}</TableCell>
                       <TableCell>{getSupplierName(payment.supplierId)}</TableCell>
-                      <TableCell>${payment.amount.toFixed(2)}</TableCell>
+                      <TableCell>₹{payment.amount.toFixed(2)}</TableCell>
                       <TableCell>{payment.date}</TableCell>
                       <TableCell>{payment.paymentMethod}</TableCell>
                     </TableRow>

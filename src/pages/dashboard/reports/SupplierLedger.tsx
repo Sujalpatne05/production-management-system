@@ -131,10 +131,10 @@ const SupplierLedger = () => {
                       <TableRow key={idx}>
                         <TableCell>{entry.date}</TableCell>
                         <TableCell className="font-medium">{entry.invoiceNo}</TableCell>
-                        <TableCell className="text-right">${entry.amount.toFixed(2)}</TableCell>
-                        <TableCell className="text-right text-green-600">${entry.paid.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">₹{entry.amount.toFixed(2)}</TableCell>
+                        <TableCell className="text-right text-green-600">₹{entry.paid.toFixed(2)}</TableCell>
                         <TableCell className={`text-right font-medium ${entry.balance > 0 ? "text-red-600" : "text-green-600"}`}>
-                          ${entry.balance.toFixed(2)}
+                          ₹{entry.balance.toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}

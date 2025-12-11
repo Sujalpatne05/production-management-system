@@ -79,7 +79,7 @@ const ExpenseList = () => {
       <div className="grid md:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold">${totalExpenses.toFixed(2)}</div>
+            <div className="text-2xl font-bold">₹{totalExpenses.toFixed(2)}</div>
             <p className="text-muted-foreground">Total Expenses</p>
           </CardContent>
         </Card>
@@ -117,7 +117,7 @@ const ExpenseList = () => {
                   filteredExpenses.map((expense) => (
                     <TableRow key={expense.id}>
                       <TableCell className="font-medium">{getCategoryName(expense.categoryId)}</TableCell>
-                      <TableCell>${expense.amount.toFixed(2)}</TableCell>
+                      <TableCell>₹{expense.amount.toFixed(2)}</TableCell>
                       <TableCell>{expense.date}</TableCell>
                       <TableCell className="max-w-xs truncate">{expense.description}</TableCell>
                       <TableCell>{expense.paymentMethod}</TableCell>
