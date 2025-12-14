@@ -104,4 +104,102 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Mobile optimization */
+  @media (max-width: 768px) {
+    html {
+      font-size: 14px;
+    }
+  }
+
+  /* Ensure input fields are touch-friendly */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  textarea,
+  select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  /* Ensure buttons are touch-friendly */
+  button,
+  [role="button"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Responsive table styling for mobile */
+  @media (max-width: 768px) {
+    table {
+      font-size: 13px;
+    }
+
+    table thead {
+      @apply hidden;
+    }
+
+    table tbody,
+    table tr,
+    table td {
+      @apply block w-full;
+    }
+
+    table tr {
+      @apply mb-4 border border-border rounded-lg p-2;
+    }
+
+    table td {
+      @apply text-left py-2 pl-0 pr-2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    table td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      @apply flex-shrink-0 mr-2;
+    }
+
+    table td:last-child {
+      @apply border-t border-border pt-4;
+    }
+  }
+
+  /* Responsive card sizing */
+  @media (max-width: 640px) {
+    [class*="card"] {
+      @apply rounded-lg;
+    }
+  }
+
+  /* Responsive spacing utilities */
+  @media (max-width: 640px) {
+    .space-y-6 {
+      @apply space-y-4;
+    }
+
+    .space-x-6 {
+      @apply space-x-3;
+    }
+  }
+
+  /* Responsive grid helpers */
+  @media (max-width: 768px) {
+    .grid-cols-2 {
+      @apply grid-cols-1;
+    }
+
+    .grid-cols-3 {
+      @apply grid-cols-1;
+    }
+
+    .grid-cols-4 {
+      @apply grid-cols-2;
+    }
+  }
 }

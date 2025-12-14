@@ -38,16 +38,16 @@ const Login = () => {
       </div>
 
       {/* Right Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-card">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-card">
+        <div className="w-full max-w-sm space-y-6 sm:space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-primary mb-2">IProduction</h2>
-            <p className="text-2xl font-semibold text-muted-foreground">Please Login</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-2">IProduction</h2>
+            <p className="text-lg sm:text-2xl font-semibold text-muted-foreground">Please Login</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">
+              <Label htmlFor="email" className="text-xs sm:text-sm font-medium">
                 EMAIL <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -57,12 +57,12 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-12"
+                className="h-10 sm:h-12 text-sm"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">
+              <Label htmlFor="password" className="text-xs sm:text-sm font-medium">
                 PASSWORD <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -72,29 +72,29 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="h-12"
+                className="h-10 sm:h-12 text-sm"
               />
             </div>
 
-            <Button type="submit" className="w-full h-12 text-base font-medium">
+            <Button type="submit" className="w-full h-10 sm:h-12 text-sm sm:text-base font-medium">
               SUBMIT
             </Button>
 
             <div className="text-center">
-              <a href="#" className="text-info hover:underline text-sm">
+              <a href="#" className="text-info hover:underline text-xs sm:text-sm">
                 Forgot Password?
               </a>
             </div>
           </form>
 
           {/* Demo Credentials Table */}
-          <div className="mt-8 p-4 bg-muted/50 rounded-lg">
-            <div className="grid grid-cols-3 gap-4 text-sm font-medium mb-2">
+          <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-muted/50 rounded-lg">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm font-medium mb-2">
               <div>Email</div>
               <div>Password</div>
               <div>Actions</div>
             </div>
-            <div className="grid grid-cols-3 gap-4 text-sm items-center">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm items-center">
               <div>admin@doorsoft.co</div>
               <div>123456</div>
               <div>
@@ -102,7 +102,7 @@ const Login = () => {
                   size="sm"
                   variant="ghost"
                   onClick={() => navigate("/dashboard")}
-                  className="h-8"
+                  className="h-8 text-xs sm:text-sm"
                 >
                   →
                 </Button>

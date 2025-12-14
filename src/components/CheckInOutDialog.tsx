@@ -137,14 +137,15 @@ const CheckInOutDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
-          <Clock className="w-4 h-4" />
-          Check in/Check out
+        <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3 h-9 sm:h-10 text-xs sm:text-sm">
+          <Clock className="w-4 h-4 flex-shrink-0" />
+          <span className="hidden sm:inline">Check in/Check out</span>
+          <span className="sm:hidden">Check in</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-xs sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <Clock className="w-5 h-5" />
             Attendance
           </DialogTitle>

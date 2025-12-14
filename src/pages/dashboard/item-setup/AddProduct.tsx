@@ -46,37 +46,37 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Add Product</h1>
+    <div className="space-y-4 sm:space-y-6">
+      <h1 className="text-2xl sm:text-3xl font-bold">Add Product</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Product Details</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">Product Details</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label>Name *</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Product name" />
+                <Label className="text-xs sm:text-sm">Name *</Label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Product name" className="text-sm" />
               </div>
               <div>
-                <Label>Category *</Label>
+                <Label className="text-xs sm:text-sm">Category *</Label>
                 <Select value={form.categoryId} onValueChange={(v) => setForm({ ...form, categoryId: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectTrigger className="text-sm"><SelectValue placeholder="Select category" /></SelectTrigger>
                   <SelectContent>
                     {productCategories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <Label>SKU</Label>
-                <Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} placeholder="Auto-generated if empty" />
+                <Label className="text-xs sm:text-sm">SKU</Label>
+                <Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} placeholder="Auto-generated if empty" className="text-sm" />
               </div>
               <div>
-                <Label>Selling Price *</Label>
-                <Input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+                <Label className="text-xs sm:text-sm">Selling Price *</Label>
+                <Input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="text-sm" />
               </div>
               <div>
                 <Label>Cost Price</Label>
