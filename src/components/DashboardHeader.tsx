@@ -9,6 +9,8 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import CheckInOutDialog from "@/components/CheckInOutDialog";
 import LanguageSelector from "@/components/LanguageSelector";
+import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 // InstallPWAButton intentionally not shown in UI
@@ -30,6 +32,10 @@ const DashboardHeader = () => {
 
       <div className="flex items-center gap-2 md:gap-4">
         <CheckInOutDialog />
+
+        <NotificationBell unreadCount={2} />
+
+        <ThemeToggle />
 
         <LanguageSelector />
 

@@ -19,7 +19,11 @@ import {
   User as UserIcon,
   Settings as SettingsIcon,
   Database,
-  ChevronDown,
+  ShieldCheck,
+  ListChecks,
+  CalendarCheck,
+  Printer,
+  Bell,
   ChevronRight,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -63,6 +67,8 @@ const menuItems: MenuItem[] = [
     subItems: [
       { title: "Add Purchase", url: "/dashboard/purchases/add" },
       { title: "Purchase List", url: "/dashboard/purchases/list" },
+      { title: "Purchase Orders", url: "/dashboard/purchases/purchase-orders" },
+      { title: "Supplier List", url: "/dashboard/purchases/suppliers" },
       { title: "Supplier Payments", url: "/dashboard/supplier-payments/list" },
     ],
   },
@@ -73,22 +79,35 @@ const menuItems: MenuItem[] = [
     subItems: [
       { title: "Add Sale", url: "/dashboard/sales/add" },
       { title: "Sale List", url: "/dashboard/sales/list" },
+      { title: "Customer List", url: "/dashboard/sales/customers" },
       { title: "Orders", url: "/dashboard/orders/list" },
-      { title: "Quotations", url: "/dashboard/quotations/list" },
-      { title: "Add Quotation", url: "/dashboard/quotations/add" },
+    ],
+  },
+  {
+    title: "CRM",
+    url: "/dashboard/crm/leads",
+    icon: Users,
+    subItems: [
+      { title: "Leads", url: "/dashboard/crm/leads" },
+      { title: "Follow-ups", url: "/dashboard/crm/followups" },
+    ],
+  },
+  {
+    title: "MRP",
+    url: "/dashboard/mrp/work-orders",
+    icon: Factory,
+    subItems: [
+      { title: "Work Orders", url: "/dashboard/mrp/work-orders" },
+      { title: "Work Orders (Detailed)", url: "/dashboard/mrp/work-orders-detailed" },
     ],
   },
   {
     title: "Manufacturing",
-    url: "/dashboard/production/list",
+    url: "/dashboard/production/list-enhanced",
     icon: Factory,
     subItems: [
-      { title: "Add Production", url: "/dashboard/production/add" },
-      { title: "Production List", url: "/dashboard/production/list" },
-      { title: "Add Production Loss", url: "/dashboard/production/add-loss" },
-      { title: "Production Loss List", url: "/dashboard/production/loss-list" },
-      { title: "Demand Forecasting By Order", url: "/dashboard/production/forecast-order" },
-      { title: "Demand Forecasting By Product", url: "/dashboard/production/forecast-product" },
+      { title: "Add Production", url: "/dashboard/production/add-enhanced" },
+      { title: "Production List", url: "/dashboard/production/list-enhanced" },
     ],
   },
   {
@@ -97,20 +116,6 @@ const menuItems: MenuItem[] = [
     icon: Box,
     subItems: [
       { title: "Product Stock", url: "/dashboard/stock" },
-      { title: "Raw Material Stock", url: "/dashboard/rm-stock" },
-      { title: "RM Low Stock", url: "/dashboard/rm-stock/low-stock" },
-      { title: "RM Adjustments", url: "/dashboard/rm-stock/adjustments" },
-    ],
-  },
-  {
-    title: "Expenses",
-    url: "/dashboard/expenses/list",
-    icon: IndianRupee,
-    subItems: [
-      { title: "Add Expense", url: "/dashboard/expenses/add" },
-      { title: "Expense List", url: "/dashboard/expenses/list" },
-      { title: "Add Expense Category", url: "/dashboard/expenses/add-category" },
-      { title: "Expense Category List", url: "/dashboard/expenses/categories" },
     ],
   },
   {
@@ -127,58 +132,25 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    title: "Parties",
-    url: "/dashboard/parties/customers",
-    icon: Users,
+    title: "Store",
+    url: "/dashboard/store/material-codes",
+    icon: Box,
     subItems: [
-      { title: "Add Customer", url: "/dashboard/parties/add-customer" },
-      { title: "Customer List", url: "/dashboard/parties/customers" },
-      { title: "Add Supplier", url: "/dashboard/parties/add-supplier" },
-      { title: "Supplier List", url: "/dashboard/parties/suppliers" },
+      { title: "Material Codes", url: "/dashboard/store/material-codes" },
+      { title: "GIN/GON", url: "/dashboard/store/gin-gon" },
+      { title: "Inventory Report", url: "/dashboard/store/inventory-report" },
+      { title: "Challan & Gate Pass", url: "/dashboard/store/challan-gate-pass" },
     ],
   },
   {
-    title: "Customer Receives",
-    url: "/dashboard/customer-receives/list",
-    icon: Wallet,
-    subItems: [
-      { title: "Add Customer Receive", url: "/dashboard/customer-receives/add" },
-      { title: "Customer Receive List", url: "/dashboard/customer-receives/list" },
-    ],
-  },
-  {
-    title: "Item Setup",
+    title: "Accounting",
     url: "/dashboard/item-setup/products",
     icon: Package,
     subItems: [
-      { title: "Add RM Category", url: "/dashboard/item-setup/add-rm-category" },
-      { title: "RM Category List", url: "/dashboard/item-setup/rm-categories" },
-      { title: "Add Raw Material", url: "/dashboard/item-setup/add-raw-material" },
-      { title: "Raw Material List", url: "/dashboard/item-setup/raw-materials" },
-      { title: "Add Non Inventory Item", url: "/dashboard/item-setup/non-inventory/add" },
-      { title: "Non Inventory Item List", url: "/dashboard/item-setup/non-inventory/list" },
       { title: "Add Product Category", url: "/dashboard/item-setup/add-product-category" },
       { title: "Product Category List", url: "/dashboard/item-setup/product-categories" },
       { title: "Add Product", url: "/dashboard/item-setup/add-product" },
       { title: "Product List", url: "/dashboard/item-setup/products" },
-    ],
-  },
-  {
-    title: "RM Wastes",
-    url: "/dashboard/rm-wastes/list",
-    icon: Box,
-    subItems: [
-      { title: "Add RM Waste", url: "/dashboard/rm-wastes/add" },
-      { title: "RM Waste List", url: "/dashboard/rm-wastes/list" },
-    ],
-  },
-  {
-    title: "Product Wastes",
-    url: "/dashboard/product-wastes/list",
-    icon: Package,
-    subItems: [
-      { title: "Add Product Waste", url: "/dashboard/product-wastes/add" },
-      { title: "Product Waste List", url: "/dashboard/product-wastes/list" },
     ],
   },
   {
@@ -189,22 +161,18 @@ const menuItems: MenuItem[] = [
       { title: "Sale Report", url: "/dashboard/reports/sale" },
       { title: "Purchase Report", url: "/dashboard/reports/purchase" },
       { title: "Profit & Loss", url: "/dashboard/reports/profit-loss" },
-      { title: "Production Report", url: "/dashboard/reports/production" },
-      { title: "Expense Report", url: "/dashboard/reports/expense" },
-      { title: "Product Price History", url: "/dashboard/reports/product-price-history" },
-      { title: "RM Price History", url: "/dashboard/reports/rm-price-history" },
-      { title: "RM Purchase", url: "/dashboard/reports/rm-purchase" },
-      { title: "RM Item Purchase", url: "/dashboard/reports/rm-item-purchase" },
-      { title: "RM Stock", url: "/dashboard/reports/rm-stock" },
       { title: "Supplier Due", url: "/dashboard/reports/supplier-due" },
       { title: "Supplier Balance", url: "/dashboard/reports/supplier-balance" },
       { title: "Supplier Ledger", url: "/dashboard/reports/supplier-ledger" },
-      { title: "Product Production", url: "/dashboard/reports/product-production" },
-      { title: "Item Wise Sale", url: "/dashboard/reports/item-sale" },
       { title: "Customer Due", url: "/dashboard/reports/customer-due" },
       { title: "Customer Ledger", url: "/dashboard/reports/customer-ledger" },
-      { title: "Product Profit", url: "/dashboard/reports/product-profit" },
-      { title: "Sectors", url: "/dashboard/reports/sectors" },
+      { title: "Work Order Report", url: "/dashboard/reports/work-orders" },
+      { title: "Purchase Order Report", url: "/dashboard/reports/purchase-orders" },
+      { title: "Purchase Inquiry", url: "/dashboard/reports/purchase-inquiry" },
+      { title: "Purchase Quotation", url: "/dashboard/reports/purchase-quotation" },
+      { title: "CAPEX Orders", url: "/dashboard/reports/capex-orders" },
+      { title: "Due Delivery", url: "/dashboard/reports/due-delivery" },
+      { title: "Order Sheet", url: "/dashboard/reports/order-sheet" },
     ],
   },
   {
@@ -212,10 +180,8 @@ const menuItems: MenuItem[] = [
     url: "/dashboard/users/list",
     icon: UserIcon,
     subItems: [
-      { title: "Add New Role", url: "/dashboard/users/add-role" },
-      { title: "List Role", url: "/dashboard/users/roles" },
-      { title: "Add New User", url: "/dashboard/users/add" },
-      { title: "List User", url: "/dashboard/users/list" },
+      { title: "User Directory", url: "/dashboard/users/list" },
+      { title: "Roles & Permissions", url: "/dashboard/users/roles" },
     ],
   },
   {
@@ -228,15 +194,50 @@ const menuItems: MenuItem[] = [
       { title: "White Label", url: "/dashboard/settings/white-label" },
       { title: "Email Settings", url: "/dashboard/settings/email" },
       { title: "Data Import", url: "/dashboard/settings/import" },
-      { title: "Add Unit", url: "/dashboard/settings/add-unit" },
-      { title: "Unit List", url: "/dashboard/settings/units" },
-      { title: "Add Currency", url: "/dashboard/settings/add-currency" },
-      { title: "List Currency", url: "/dashboard/settings/currencies" },
-      { title: "Add Production Stage", url: "/dashboard/settings/add-stage" },
-      { title: "Production Stage List", url: "/dashboard/settings/stages" },
+      { title: "RBAC Management", url: "/dashboard/settings/rbac" },
+    ],
+  },
+  {
+    title: "Approvals",
+    url: "/dashboard/approvals/pending",
+    icon: ShieldCheck,
+    subItems: [
+      { title: "Pending Approvals", url: "/dashboard/approvals/pending" },
+      { title: "Approval History", url: "/dashboard/approvals/history" },
+      { title: "Unlock Requests", url: "/dashboard/approvals/unlock" },
+    ],
+  },
+  {
+    title: "Audit Logs",
+    url: "/dashboard/audit/logs",
+    icon: ListChecks,
+    subItems: [
+      { title: "Log Viewer", url: "/dashboard/audit/logs" },
+      { title: "Entity History", url: "/dashboard/audit/entities" },
+      { title: "Export & Stats", url: "/dashboard/audit/export" },
+    ],
+  },
+  {
+    title: "Accounting Periods",
+    url: "/dashboard/accounting-periods",
+    icon: CalendarCheck,
+    subItems: [
+      { title: "Manage Periods", url: "/dashboard/accounting-periods" },
+      { title: "Close & Reopen", url: "/dashboard/accounting-periods/close" },
     ],
   },
   { title: "Backup & Restore", url: "/dashboard/backup", icon: Database },
+  {
+    title: "PDF Center",
+    url: "/dashboard/pdf",
+    icon: Printer,
+    subItems: [
+      { title: "Invoices & POs", url: "/dashboard/pdf/invoices" },
+      { title: "Delivery & Challan", url: "/dashboard/pdf/challan" },
+      { title: "Production Reports", url: "/dashboard/pdf/production" },
+      { title: "Financial Statements", url: "/dashboard/pdf/financial" },
+    ],
+  },
 ];
 
 export function AppSidebar() {
@@ -274,16 +275,18 @@ export function AppSidebar() {
                       onOpenChange={() => toggleItem(item.title)}
                     >
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="w-full">
+                        <SidebarMenuButton
+                          className="w-full gap-3 rounded-lg px-3 py-2 transition-all duration-200 hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent/60"
+                        >
                           <item.icon className="w-5 h-5 flex-shrink-0" />
                           {open && (
                             <>
-                              <span className="flex-1">{item.title}</span>
-                              {openItems.includes(item.title) ? (
-                                <ChevronDown className="w-4 h-4 flex-shrink-0" />
-                              ) : (
-                                <ChevronRight className="w-4 h-4 flex-shrink-0" />
-                              )}
+                              <span className="flex-1 text-left">{item.title}</span>
+                              <ChevronRight
+                                className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${
+                                  openItems.includes(item.title) ? "rotate-90" : ""
+                                }`}
+                              />
                             </>
                           )}
                         </SidebarMenuButton>
@@ -296,8 +299,8 @@ export function AppSidebar() {
                                 <SidebarMenuSubButton asChild>
                                   <NavLink 
                                     to={subItem.url}
-                                    className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                                    activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                                    className="flex items-center rounded-md px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-150 border-l border-sidebar-border/60"
+                                    activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
                                   >
                                     {subItem.title}
                                   </NavLink>
