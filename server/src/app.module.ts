@@ -24,6 +24,11 @@ import { AccountingPeriodsModule } from './accounting-periods/accounting-periods
 import { PdfModule } from './pdf/pdf.module';
 import { SettingsModule } from './settings/settings.module';
 import { ValidationModule } from './validation/validation.module';
+import { BomModule } from './bom/bom.module';
+import { QcModule } from './quality-control/qc.module';
+import { GrnModule } from './grn/grn.module';
+import { BudgetModule } from './budget/budget.module';
+import { ForecastModule } from './forecast/forecast.module';
 import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
@@ -77,6 +82,11 @@ import { redisStore } from 'cache-manager-redis-yet';
     PdfModule,
     SettingsModule,
     ValidationModule,
+    BomModule,
+    QcModule,
+    GrnModule,
+    BudgetModule,
+    ForecastModule,
   ],
   controllers: [AppController],
   providers: [AppService],

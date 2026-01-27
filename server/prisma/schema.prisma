@@ -39,6 +39,13 @@ model Tenant {
   approvals           Approval[]
   accountingPeriods   AccountingPeriod[]
   settings            TenantSettings?
+  boms                BOM[]
+  qcTemplates         QCTemplate[]
+  qcInspections       QCInspection[]
+  nonConformanceReports NonConformanceReport[]
+  grns                GRN[]
+  budgets             Budget[]
+  forecasts           Forecast[]
 
   @@index([status])
 }
@@ -149,6 +156,10 @@ model Product {
   saleItems          SaleItem[]
   productions        Production[]
   productionLosses   ProductionLoss[]
+  boms                BOM[]
+  bomComponents       BOMComponent[]
+  grnLineItems        GRNLineItem[]
+  forecastLineItems   ForecastLineItem[]
 
   @@unique([tenantId, sku])
   @@index([tenantId])
@@ -186,6 +197,8 @@ model RawMaterial {
   stocks              Stock[]
   stockTransactions   StockTransaction[]
   purchaseItems      PurchaseItem[]
+  bomComponents       BOMComponent[]
+  grnLineItems        GRNLineItem[]
 
   @@unique([tenantId, sku])
   @@index([tenantId])
@@ -396,6 +409,7 @@ model Purchase {
   user        User?       @relation(fields: [userId], references: [id])
   items       PurchaseItem[]
   payments    Payment[]
+  grns        GRN[]
 
   @@unique([tenantId, poNo])
   @@index([tenantId])
@@ -705,6 +719,263 @@ model Approval {
   @@index([status])
   @@index([requesterId])
   @@index([approverId])
+}
+
+// ==================== Bill of Materials (BOM) ====================
+
+model BOM {
+  id              String   @id @default(uuid())
+  tenantId        String
+  productId       String
+  name            String
+  description     String?
+  version         Int      @default(1)
+  status          String   @default("active") // 'active', 'obsolete', 'draft'
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  components      BOMComponent[]
+
+  @@unique([tenantId, productId, version])
+  @@index([tenantId])
+  @@index([productId])
+  @@index([status])
+}
+
+model BOMComponent {
+  id              String   @id @default(uuid())
+  bomId           String
+  productId       String?  // For finished goods
+  rawMaterialId   String?  // For raw materials
+  quantity        Decimal  @db.Decimal(12, 4)
+  uom             String   // 'kg', 'pcs', 'liters', etc.
+  wasteFactor     Decimal  @db.Decimal(5, 2) @default(0) // Scrap percentage
+  leadTime        Int      @default(0) // days
+  notes           String?
+  sequenceNo      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bom             BOM         @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  product         Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  rawMaterial     RawMaterial? @relation(fields: [rawMaterialId], references: [id], onDelete: SetNull)
+
+  @@index([bomId])
+  @@index([productId])
+  @@index([rawMaterialId])
+}
+
+// ==================== Quality Control ====================
+
+model QCTemplate {
+  id              String   @id @default(uuid())
+  tenantId        String
+  name            String
+  description     String?
+  type            String   // 'incoming', 'inprocess', 'final'
+  parameters      Json     // Array of test parameters
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  inspections     QCInspection[]
+
+  @@index([tenantId])
+  @@index([type])
+}
+
+model QCInspection {
+  id              String   @id @default(uuid())
+  tenantId        String
+  templateId      String
+  productionId    String?
+  purchaseId      String?
+  saleId          String?
+  batchNo         String?
+  status          String   @default("pending") // 'pending', 'passed', 'failed', 'partial'
+  results         Json     // Test results with pass/fail
+  defectCount     Int      @default(0)
+  defectNotes     String?
+  passedQuantity  Decimal  @db.Decimal(12, 4)
+  rejectedQuantity Decimal @db.Decimal(12, 4) @default(0)
+  nonConformanceId String?
+  inspectionDate  DateTime @default(now())
+  inspectorId     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  template        QCTemplate          @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  nonConformance  NonConformanceReport? @relation(fields: [nonConformanceId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([templateId])
+  @@index([status])
+  @@index([inspectionDate])
+}
+
+model NonConformanceReport {
+  id              String   @id @default(uuid())
+  tenantId        String
+  reportNo        String
+  description     String
+  severity        String   // 'minor', 'major', 'critical'
+  rootCause       String?
+  correctionActions String?
+  status          String   @default("open") // 'open', 'inprogress', 'closed'
+  closedDate      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  inspections     QCInspection[]
+
+  @@unique([tenantId, reportNo])
+  @@index([tenantId])
+  @@index([status])
+  @@index([severity])
+}
+
+// ==================== Goods Receipt Notes (GRN) ====================
+
+model GRN {
+  id              String   @id @default(uuid())
+  tenantId        String
+  purchaseId      String
+  grnNo           String
+  receivedDate    DateTime @default(now())
+  status          String   @default("pending") // 'pending', 'received', 'inspected', 'accepted', 'rejected'
+  totalQuantity   Decimal  @db.Decimal(12, 4)
+  acceptedQuantity Decimal @db.Decimal(12, 4)
+  rejectedQuantity Decimal @db.Decimal(12, 4) @default(0)
+  warehouseLocation String?
+  remarks         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  purchase        Purchase    @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  lineItems       GRNLineItem[]
+
+  @@unique([tenantId, grnNo])
+  @@index([tenantId])
+  @@index([purchaseId])
+  @@index([status])
+  @@index([receivedDate])
+}
+
+model GRNLineItem {
+  id              String   @id @default(uuid())
+  grnId           String
+  purchaseItemId  String?
+  productId       String?
+  rawMaterialId   String?
+  quantity        Decimal  @db.Decimal(12, 4)
+  receivedQuantity Decimal @db.Decimal(12, 4)
+  acceptedQuantity Decimal @db.Decimal(12, 4)
+  rejectedQuantity Decimal @db.Decimal(12, 4) @default(0)
+  batchNo         String?
+  expiryDate      DateTime?
+  qualityStatus   String   @default("pending") // 'pending', 'approved', 'rejected'
+  remarks         String?
+
+  grn             GRN         @relation(fields: [grnId], references: [id], onDelete: Cascade)
+  product         Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  rawMaterial     RawMaterial? @relation(fields: [rawMaterialId], references: [id], onDelete: SetNull)
+
+  @@index([grnId])
+  @@index([productId])
+  @@index([rawMaterialId])
+}
+
+// ==================== Budget Planning ====================
+
+model Budget {
+  id              String   @id @default(uuid())
+  tenantId        String
+  name            String
+  description     String?
+  budgetPeriod    String   // 'monthly', 'quarterly', 'annual'
+  startDate       DateTime
+  endDate         DateTime
+  status          String   @default("draft") // 'draft', 'approved', 'active', 'closed'
+  totalBudget     Decimal  @db.Decimal(15, 2)
+  totalActual     Decimal  @db.Decimal(15, 2) @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lines           BudgetLine[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+model BudgetLine {
+  id              String   @id @default(uuid())
+  budgetId        String
+  costCenterId    String?
+  accountId       String?
+  description     String
+  budgetAmount    Decimal  @db.Decimal(15, 2)
+  actualAmount    Decimal  @db.Decimal(15, 2) @default(0)
+  variance        Decimal  @db.Decimal(15, 2) @default(0)
+  variancePercent Decimal  @db.Decimal(5, 2) @default(0)
+  lineNo          Int
+
+  budget          Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([budgetId])
+  @@index([costCenterId])
+  @@index([accountId])
+}
+
+// ==================== Demand Forecasting ====================
+
+model Forecast {
+  id              String   @id @default(uuid())
+  tenantId        String
+  name            String
+  description     String?
+  forecastMethod  String   // 'manual', 'historical_average', 'seasonal', 'trend'
+  startDate       DateTime
+  endDate         DateTime
+  status          String   @default("draft") // 'draft', 'approved', 'active', 'completed'
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lineItems       ForecastLineItem[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+model ForecastLineItem {
+  id              String   @id @default(uuid())
+  forecastId      String
+  productId       String
+  month           String   // 'YYYY-MM'
+  forecastedQuantity Decimal @db.Decimal(12, 4)
+  historicalAvg   Decimal  @db.Decimal(12, 4) @default(0)
+  lastYearQuantity Decimal @db.Decimal(12, 4) @default(0)
+  confidence      Decimal  @db.Decimal(5, 2) @default(90) // 80-100%
+  notes           String?
+
+  forecast        Forecast @relation(fields: [forecastId], references: [id], onDelete: Cascade)
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([forecastId, productId, month])
+  @@index([forecastId])
+  @@index([productId])
+  @@index([month])
 }
 
 // ==================== Audit Logging ====================

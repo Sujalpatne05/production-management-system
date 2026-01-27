@@ -127,6 +127,53 @@ import CRMFollowUps from "./pages/dashboard/crm/CRMFollowUps";
 import MRPWorkOrders from "./pages/dashboard/mrp/MRPWorkOrders";
 import ExpandedWorkOrders from "./pages/dashboard/mrp/ExpandedWorkOrders";
 
+// BOM - New
+import { BOMList } from "./pages/dashboard/bom/BOMList";
+import { AddBOM } from "./pages/dashboard/bom/AddBOM";
+
+// Quality Control - New
+import { QCDashboard } from "./pages/dashboard/quality-control/QCDashboard";
+import { QCInspections } from "./pages/dashboard/quality-control/QCInspections";
+import { QCTemplates } from "./pages/dashboard/quality-control/QCTemplates";
+import { NonConformance } from "./pages/dashboard/quality-control/NonConformance";
+import { QCInspectionNew } from "./pages/dashboard/quality-control/QCInspectionNew";
+import { QCTemplateNew } from "./pages/dashboard/quality-control/QCTemplateNew";
+import { NonConformanceNew } from "./pages/dashboard/quality-control/NonConformanceNew";
+
+// GRN - New
+import { GRNList } from "./pages/dashboard/grn/GRNList";
+import { GRNNew } from "./pages/dashboard/grn/GRNNew";
+
+// Budget - New
+import { BudgetList } from "./pages/dashboard/budget/BudgetList";
+import { BudgetNew } from "./pages/dashboard/budget/BudgetNew";
+
+// Forecast - New
+import { ForecastList } from "./pages/dashboard/forecast/ForecastList";
+import { ForecastNew } from "./pages/dashboard/forecast/ForecastNew";
+
+// Approvals - New
+import { ApprovalsDashboard } from "./pages/dashboard/approvals/ApprovalsDashboard";
+import { PendingApprovals } from "./pages/dashboard/approvals/PendingApprovals";
+import { ApprovalHistory } from "./pages/dashboard/approvals/ApprovalHistory";
+import { UnlockRequests } from "./pages/dashboard/approvals/UnlockRequests";
+import { UnlockRequestNew } from "./pages/dashboard/approvals/UnlockRequestNew";
+
+// Audit - New
+import { AuditLogViewer } from "./pages/dashboard/audit/AuditLogViewer";
+import { EntityHistory } from "./pages/dashboard/audit/EntityHistory";
+import { AuditExportStats } from "./pages/dashboard/audit/AuditExportStats";
+
+// Accounting Periods - New
+import { AccountingPeriodsList } from "./pages/dashboard/accounting-periods/AccountingPeriodsList";
+import { CloseAccountingPeriod } from "./pages/dashboard/accounting-periods/CloseAccountingPeriod";
+
+// PDF Center - New
+import { PdfInvoicesPOs } from "./pages/dashboard/pdf/PdfInvoicesPOs";
+import { PdfDeliveryChallan } from "./pages/dashboard/pdf/PdfDeliveryChallan";
+import { PdfProductionReports } from "./pages/dashboard/pdf/PdfProductionReports";
+import { PdfFinancialStatements } from "./pages/dashboard/pdf/PdfFinancialStatements";
+
 // Features
 import NotificationsCenter from "./pages/dashboard/notifications/NotificationsCenter";
 import KeyboardShortcuts from "./components/KeyboardShortcuts";
@@ -228,6 +275,10 @@ function AppContent() {
                 <Route path="accounting/trial-balance" element={<TrialBalance />} />
                 <Route path="accounting/balance-sheet" element={<BalanceSheet />} />
                 
+                {/* Accounting Periods */}
+                <Route path="accounting-periods" element={<AccountingPeriodsList />} />
+                <Route path="accounting-periods/close" element={<CloseAccountingPeriod />} />
+                
                 {/* Item Setup */}
                 <Route path="item-setup/add-product-category" element={<AddProductCategory />} />
                 <Route path="item-setup/product-categories" element={<ProductCategoryList />} />
@@ -243,6 +294,19 @@ function AppContent() {
                 <Route path="reports/supplier-ledger" element={<SupplierLedger />} />
                 <Route path="reports/customer-due" element={<CustomerDueReport />} />
                 <Route path="reports/customer-ledger" element={<CustomerLedger />} />
+
+                {/* PDF Center */}
+                {/* canonical paths */}
+                <Route path="pdf/invoices-pos" element={<PdfInvoicesPOs />} />
+                <Route path="pdf/delivery-challan" element={<PdfDeliveryChallan />} />
+                <Route path="pdf/production-reports" element={<PdfProductionReports />} />
+                <Route path="pdf/financial-statements" element={<PdfFinancialStatements />} />
+                {/* sidebar-friendly aliases */}
+                <Route path="pdf" element={<PdfInvoicesPOs />} />
+                <Route path="pdf/invoices" element={<PdfInvoicesPOs />} />
+                <Route path="pdf/challan" element={<PdfDeliveryChallan />} />
+                <Route path="pdf/production" element={<PdfProductionReports />} />
+                <Route path="pdf/financial" element={<PdfFinancialStatements />} />
                 
                 {/* Purchase Reports (New) */}
                 <Route path="reports/work-orders" element={<WorkOrderReport />} />
@@ -262,6 +326,48 @@ function AppContent() {
                 {/* Notifications */}
                 <Route path="notifications" element={<NotificationsCenter />} />
                 
+                {/* BOM */}
+                <Route path="bom" element={<BOMList />} />
+                <Route path="bom/add" element={<AddBOM />} />
+                <Route path="bom/:id" element={<AddBOM />} />
+                
+                {/* Quality Control */}
+                <Route path="qc" element={<QCDashboard />} />
+                <Route path="qc/inspection" element={<QCInspections />} />
+                <Route path="qc/inspection/new" element={<QCInspectionNew />} />
+                <Route path="qc/inspections" element={<QCInspections />} />
+                <Route path="qc/templates" element={<QCTemplates />} />
+                <Route path="qc/templates/new" element={<QCTemplateNew />} />
+                <Route path="qc/ncr" element={<NonConformance />} />
+                <Route path="qc/ncr/new" element={<NonConformanceNew />} />
+                
+                {/* GRN */}
+                <Route path="grn" element={<GRNList />} />
+                <Route path="grn/new" element={<GRNNew />} />
+                <Route path="grn/:id" element={<GRNList />} />
+                
+                {/* Budget */}
+                <Route path="budget" element={<BudgetList />} />
+                <Route path="budget/new" element={<BudgetNew />} />
+                <Route path="budget/:id" element={<BudgetList />} />
+                
+                {/* Forecast */}
+                <Route path="forecast" element={<ForecastList />} />
+                <Route path="forecast/new" element={<ForecastNew />} />
+                <Route path="forecast/:id" element={<ForecastList />} />
+                
+                {/* Approvals */}
+                <Route path="approvals" element={<ApprovalsDashboard />} />
+                <Route path="approvals/pending" element={<PendingApprovals />} />
+                <Route path="approvals/history" element={<ApprovalHistory />} />
+                <Route path="approvals/unlock-requests" element={<UnlockRequests />} />
+                <Route path="approvals/unlock-requests/new" element={<UnlockRequestNew />} />
+                
+                {/* Audit */}
+                <Route path="audit/logs" element={<AuditLogViewer />} />
+                <Route path="audit/entities" element={<EntityHistory />} />
+                <Route path="audit/export" element={<AuditExportStats />} />
+                
                 {/* Settings */}
                 <Route path="settings" element={<Navigate to="/dashboard/settings/company" replace />} />
                 <Route path="settings/company" element={<CompanyProfile />} />
@@ -275,6 +381,8 @@ function AppContent() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          <Toaster />
+          <Sonner />
         </TooltipProvider>
       </LanguageProvider>
     </ThemeProvider>
@@ -283,8 +391,6 @@ function AppContent() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <Toaster />
-    <Sonner />
     <AppContent />
   </QueryClientProvider>
 );

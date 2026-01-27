@@ -25,6 +25,9 @@ import {
   Printer,
   Bell,
   ChevronRight,
+  Zap,
+  TrendingDown,
+  CheckSquare,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -108,6 +111,45 @@ const menuItems: MenuItem[] = [
     subItems: [
       { title: "Add Production", url: "/dashboard/production/add-enhanced" },
       { title: "Production List", url: "/dashboard/production/list-enhanced" },
+      { title: "Bill of Materials", url: "/dashboard/bom" },
+    ],
+  },
+  {
+    title: "Quality Control",
+    url: "/dashboard/qc",
+    icon: CheckSquare,
+    subItems: [
+      { title: "QC Dashboard", url: "/dashboard/qc" },
+      { title: "Inspections", url: "/dashboard/qc/inspections" },
+      { title: "Templates", url: "/dashboard/qc/templates" },
+      { title: "Non-Conformance", url: "/dashboard/qc/ncr" },
+    ],
+  },
+  {
+    title: "Goods Receipt",
+    url: "/dashboard/grn",
+    icon: ShoppingBag,
+    subItems: [
+      { title: "GRN List", url: "/dashboard/grn" },
+      { title: "Create GRN", url: "/dashboard/grn/new" },
+    ],
+  },
+  {
+    title: "Budget Planning",
+    url: "/dashboard/budget",
+    icon: Wallet,
+    subItems: [
+      { title: "Budgets", url: "/dashboard/budget" },
+      { title: "Create Budget", url: "/dashboard/budget/new" },
+    ],
+  },
+  {
+    title: "Forecasting",
+    url: "/dashboard/forecast",
+    icon: TrendingUp,
+    subItems: [
+      { title: "Forecasts", url: "/dashboard/forecast" },
+      { title: "Create Forecast", url: "/dashboard/forecast/new" },
     ],
   },
   {
@@ -199,12 +241,12 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Approvals",
-    url: "/dashboard/approvals/pending",
+    url: "/dashboard/approvals",
     icon: ShieldCheck,
     subItems: [
       { title: "Pending Approvals", url: "/dashboard/approvals/pending" },
       { title: "Approval History", url: "/dashboard/approvals/history" },
-      { title: "Unlock Requests", url: "/dashboard/approvals/unlock" },
+      { title: "Unlock Requests", url: "/dashboard/approvals/unlock-requests" },
     ],
   },
   {
@@ -244,11 +286,11 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const [openItems, setOpenItems] = useState<string[]>([]);
 
-  const toggleItem = (title: string) => {
-    setOpenItems(prev => 
-      prev.includes(title) 
-        ? prev.filter(item => item !== title)
-        : [...prev, title]
+  const toggleItem = (key: string) => {
+    setOpenItems(prev =>
+      prev.includes(key)
+        ? prev.filter(item => item !== key)
+        : [...prev, key]
     );
   };
 
@@ -268,11 +310,11 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.url}>
                   {item.subItems ? (
                     <Collapsible
-                      open={openItems.includes(item.title)}
-                      onOpenChange={() => toggleItem(item.title)}
+                      open={openItems.includes(item.url)}
+                      onOpenChange={() => toggleItem(item.url)}
                     >
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton
@@ -295,7 +337,7 @@ export function AppSidebar() {
                         <CollapsibleContent>
                           <SidebarMenuSub>
                             {item.subItems.map((subItem) => (
-                              <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubItem key={subItem.url}>
                                 <SidebarMenuSubButton asChild>
                                   <NavLink 
                                     to={subItem.url}
