@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Management - Data Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .controls select,
+        .controls button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .controls select {
+            background: white;
+            color: #333;
+            min-width: 200px;
+        }
+
+        .controls button {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .controls button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .controls button.danger {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .controls button.danger:hover {
+            background: #dc2626;
+        }
+
+        .controls button.success {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .controls button.success:hover {
+            background: #059669;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .data-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .data-section h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table thead {
+            background: #f9fafb;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #333;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .json-view {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ef4444;
+        }
+
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #10b981;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+
+            .controls select,
+            .controls button,
+            .search-box {
+                width: 100%;
+            }
+
+            .data-table {
+                font-size: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1></h1>📊 Production Management System - Data Viewer</h1>
+            <p>Real-time view of all your data stored in JSON files</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <h3>Total Records</h3>
+                <div class="number" id="totalRecords">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Collections</h3>
+                <div class="number" id="totalCollections">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Last Updated</h3>
+                <div class="number" id="lastUpdated" style="font-size: 18px;">-</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <select id="resourceSelect">
+                <option value="">-- Select Resource --</option>
+            </select>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search data...">
+            </div>
+
+            <button onclick="refreshData()" class="success">🔄 Refresh</button>
+            <button onclick="downloadBackup()" class="success">💾 Backup</button>
+            <button onclick="viewAllData()">👁️ View All</button>
+            <button onclick="clearAllData()" class="danger">🗑️ Clear All</button>
+        </div>
+
+        <div id="message"></div>
+
+        <div class="data-section">
+            <h2>
+                <span id="sectionTitle">Select a resource to view data</span>
+                <span class="badge" id="recordCount">0 records</span>
+            </h2>
+            <div id="dataContent">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p>Select a resource from the dropdown above to view its data</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let currentData = null;
+        let allResourcesData = {};
+
+        const resources = [
+            'users', 'attendance', 'orders', 'production', 'sales',
+            'purchases', 'inventory', 'expenses', 'payments', 'payroll',
+            'outlets', 'parties', 'quotations', 'wastes', 'settings',
+            'reports', 'accounting'
+        ];
+
+        // Initialize
+        window.onload = () => {
+            populateResourceSelect();
+            loadInitialStats();
+        };
+
+        function populateResourceSelect() {
+            const select = document.getElementById('resourceSelect');
+            resources.forEach(resource => {
+                const option = document.createElement('option');
+                option.value = resource;
+                option.textContent = resource.charAt(0).toUpperCase() + resource.slice(1);
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', (e) => {
+                if (e.target.value) {
+                    loadResourceData(e.target.value);
+                }
+            });
+        }
+
+        async function loadInitialStats() {
+            try {
+                const response = await fetch(`${API_URL}/all-data`);
+                const result = await response.json();
+
+                if (result.success) {
+                    allResourcesData = result.data;
+                    updateStats(result.data);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function updateStats(data) {
+            let totalRecords = 0;
+            let lastUpdate = null;
+
+            Object.values(data).forEach(resource => {
+                totalRecords += resource.data ? resource.data.length : 0;
+                if (resource.lastUpdated && (!lastUpdate || new Date(resource.lastUpdated) > new Date(lastUpdate))) {
+                    lastUpdate = resource.lastUpdated;
+                }
+            });
+
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('totalCollections').textContent = Object.keys(data).length;
+            document.getElementById('lastUpdated').textContent = lastUpdate ? new Date(lastUpdate).toLocaleString() : 'Never';
+        }
+
+        async function loadResourceData(resource) {
+            showMessage('loading', `Loading ${resource}...`);
+
+            try {
+                const response = await fetch(`${API_URL}/${resource}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    currentData = result.data;
+                    displayData(resource, result.data);
+                    document.getElementById('sectionTitle').textContent = resource.charAt(0).toUpperCase() + resource.slice(1);
+                    document.getElementById('recordCount').textContent = `${result.data.length} records`;
+                    clearMessage();
+                } else {
+                    showMessage('error', 'Failed to load data: ' + result.error);
+                }
+            } catch (error) {
+                showMessage('error', 'Error connecting to server: ' + error.message);
+            }
+        }
+
+        function displayData(resource, data) {
+            const container = document.getElementById('dataContent');
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                        </svg>
+                        <p>No data found for ${resource}</p>
+                        <p style="font-size: 14px; margin-top: 10px; color: #999;">Add some data using the API</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Get all unique keys
+            const keys = [...new Set(data.flatMap(item => Object.keys(item)))];
+
+            // Create table
+            let html = '<table class="data-table"><thead><tr>';
+            keys.forEach(key => {
+                html += `<th>${key}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            data.forEach(item => {
+                html += '<tr>';
+                keys.forEach(key => {
+                    let value = item[key];
+                    if (typeof value === 'object') {
+                        value = JSON.stringify(value);
+                    }
+                    if (value && value.length > 50) {
+                        value = value.substring(0, 50) + '...';
+                    }
+                    html += `<td>${value || '-'}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+
+            // Add JSON view
+            html += `
+                <div style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px; color: #333;">JSON View</h3>
+                    <div class="json-view">${JSON.stringify(data, null, 2)}</div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        async function viewAllData() {
+            showMessage('loading', 'Loading all data...');
+
+            try {
+                const response = await fetch(`${API_URL}/all-data`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const container = document.getElementById('dataContent');
+                    container.innerHTML = `
+                        <div>
+                            <h3 style="margin-bottom: 15px; color: #333;">All Data (JSON View)</h3>
+                            <div class="json-view">${JSON.stringify(result.data, null, 2)}</div>
+                        </div>
+                    `;
+                    document.getElementById('sectionTitle').textContent = 'All Resources';
+
+                    let totalRecords = 0;
+                    Object.values(result.data).forEach(resource => {
+                        totalRecords += resource.data ? resource.data.length : 0;
+                    });
+                    document.getElementById('recordCount').textContent = `${totalRecords} total records`;
+                    clearMessage();
+                } else {
+                    showMessage('error', 'Failed to load data');
+                }
+            } catch (error) {
+                showMessage('error', 'Error: ' + error.message);
+            }
+        }
+
+        async function refreshData() {
+            const select = document.getElementById('resourceSelect');
+            if (select.value) {
+                await loadResourceData(select.value);
+                showMessage('success', 'Data refreshed successfully!');
+                setTimeout(clearMessage, 3000);
+            }
+            await loadInitialStats();
+        }
+
+        async function downloadBackup() {
+            showMessage('loading', 'Generating backup...');
+
+            try {
+                const response = await fetch(`${API_URL}/backup`);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup-${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                showMessage('success', 'Backup downloaded successfully!');
+                setTimeout(clearMessage, 3000);
+            } catch (error) {
+                showMessage('error', 'Failed to download backup: ' + error.message);
+            }
+        }
+
+        async function clearAllData() {
+            if (!confirm('⚠️ WARNING: This will delete ALL data from ALL resources!\n\nAre you absolutely sure?')) {
+                return;
+            }
+
+            if (!confirm('This action CANNOT be undone!\n\nClick OK to proceed with deletion.')) {
+                return;
+            }
+
+            showMessage('loading', 'Clearing all data...');
+
+            try {
+                const response = await fetch(`${API_URL}/clear-all`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('success', 'All data cleared successfully!');
+                    setTimeout(() => {
+                        refreshData();
+                    }, 2000);
+                } else {
+                    showMessage('error', 'Failed to clear data');
+                }
+            } catch (error) {
+                showMessage('error', 'Error: ' + error.message);
+            }
+        }
+
+        function showMessage(type, message) {
+            const container = document.getElementById('message');
+            let className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'loading';
+
+            if (type === 'loading') {
+                container.innerHTML = `<div class="data-section"><div class="loading">${message}</div></div>`;
+            } else {
+                container.innerHTML = `<div class="${className}">${message}</div>`;
+            }
+        }
+
+        function clearMessage() {
+            document.getElementById('message').innerHTML = '';
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            if (!currentData) return;
+
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = currentData.filter(item => {
+                return JSON.stringify(item).toLowerCase().includes(searchTerm);
+            });
+
+            const resource = document.getElementById('resourceSelect').value;
+            displayData(resource, filtered);
+            document.getElementById('recordCount').textContent = `${filtered.length} records`;
+        });
+    </script>
+</body>
+</html>

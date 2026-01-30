@@ -1,0 +1,39 @@
+{
+  "data": [
+    {
+      "id": "1768673044722-he3x6jgp7",
+      "name": "Super Admin",
+      "username": "superadmin",
+      "email": "superadmin@example.com",
+      "role": "super_admin",
+      "status": "active",
+      "password": "password",
+      "createdAt": "2026-01-17T18:04:04.720Z",
+      "updatedAt": "2026-01-17T18:04:04.720Z"
+    },
+    {
+      "id": "1768673044722-tu3lt0hgq",
+      "name": "Admin User",
+      "username": "admin",
+      "email": "admin@example.com",
+      "role": "admin",
+      "status": "active",
+      "password": "password",
+      "createdAt": "2026-01-17T18:04:04.720Z",
+      "updatedAt": "2026-01-17T18:04:04.720Z"
+    },
+    {
+      "id": "1768673044722-073cayimf",
+      "name": "Regular User",
+      "username": "user",
+      "email": "user@example.com",
+      "role": "user",
+      "status": "active",
+      "password": "password",
+      "createdAt": "2026-01-17T18:04:04.720Z",
+      "updatedAt": "2026-01-17T18:04:04.720Z"
+    }
+  ],
+  "lastUpdated": "2026-01-17T18:04:04.722Z",
+  "totalRecords": 3
+}
