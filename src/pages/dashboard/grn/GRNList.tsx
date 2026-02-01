@@ -12,8 +12,21 @@ export function GRNList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch GRNs
-    setLoading(false);
+    const fetchGrns = async () => {
+      try {
+        const res = await fetch('/api/grn');
+        if (res.ok) {
+          const data = await res.json();
+          setGrns(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch GRNs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGrns();
   }, []);
 
   const statusColor = (status: string) => {

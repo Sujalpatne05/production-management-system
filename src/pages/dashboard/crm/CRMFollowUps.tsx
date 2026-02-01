@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,49 +35,30 @@ interface FollowUp {
 }
 
 const CRMFollowUps = () => {
-  const [followUps, setFollowUps] = useState<FollowUp[]>([
-    {
-      id: "1",
-      leadName: "Rajesh Kumar",
-      followUpDate: "2026-01-27",
-      followUpTime: "10:00 AM",
-      notes: "Discuss pricing and timeline",
-      status: "Scheduled",
-      type: "Call",
-    },
-    {
-      id: "2",
-      leadName: "Priya Sharma",
-      followUpDate: "2026-01-26",
-      followUpTime: "02:00 PM",
-      notes: "Send proposal and check feedback",
-      status: "Pending",
-      type: "Email",
-    },
-    {
-      id: "3",
-      leadName: "Neha Gupta",
-      followUpDate: "2026-01-25",
-      followUpTime: "11:00 AM",
-      notes: "Final negotiation meeting",
-      status: "Completed",
-      type: "Meeting",
-    },
-    {
-      id: "4",
-      leadName: "Amit Patel",
-      followUpDate: "2026-01-28",
-      followUpTime: "03:00 PM",
-      notes: "Product demo and Q&A",
-      status: "Scheduled",
-      type: "Demo",
-    },
-  ]);
-
+  const [followUps, setFollowUps] = useState<FollowUp[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFollowUp, setEditingFollowUp] = useState<FollowUp | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchFollowUps = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/crm/follow-ups");
+        if (res.ok) {
+          const data = await res.json();
+          setFollowUps(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch follow-ups:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFollowUps();
+  }, []);
 
   const filteredFollowUps = followUps.filter((fu) =>
     fu.leadName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -110,25 +91,56 @@ const CRMFollowUps = () => {
   const upcomingFollowUps = followUps.filter((f) => f.status === "Scheduled").length;
   const completedFollowUps = followUps.filter((f) => f.status === "Completed").length;
 
-  const handleAddFollowUp = (followUpData: Omit<FollowUp, "id">) => {
-    const newFollowUp: FollowUp = {
-      ...followUpData,
-      id: Date.now().toString(),
-    };
-    setFollowUps([...followUps, newFollowUp]);
+  const handleAddFollowUp = async (followUpData: Omit<FollowUp, "id">) => {
+    try {
+      const res = await fetch("http://localhost:3000/api/crm/follow-ups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(followUpData),
+      });
+      if (!res.ok) throw new Error("Failed to create follow-up");
+      const newFollowUp = await res.json();
+      setFollowUps([newFollowUp, ...followUps]);
+      setDialogOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("Could not add follow-up");
+    }
   };
 
-  const handleEditFollowUp = (followUpData: Omit<FollowUp, "id">) => {
+  const handleEditFollowUp = async (followUpData: Omit<FollowUp, "id">) => {
     if (!editingFollowUp) return;
-    setFollowUps(
-      followUps.map((f) => (f.id === editingFollowUp.id ? { ...f, ...followUpData } : f))
-    );
-    setEditingFollowUp(null);
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/crm/follow-ups/${editingFollowUp.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(followUpData),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to update follow-up");
+      const updated = await res.json();
+      setFollowUps(followUps.map((f) => (f.id === editingFollowUp.id ? updated : f)));
+      setEditingFollowUp(null);
+    } catch (err) {
+      console.error(err);
+      alert("Could not update follow-up");
+    }
   };
 
-  const handleDeleteFollowUp = (id: string) => {
-    setFollowUps(followUps.filter((f) => f.id !== id));
-    setDeleteConfirm(null);
+  const handleDeleteFollowUp = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/crm/follow-ups/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete follow-up");
+      setFollowUps(followUps.filter((f) => f.id !== id));
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error(err);
+      alert("Could not delete follow-up");
+    }
   };
 
   const handleEditClick = (followUp: FollowUp) => {

@@ -13,8 +13,21 @@ export function BudgetList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch budgets
-    setLoading(false);
+    const fetchBudgets = async () => {
+      try {
+        const res = await fetch('/api/budget');
+        if (res.ok) {
+          const data = await res.json();
+          setBudgets(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch budgets:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBudgets();
   }, []);
 
   return (

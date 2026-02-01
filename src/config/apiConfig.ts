@@ -1,14 +1,129 @@
 // API Configuration
 export const API_CONFIG = {
-  // Disable API calls in demo/development mode
-  MOCK_MODE: true,
-  API_URL: process.env.REACT_APP_API_URL || 'http://localhost:8080',
-  WS_URL: process.env.REACT_APP_WS_URL || 'ws://localhost:8080',
+  // API Backend Configuration
+  API_URL: process.env.REACT_APP_API_URL || 'http://localhost:3000/api',
+  BASE_URL: process.env.REACT_APP_BASE_URL || 'http://localhost:3000',
+  WS_URL: process.env.REACT_APP_WS_URL || 'ws://localhost:3000',
   
-  // Enable/Disable features
-  ENABLE_API: false,
-  ENABLE_WEBSOCKET: false,
+  // Feature Flags
+  ENABLE_API: true,
+  ENABLE_WEBSOCKET: true,
   ENABLE_SERVICE_WORKER: false,
+};
+
+// API Endpoints
+export const API_ENDPOINTS = {
+  // Authentication
+  AUTH: {
+    LOGIN: '/auth/login',
+    REGISTER: '/auth/register',
+    REFRESH: '/auth/refresh',
+    LOGOUT: '/auth/logout',
+  },
+  
+  // Users
+  USERS: {
+    LIST: '/users',
+    GET: '/users/:id',
+    CREATE: '/users',
+    UPDATE: '/users/:id',
+    DELETE: '/users/:id',
+    ASSIGN_ROLES: '/users/assign-roles',
+  },
+  
+  // Tenants
+  TENANTS: {
+    LIST: '/tenants',
+    GET: '/tenants/:id',
+    CREATE: '/tenants',
+    UPDATE: '/tenants/:id',
+    DELETE: '/tenants/:id',
+  },
+  
+  // Orders
+  ORDERS: {
+    LIST: '/orders',
+    GET: '/orders/:id',
+    CREATE: '/orders',
+    UPDATE: '/orders/:id',
+    DELETE: '/orders/:id',
+    STATS: '/orders/stats/:tenantId',
+  },
+  
+  // Products
+  PRODUCTS: {
+    LIST: '/products',
+    GET: '/products/:id',
+    CREATE: '/products',
+    UPDATE: '/products/:id',
+    DELETE: '/products/:id',
+    CATEGORIES: '/product-categories',
+  },
+  
+  // Production
+  PRODUCTION: {
+    LIST: '/productions',
+    GET: '/productions/:id',
+    CREATE: '/productions',
+    UPDATE: '/productions/:id',
+    DELETE: '/productions/:id',
+    STATS: '/productions/stats/:tenantId',
+    LOSSES: '/production-losses',
+    STAGES: '/production-stages',
+  },
+  
+  // Inventory
+  STOCK: {
+    LIST: '/stock',
+    GET: '/stock/:id',
+    UPDATE: '/stock/:id',
+  },
+  
+  // Parties (Customers & Suppliers)
+  CUSTOMERS: {
+    LIST: '/customers',
+    GET: '/customers/:id',
+    CREATE: '/customers',
+    UPDATE: '/customers/:id',
+    DELETE: '/customers/:id',
+  },
+  SUPPLIERS: {
+    LIST: '/suppliers',
+    GET: '/suppliers/:id',
+    CREATE: '/suppliers',
+    UPDATE: '/suppliers/:id',
+    DELETE: '/suppliers/:id',
+  },
+  
+  // Sales & Purchases
+  SALES: {
+    LIST: '/sales',
+    GET: '/sales/:id',
+    CREATE: '/sales',
+    UPDATE: '/sales/:id',
+    DELETE: '/sales/:id',
+  },
+  PURCHASES: {
+    LIST: '/purchases',
+    GET: '/purchases/:id',
+    CREATE: '/purchases',
+    UPDATE: '/purchases/:id',
+    DELETE: '/purchases/:id',
+  },
+  
+  // Accounting
+  ACCOUNTING: {
+    ACCOUNTS: '/accounting/accounts',
+    TRANSACTIONS: '/accounting/transactions',
+    REPORTS: '/accounting/reports',
+  },
+  
+  // Reports
+  REPORTS: {
+    LIST: '/reports',
+    GET: '/reports/:id',
+    GENERATE: '/reports/generate',
+  },
 };
 
 // Mock API responses

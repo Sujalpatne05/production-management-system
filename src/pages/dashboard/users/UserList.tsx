@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,15 +16,31 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 const UserList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { users, roles, updateUser, deleteUser, addUser } = useStore();
+  const [users, setUsers] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [editingUser, setEditingUser] = useState<typeof users[0] | null>(null);
+  const [editingUser, setEditingUser] = useState<any | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editData, setEditData] = useState({ name: "", email: "", roleId: "", status: "active" as "active" | "inactive" });
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newUser, setNewUser] = useState({ name: "", email: "", roleId: "", status: "active" as "active" | "inactive" });
+
+  useEffect(() => {
+    Promise.all([
+      fetch("http://localhost:3000/api/users").then(r => r.json()),
+      fetch("http://localhost:3000/api/roles").then(r => r.json())
+    ]).then(([usersData, rolesData]) => {
+      setUsers(usersData);
+      setRoles(rolesData);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
+  }, []);
 
   const filteredUsers = users.filter(user => {
     const matchesSearch =

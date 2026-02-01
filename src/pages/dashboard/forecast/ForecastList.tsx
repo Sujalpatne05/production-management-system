@@ -12,8 +12,21 @@ export function ForecastList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch forecasts
-    setLoading(false);
+    const fetchForecasts = async () => {
+      try {
+        const res = await fetch('/api/forecast');
+        if (res.ok) {
+          const data = await res.json();
+          setForecasts(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch forecasts:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchForecasts();
   }, []);
 
   return (

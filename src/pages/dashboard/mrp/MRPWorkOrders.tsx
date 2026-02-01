@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,58 +29,27 @@ interface WorkOrder {
 }
 
 const MRPWorkOrders = () => {
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([
-    {
-      id: "1",
-      workOrderNo: "WO-2026-001",
-      productName: "Product A",
-      plannedQty: 1000,
-      producedQty: 950,
-      scrapQty: 30,
-      startDate: "2026-01-20",
-      endDate: "2026-01-26",
-      status: "Completed",
-      efficiency: 95,
-    },
-    {
-      id: "2",
-      workOrderNo: "WO-2026-002",
-      productName: "Product B",
-      plannedQty: 500,
-      producedQty: 450,
-      scrapQty: 15,
-      startDate: "2026-01-22",
-      endDate: "2026-01-28",
-      status: "In Progress",
-      efficiency: 90,
-    },
-    {
-      id: "3",
-      workOrderNo: "WO-2026-003",
-      productName: "Product C",
-      plannedQty: 750,
-      producedQty: 0,
-      scrapQty: 0,
-      startDate: "2026-01-27",
-      endDate: "2026-02-02",
-      status: "Planning",
-      efficiency: 0,
-    },
-    {
-      id: "4",
-      workOrderNo: "WO-2026-004",
-      productName: "Product D",
-      plannedQty: 300,
-      producedQty: 250,
-      scrapQty: 40,
-      startDate: "2026-01-18",
-      endDate: "2026-01-25",
-      status: "On Hold",
-      efficiency: 83,
-    },
-  ]);
-
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchWorkOrders = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/mrp/work-orders");
+        if (res.ok) {
+          const data = await res.json();
+          setWorkOrders(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch work orders:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkOrders();
+  }, []);
 
   const filteredWorkOrders = workOrders.filter((wo) =>
     wo.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||

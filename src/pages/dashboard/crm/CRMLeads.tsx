@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,54 +43,32 @@ interface Lead {
 }
 
 const CRMLeads = () => {
-  const [leads, setLeads] = useState<Lead[]>([
-    {
-      id: "1",
-      name: "Rajesh Kumar",
-      company: "Tech Solutions Inc",
-      email: "rajesh@techsol.com",
-      phone: "+91-9876543210",
-      status: "New",
-      value: "₹5,00,000",
-      createdDate: "2026-01-20",
-    },
-    {
-      id: "2",
-      name: "Priya Sharma",
-      company: "Global Industries",
-      email: "priya@global.com",
-      phone: "+91-9876543211",
-      status: "Won",
-      value: "₹12,50,000",
-      createdDate: "2026-01-15",
-    },
-    {
-      id: "3",
-      name: "Amit Patel",
-      company: "Manufacturing Co",
-      email: "amit@mfg.com",
-      phone: "+91-9876543212",
-      status: "Lost",
-      value: "₹3,50,000",
-      createdDate: "2026-01-10",
-    },
-    {
-      id: "4",
-      name: "Neha Gupta",
-      company: "Enterprise Solutions",
-      email: "neha@enterprise.com",
-      phone: "+91-9876543213",
-      status: "New",
-      value: "₹8,75,000",
-      createdDate: "2026-01-18",
-    },
-  ]);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchLeads = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/crm/leads");
+        if (res.ok) {
+          const data = await res.json();
+          setLeads(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch leads:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeads();
+  }, []);
 
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
@@ -139,24 +117,50 @@ const CRMLeads = () => {
     },
   ];
 
-  const handleAddLead = (leadData: Omit<Lead, "id" | "createdDate">) => {
-    const newLead: Lead = {
-      ...leadData,
-      id: Date.now().toString(),
-      createdDate: new Date().toISOString().split("T")[0],
-    };
-    setLeads([...leads, newLead]);
+  const handleAddLead = async (leadData: Omit<Lead, "id" | "createdDate">) => {
+    try {
+      const res = await fetch("http://localhost:3000/api/crm/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(leadData),
+      });
+      if (!res.ok) throw new Error("Failed to create lead");
+      const newLead = await res.json();
+      setLeads([newLead, ...leads]);
+    } catch (err) {
+      console.error(err);
+      alert("Could not add lead");
+    }
   };
 
-  const handleEditLead = (leadData: Omit<Lead, "id" | "createdDate">) => {
+  const handleEditLead = async (leadData: Omit<Lead, "id" | "createdDate">) => {
     if (!editingLead) return;
-    setLeads(leads.map((l) => (l.id === editingLead.id ? { ...l, ...leadData } : l)));
-    setEditingLead(null);
+    try {
+      const res = await fetch(`http://localhost:3000/api/crm/leads/${editingLead.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(leadData),
+      });
+      if (!res.ok) throw new Error("Failed to update lead");
+      const updated = await res.json();
+      setLeads(leads.map((l) => (l.id === editingLead.id ? updated : l)));
+      setEditingLead(null);
+    } catch (err) {
+      console.error(err);
+      alert("Could not update lead");
+    }
   };
 
-  const handleDeleteLead = (id: string) => {
-    setLeads(leads.filter((l) => l.id !== id));
-    setDeleteConfirm(null);
+  const handleDeleteLead = async (id: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/crm/leads/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete lead");
+      setLeads(leads.filter((l) => l.id !== id));
+      setDeleteConfirm(null);
+    } catch (err) {
+      console.error(err);
+      alert("Could not delete lead");
+    }
   };
 
   const handleEditClick = (lead: Lead) => {
@@ -217,72 +221,76 @@ const CRMLeads = () => {
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-gray-50">
-                  <TableHead className="font-semibold">Lead Name</TableHead>
-                  <TableHead className="font-semibold">Company</TableHead>
-                  <TableHead className="font-semibold">Contact</TableHead>
-                  <TableHead className="font-semibold">Status</TableHead>
-                  <TableHead className="font-semibold">Deal Value</TableHead>
-                  <TableHead className="font-semibold">Date</TableHead>
-                  <TableHead className="font-semibold">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLeads.length > 0 ? (
-                  filteredLeads.map((lead) => (
-                    <TableRow key={lead.id} className="hover:bg-gray-50">
-                      <TableCell className="font-medium">{lead.name}</TableCell>
-                      <TableCell>{lead.company}</TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm">
-                            <Mail className="w-3 h-3 text-gray-400" />
-                            {lead.email}
+          {loading ? (
+            <div className="py-8 text-center text-gray-500">Loading leads...</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="font-semibold">Lead Name</TableHead>
+                    <TableHead className="font-semibold">Company</TableHead>
+                    <TableHead className="font-semibold">Contact</TableHead>
+                    <TableHead className="font-semibold">Status</TableHead>
+                    <TableHead className="font-semibold">Deal Value</TableHead>
+                    <TableHead className="font-semibold">Date</TableHead>
+                    <TableHead className="font-semibold">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredLeads.length > 0 ? (
+                    filteredLeads.map((lead) => (
+                      <TableRow key={lead.id} className="hover:bg-gray-50">
+                        <TableCell className="font-medium">{lead.name}</TableCell>
+                        <TableCell>{lead.company}</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Mail className="w-3 h-3 text-gray-400" />
+                              {lead.email}
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <Phone className="w-3 h-3 text-gray-400" />
+                              {lead.phone}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Phone className="w-3 h-3 text-gray-400" />
-                            {lead.phone}
+                        </TableCell>
+                        <TableCell>{getStatusBadge(lead.status)}</TableCell>
+                        <TableCell className="font-semibold">{lead.value}</TableCell>
+                        <TableCell className="text-sm text-gray-600">{lead.createdDate}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleEditClick(lead)}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-red-600"
+                              onClick={() => setDeleteConfirm(lead.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(lead.status)}</TableCell>
-                      <TableCell className="font-semibold">{lead.value}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{lead.createdDate}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleEditClick(lead)}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-red-600"
-                            onClick={() => setDeleteConfirm(lead.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                        No leads found
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-                      No leads found
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 

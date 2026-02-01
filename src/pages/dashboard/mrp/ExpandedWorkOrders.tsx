@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,48 +75,26 @@ interface WorkOrder {
 }
 
 const ExpandedWorkOrders = () => {
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([
-    {
-      id: "1",
-      workOrderNo: "WO-2026-001",
-      workOrderDate: "2026-01-20",
-      tenderNo: "TEND-2026-001",
-      tenderDate: "2026-01-15",
-      buyerCompany: "IProduction Ltd",
-      buyerGST: "18AABCU1234GST",
-      supplierName: "Engineering Works Inc",
-      supplierGST: "18AABCS5678GST",
-      poNo: "PO-2026-001",
-      poDate: "2026-01-18",
-      items: [
-        {
-          itemCode: "PROD-001",
-          itemDescription: "Custom Assembly",
-          hsnCode: "8431.4390",
-          qty: 50,
-          unit: "PCS",
-          labourRate: 500,
-          discount: 5,
-          amount: 23750,
-          gstRate: 12,
-        },
-      ],
-      supplyTermsCondition: "FOB Shipping Point",
-      deliveryTime: "30 days",
-      insuranceNo: "INS-2026-001",
-      transporterName: "Fast Transport",
-      pnfCharges: 500,
-      installationCharges: 1000,
-      commissionCharges: 500,
-      manpowerQty: 10,
-      termsAndCondition: "Payment in 2 instalments",
-      tds: 100,
-      totalAmount: 26500,
-      status: "In Progress",
-      efficiency: 90,
-      createdDate: "2026-01-20",
-    },
-  ]);
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWorkOrders = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/mrp/work-orders");
+        if (res.ok) {
+          const data = await res.json();
+          setWorkOrders(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch work orders:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkOrders();
+  }, []);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingWO, setEditingWO] = useState<WorkOrder | null>(null);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -123,14 +131,95 @@ const mockDepartments: Department[] = [
   },
 ];
 
-export default function FactoriesList() {
+export default function FactoriesEnhanced() {
   const { toast } = useToast();
-  const [factories, setFactories] = useState<Factory[]>(mockFactories);
+  const [factories, setFactories] = useState<Factory[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFactory, setSelectedFactory] = useState<string | null>(
-    factories[0]?.id
-  );
+  const [selectedFactory, setSelectedFactory] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [formData, setFormData] = useState<Omit<Factory, "id">>({
+    code: "",
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    status: "active",
+    manager: "",
+    storageCapacity: 0,
+    currentInventory: 0,
+    machinesCount: 0,
+    employeesCount: 0,
+    productionLines: 0,
+    efficiency: 0,
+  });
+
+  useEffect(() => {
+    const fetchFactories = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/factories");
+        if (res.ok) {
+          const data = await res.json();
+          setFactories(Array.isArray(data) ? data : []);
+          if (data.length > 0) setSelectedFactory(data[0].id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch factories:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFactories();
+  }, []);
+
+  const handleAddFactory = async () => {
+    if (!formData.name || !formData.code) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      const res = await fetch("http://localhost:3000/api/factories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error("Failed to create factory");
+      const newFactory = await res.json();
+      setFactories([...factories, newFactory]);
+      setFormData({
+        code: "",
+        name: "",
+        phone: "",
+        email: "",
+        address: "",
+        status: "active",
+        manager: "",
+        storageCapacity: 0,
+        currentInventory: 0,
+        machinesCount: 0,
+        employeesCount: 0,
+        productionLines: 0,
+        efficiency: 0,
+      });
+      setDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "Factory added successfully",
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Error",
+        description: "Could not add factory",
+        variant: "destructive",
+      });
+    }
+  };
 
   const currentFactory = factories.find((f) => f.id === selectedFactory);
   const factoryDepartments = mockDepartments.filter(
@@ -255,7 +344,7 @@ export default function FactoriesList() {
             <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setDialogOpen(true)}>
           <Plus className="h-4 w-4" />
           Add Factory
         </Button>
@@ -599,6 +688,80 @@ export default function FactoriesList() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Add Factory Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Factory</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="code">Factory Code *</Label>
+              <Input
+                id="code"
+                placeholder="FAC-003"
+                value={formData.code}
+                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="name">Factory Name *</Label>
+              <Input
+                id="name"
+                placeholder="e.g., New Factory"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                placeholder="factory@company.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                placeholder="123-456-7890"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="manager">Manager Name</Label>
+              <Input
+                id="manager"
+                placeholder="Manager Name"
+                value={formData.manager}
+                onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value: any) => setFormData({ ...formData, status: value })}>
+                <SelectTrigger id="status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddFactory}>Add Factory</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

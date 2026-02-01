@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
@@ -179,16 +178,6 @@ import NotificationsCenter from "./pages/dashboard/notifications/NotificationsCe
 import KeyboardShortcuts from "./components/KeyboardShortcuts";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5,
-      gcTime: 1000 * 60 * 10,
-      retry: false,
-      enabled: false, // Disable automatic queries
-    },
-  },
-});
 
 function AppContent() {
   return (
@@ -389,10 +378,6 @@ function AppContent() {
   );
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AppContent />
-  </QueryClientProvider>
-);
+const App = () => <AppContent />;
 
 export default App;

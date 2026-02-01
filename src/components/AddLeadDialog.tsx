@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,6 +44,17 @@ const AddLeadDialog = ({ open, onOpenChange, onSubmit, editingLead }: AddLeadDia
     status: editingLead?.status || "New",
     value: editingLead?.value || "",
   });
+
+  useEffect(() => {
+    setFormData({
+      name: editingLead?.name || "",
+      company: editingLead?.company || "",
+      email: editingLead?.email || "",
+      phone: editingLead?.phone || "",
+      status: editingLead?.status || "New",
+      value: editingLead?.value || "",
+    });
+  }, [editingLead, open]);
 
   const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

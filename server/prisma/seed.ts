@@ -6,7 +6,7 @@ async function main() {
   console.log('Seeding database...');
 
   // Create Roles
-  const roles = ['Admin', 'Manager', 'User', 'Supervisor'];
+  const roles = ['Superadmin', 'Admin', 'User', 'Manager', 'Supervisor'];
   for (const name of roles) {
     await prisma.role.upsert({
       where: { name },
@@ -43,7 +43,8 @@ async function main() {
 
   // Assign permissions to roles
   const rolePermMap: Record<string, string[]> = {
-    Admin: permissions.map((p) => p.code), // All permissions
+    Superadmin: permissions.map((p) => p.code), // All permissions - Developer only
+    Admin: permissions.map((p) => p.code), // All permissions - Company Admin
     Manager: [
       'orders.read',
       'orders.write',
@@ -92,8 +93,41 @@ async function main() {
   });
   console.log('✅ Demo tenant created');
 
-  // Create demo user
-  const user = await prisma.user.upsert({
+  // Create superadmin user
+  const superadminUser = await prisma.user.upsert({
+    where: { email: 'superadmin@system.com' },
+    update: {},
+    create: {
+      email: 'superadmin@system.com',
+      fullName: 'Superadmin User',
+      status: 'active',
+    },
+  });
+  console.log('✅ Superadmin user created');
+
+  // Assign superadmin role to superadmin user
+  const superadminRole = await prisma.role.findUnique({ where: { name: 'Superadmin' } });
+  if (superadminRole) {
+    await prisma.userRole.upsert({
+      where: {
+        userId_tenantId_roleId: {
+          userId: superadminUser.id,
+          tenantId: tenant.id,
+          roleId: superadminRole.id,
+        },
+      },
+      update: {},
+      create: {
+        userId: superadminUser.id,
+        tenantId: tenant.id,
+        roleId: superadminRole.id,
+      },
+    });
+    console.log('✅ Superadmin role assigned to superadmin user');
+  }
+
+  // Create admin user
+  const adminUser = await prisma.user.upsert({
     where: { email: 'admin@demo.com' },
     update: {},
     create: {
@@ -102,27 +136,60 @@ async function main() {
       status: 'active',
     },
   });
-  console.log('✅ Demo user created');
+  console.log('✅ Admin user created');
 
-  // Assign admin role to demo user
+  // Assign admin role to admin user
   const adminRole = await prisma.role.findUnique({ where: { name: 'Admin' } });
   if (adminRole) {
     await prisma.userRole.upsert({
       where: {
         userId_tenantId_roleId: {
-          userId: user.id,
+          userId: adminUser.id,
           tenantId: tenant.id,
           roleId: adminRole.id,
         },
       },
       update: {},
       create: {
-        userId: user.id,
+        userId: adminUser.id,
         tenantId: tenant.id,
         roleId: adminRole.id,
       },
     });
-    console.log('✅ Admin role assigned to demo user');
+    console.log('✅ Admin role assigned to admin user');
+  }
+
+  // Create regular user
+  const regularUser = await prisma.user.upsert({
+    where: { email: 'user@demo.com' },
+    update: {},
+    create: {
+      email: 'user@demo.com',
+      fullName: 'Regular User',
+      status: 'active',
+    },
+  });
+  console.log('✅ Regular user created');
+
+  // Assign user role to regular user
+  const userRole = await prisma.role.findUnique({ where: { name: 'User' } });
+  if (userRole) {
+    await prisma.userRole.upsert({
+      where: {
+        userId_tenantId_roleId: {
+          userId: regularUser.id,
+          tenantId: tenant.id,
+          roleId: userRole.id,
+        },
+      },
+      update: {},
+      create: {
+        userId: regularUser.id,
+        tenantId: tenant.id,
+        roleId: userRole.id,
+      },
+    });
+    console.log('✅ User role assigned to regular user');
   }
 
   // Create default currency
