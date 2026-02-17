@@ -1,10 +1,10 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
-export class DemoSeedService implements OnModuleInit {
+export class DemoSeedService {
   private readonly logger = new Logger(DemoSeedService.name);
 
   constructor(
@@ -12,7 +12,12 @@ export class DemoSeedService implements OnModuleInit {
     private readonly config: ConfigService,
   ) {}
 
-  async onModuleInit() {
+  /**
+   * Manual demo data seeding method.
+   * This should only be called via the seed endpoint with proper authentication.
+   * Automatic seeding on startup has been disabled for production use.
+   */
+  async seedDemo() {
     try {
       // Check if database is already seeded
       const existingTenant = await this.prisma.tenant.findFirst({
@@ -24,18 +29,12 @@ export class DemoSeedService implements OnModuleInit {
         const productCount = await this.prisma.product.count({ where: { tenantId: 'demo-tenant-id' } });
         if (productCount > 0) {
           this.logger.log('✅ Demo data already seeded, skipping.');
-          return;
+          return { message: 'Demo data already exists', skipped: true };
         }
       }
-    } catch {
-      // DB not ready yet, continue to seed
-    }
-
-    const enabled = this.config.get<string>('SEED_DEMO');
-    const shouldSeed = !enabled || ['1', 'true', 'yes', 'on', 'undefined'].includes(enabled?.toLowerCase() ?? 'true');
-    
-    if (!shouldSeed) {
-      return;
+    } catch (error) {
+      this.logger.error('Error checking existing data:', error);
+      throw error;
     }
 
     const tenantId = this.config.get<string>('DEMO_TENANT_ID') ?? 'demo-tenant-id';
@@ -203,8 +202,19 @@ export class DemoSeedService implements OnModuleInit {
       }
 
       this.logger.log('✅ Demo data seed complete!');
+      
+      return {
+        message: 'Demo data seeded successfully',
+        counts: {
+          products: 5,
+          orders: 3,
+          customers: 2,
+          sales: 3,
+        },
+      };
     } catch (error) {
       this.logger.error('Demo seed failed:', error.message);
+      throw error;
     }
   }
 }

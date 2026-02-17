@@ -27,7 +27,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 
 interface ProductionData {
@@ -98,12 +97,6 @@ const Home = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <Alert className="bg-warning/10 border-warning text-sm">
-        <AlertDescription className="text-warning-foreground">
-          Demo mode: destructive actions are disabled.
-        </AlertDescription>
-      </Alert>
-
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
@@ -198,19 +191,19 @@ const Home = () => {
 
         {/* Running Productions */}
         <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle>Running Productions</CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="relative">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4">
+            <CardTitle className="text-base sm:text-lg">Running Productions</CardTitle>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+              <div className="relative w-full sm:w-auto">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Search production"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-64"
+                  className="pl-9 w-full sm:w-64"
                 />
               </div>
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto">
                 <Download className="w-4 h-4" />
                 Export
               </Button>
@@ -257,12 +250,12 @@ const Home = () => {
                 </TableBody>
               </Table>
             </div>
-            <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4 text-sm text-muted-foreground">
               <span>Showing {filteredData.length} of {mockProductionData.length} entries</span>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">Previous</Button>
-                <Button size="sm">1</Button>
-                <Button variant="outline" size="sm">Next</Button>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none">Previous</Button>
+                <Button size="sm" className="flex-1 sm:flex-none">1</Button>
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none">Next</Button>
               </div>
             </div>
           </CardContent>

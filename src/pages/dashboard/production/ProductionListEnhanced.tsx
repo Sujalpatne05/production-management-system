@@ -37,35 +37,7 @@ import {
 const ProductionListEnhanced = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { productions, updateProduction, deleteProduction } = useStore();
-
-  // Mock products for demo
-  const [products] = useState([
-    {
-      id: "1",
-      name: "MS ANGLE 50x50x5 MM",
-      sku: "MSA-50-50-5",
-      price: 45,
-    },
-    {
-      id: "2",
-      name: "Steel Rod 12mm",
-      sku: "SR-12",
-      price: 38,
-    },
-    {
-      id: "3",
-      name: "Mild Steel Plate",
-      sku: "MSP-10",
-      price: 50,
-    },
-    {
-      id: "4",
-      name: "Stainless Steel Sheet",
-      sku: "SSS-2",
-      price: 120,
-    },
-  ]);
+  const { productions, products, updateProduction, deleteProduction } = useStore();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

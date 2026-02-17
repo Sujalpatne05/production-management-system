@@ -33,20 +33,6 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setEmail("admin@demo.com");
-    setPassword("123456");
-    setError("");
-    setLoading(true);
-    try {
-      await AuthService.login({ email: "admin@demo.com", password: "123456" });
-      navigate("/dashboard/overview");
-    } catch (err) {
-      setError("Demo login failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -108,19 +94,6 @@ const Login = () => {
           </Button>
         </form>
 
-        {/* Demo Login Button */}
-        <div className="pt-2">
-          <p className="text-xs text-gray-600 mb-2">Demo Account:</p>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full text-sm"
-            onClick={handleDemoLogin}
-            disabled={loading}
-          >
-            Try Demo (admin@demo.com / 123456)
-          </Button>
-        </div>
       </div>
     </div>
   );

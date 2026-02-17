@@ -26,6 +26,7 @@ export class AuthService {
       data: {
         email: dto.email,
         fullName: dto.fullName,
+        password: hashedPassword,
       },
     });
 
@@ -83,11 +84,15 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Note: In production, you'd verify the password here
-    // const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
-    // if (!isPasswordValid) {
-    //   throw new UnauthorizedException('Invalid credentials');
-    // }
+    // Verify password
+    if (!user.password) {
+      throw new UnauthorizedException('Password not set for this account');
+    }
+    
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const tokens = await this.generateTokens(user.id, user.email);
 

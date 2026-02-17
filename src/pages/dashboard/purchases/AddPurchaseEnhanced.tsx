@@ -333,6 +333,24 @@ export default function AddPurchaseEnhanced() {
   };
 
   const handleSave = async () => {
+    const storedTenant = localStorage.getItem("tenant");
+    const tenantId = storedTenant ? (() => {
+      try {
+        return JSON.parse(storedTenant)?.id as string | undefined;
+      } catch {
+        return undefined;
+      }
+    })() : undefined;
+
+    if (!tenantId) {
+      toast({
+        title: "Error",
+        description: "Tenant not found. Please login again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!supplier) {
       toast({ title: "Please select a supplier", variant: "destructive" });
       return;
@@ -348,7 +366,7 @@ export default function AddPurchaseEnhanced() {
     try {
       // Prepare purchase order data - send ONLY required fields
       const purchaseData = {
-        tenantId: "demo-tenant-id",
+        tenantId,
         supplierId: supplier.id,
         poNo: poNo,
         purchaseDate: poDate,
