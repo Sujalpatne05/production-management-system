@@ -24,49 +24,53 @@ export class DemoSeedService implements OnModuleInit {
 
     this.logger.log('Seeding demo tenant/user (SEED_DEMO enabled).');
 
-    const tenant = await this.prisma.tenant.upsert({
-      where: { id: tenantId },
-      update: {},
-      create: {
-        id: tenantId,
-        name: tenantName,
-        plan: 'enterprise',
-        status: 'active',
-      },
-    });
+    try {
+      const tenant = await this.prisma.tenant.upsert({
+        where: { id: tenantId },
+        update: {},
+        create: {
+          id: tenantId,
+          name: tenantName,
+          plan: 'enterprise',
+          status: 'active',
+        },
+      });
 
-    const role = await this.prisma.role.upsert({
-      where: { name: 'Admin' },
-      update: {},
-      create: { name: 'Admin' },
-    });
+      const role = await this.prisma.role.upsert({
+        where: { name: 'Admin' },
+        update: {},
+        create: { name: 'Admin' },
+      });
 
-    const user = await this.prisma.user.upsert({
-      where: { email: adminEmail },
-      update: {},
-      create: {
-        email: adminEmail,
-        fullName: adminName,
-        status: 'active',
-      },
-    });
+      const user = await this.prisma.user.upsert({
+        where: { email: adminEmail },
+        update: {},
+        create: {
+          email: adminEmail,
+          fullName: adminName,
+          status: 'active',
+        },
+      });
 
-    await this.prisma.userRole.upsert({
-      where: {
-        userId_tenantId_roleId: {
+      await this.prisma.userRole.upsert({
+        where: {
+          userId_tenantId_roleId: {
+            userId: user.id,
+            tenantId: tenant.id,
+            roleId: role.id,
+          },
+        },
+        update: {},
+        create: {
           userId: user.id,
           tenantId: tenant.id,
           roleId: role.id,
         },
-      },
-      update: {},
-      create: {
-        userId: user.id,
-        tenantId: tenant.id,
-        roleId: role.id,
-      },
-    });
+      });
 
-    this.logger.log('Demo tenant/user seed complete.');
+      this.logger.log('Demo tenant/user seed complete.');
+    } catch (error) {
+      this.logger.error('Demo seed failed (DB may not be migrated yet):', error.message);
+    }
   }
 }
