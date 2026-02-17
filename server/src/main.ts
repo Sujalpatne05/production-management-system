@@ -6,11 +6,35 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const defaultOrigins = ['http://localhost:5173', 'http://localhost:8081', 'http://127.0.0.1:8081'];
   const envOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
+    ? process.env.CORS_ORIGIN
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean)
     : undefined;
 
+  const wildcardOrigins = envOrigins
+    ? envOrigins.filter((origin) => origin.startsWith('*.')).map((origin) => origin.slice(1))
+    : [];
+
   app.enableCors({
-    origin: envOrigins && envOrigins.length > 0 ? envOrigins : defaultOrigins,
+    origin: (origin, callback) => {
+      const allowList = envOrigins && envOrigins.length > 0 ? envOrigins : defaultOrigins;
+
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowList.includes('*') || allowList.includes(origin)) {
+        return callback(null, true);
+      }
+
+      const isWildcardMatch = wildcardOrigins.some((suffix) => origin.endsWith(suffix));
+      if (isWildcardMatch) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+    },
     credentials: true,
   });
   
