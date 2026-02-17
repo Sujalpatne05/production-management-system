@@ -92,15 +92,19 @@ export class DemoSeedService implements OnModuleInit {
       this.logger.log('✅ Demo tenant/user created');
 
       // Create product category first (global, not tenant-specific)
-      const category = await this.prisma.productCategory.upsert({
+      let category = await this.prisma.productCategory.findFirst({
         where: { name: 'Electronics' },
-        update: {},
-        create: {
-          id: uuidv4(),
-          name: 'Electronics',
-          description: 'Electronic products',
-        },
       });
+      
+      if (!category) {
+        category = await this.prisma.productCategory.create({
+          data: {
+            id: uuidv4(),
+            name: 'Electronics',
+            description: 'Electronic products',
+          },
+        });
+      }
 
       // Seed demo products
       const productIds: string[] = [];

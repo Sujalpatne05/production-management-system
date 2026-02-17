@@ -60,15 +60,19 @@ export class SeedController {
       });
 
       // Create product category (global, not tenant-specific)
-      const category = await this.prisma.productCategory.upsert({
+      let category = await this.prisma.productCategory.findFirst({
         where: { name: 'Electronics' },
-        update: {},
-        create: {
-          id: uuidv4(),
-          name: 'Electronics',
-          description: 'Electronic products',
-        },
       });
+      
+      if (!category) {
+        category = await this.prisma.productCategory.create({
+          data: {
+            id: uuidv4(),
+            name: 'Electronics',
+            description: 'Electronic products',
+          },
+        });
+      }
 
       // Create products
       const productIds: string[] = [];
