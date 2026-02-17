@@ -91,14 +91,26 @@ export class DemoSeedService implements OnModuleInit {
 
       this.logger.log('✅ Demo tenant/user created');
 
+      // Create product category first
+      const category = await this.prisma.productCategory.upsert({
+        where: { name_tenantId: { name: 'Electronics', tenantId } },
+        update: {},
+        create: {
+          id: uuidv4(),
+          name: 'Electronics',
+          tenantId,
+          description: 'Electronic products',
+        },
+      });
+
       // Seed demo products
       const productIds: string[] = [];
       const products = [
-        { name: 'Laptop Pro', tenantId, price: '1500', quantity: 10 },
-        { name: 'Desktop Computer', tenantId, price: '1200', quantity: 15 },
-        { name: 'Monitor 27"', tenantId, price: '300', quantity: 25 },
-        { name: 'Keyboard Mechanical', tenantId, price: '120', quantity: 40 },
-        { name: 'Mouse Wireless', tenantId, price: '50', quantity: 60 },
+        { name: 'Laptop Pro', sku: 'LAP-001', cost: '1200', sellingPrice: '1500' },
+        { name: 'Desktop Computer', sku: 'DSK-001', cost: '1000', sellingPrice: '1200' },
+        { name: 'Monitor 27"', sku: 'MON-001', cost: '250', sellingPrice: '300' },
+        { name: 'Keyboard Mechanical', sku: 'KEY-001', cost: '100', sellingPrice: '120' },
+        { name: 'Mouse Wireless', sku: 'MOU-001', cost: '40', sellingPrice: '50' },
       ];
 
       for (const prod of products) {
@@ -106,9 +118,13 @@ export class DemoSeedService implements OnModuleInit {
           data: {
             id: uuidv4(),
             name: prod.name,
-            tenantId: prod.tenantId,
+            tenantId,
+            categoryId: category.id,
+            sku: prod.sku,
             description: `${prod.name} - Demo product`,
-            price: prod.price,
+            unitOfMeasure: 'pcs',
+            cost: prod.cost,
+            sellingPrice: prod.sellingPrice,
             status: 'active',
           },
         }).catch(() => null);

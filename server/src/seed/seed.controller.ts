@@ -59,19 +59,31 @@ export class SeedController {
         },
       });
 
+      // Create product category
+      const category = await this.prisma.productCategory.upsert({
+        where: { name_tenantId: { name: 'Electronics', tenantId } },
+        update: {},
+        create: {
+          id: uuidv4(),
+          name: 'Electronics',
+          tenantId,
+          description: 'Electronic products',
+        },
+      });
+
       // Create products
       const productIds: string[] = [];
       const products = [
-        { name: 'Laptop Pro', price: '1500' },
-        { name: 'Desktop Computer', price: '1200' },
-        { name: 'Monitor 27"', price: '300' },
-        { name: 'Keyboard Mechanical', price: '120' },
-        { name: 'Mouse Wireless', price: '50' },
+        { name: 'Laptop Pro', sku: 'LAP-001', cost: '1200', sellingPrice: '1500' },
+        { name: 'Desktop Computer', sku: 'DSK-001', cost: '1000', sellingPrice: '1200' },
+        { name: 'Monitor 27"', sku: 'MON-001', cost: '250', sellingPrice: '300' },
+        { name: 'Keyboard Mechanical', sku: 'KEY-001', cost: '100', sellingPrice: '120' },
+        { name: 'Mouse Wireless', sku: 'MOU-001', cost: '40', sellingPrice: '50' },
       ];
 
       for (const prod of products) {
         const existing = await this.prisma.product.findFirst({
-          where: { name: prod.name, tenantId },
+          where: { sku: prod.sku, tenantId },
         });
         if (!existing) {
           const created = await this.prisma.product.create({
@@ -79,8 +91,12 @@ export class SeedController {
               id: uuidv4(),
               name: prod.name,
               tenantId,
+              categoryId: category.id,
+              sku: prod.sku,
               description: `${prod.name} - Demo product`,
-              price: prod.price,
+              unitOfMeasure: 'pcs',
+              cost: prod.cost,
+              sellingPrice: prod.sellingPrice,
               status: 'active',
             },
           });
