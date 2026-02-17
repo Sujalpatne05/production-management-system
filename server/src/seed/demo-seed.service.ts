@@ -13,8 +13,28 @@ export class DemoSeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    try {
+      // Check if database is already seeded
+      const existingTenant = await this.prisma.tenant.findFirst({
+        where: { id: 'demo-tenant-id' },
+      });
+
+      // If tenant exists and has products/orders/sales, skip seeding
+      if (existingTenant) {
+        const productCount = await this.prisma.product.count({ where: { tenantId: 'demo-tenant-id' } });
+        if (productCount > 0) {
+          this.logger.log('✅ Demo data already seeded, skipping.');
+          return;
+        }
+      }
+    } catch {
+      // DB not ready yet, continue to seed
+    }
+
     const enabled = this.config.get<string>('SEED_DEMO');
-    if (!enabled || !['1', 'true', 'yes', 'on'].includes(enabled.toLowerCase())) {
+    const shouldSeed = !enabled || ['1', 'true', 'yes', 'on', 'undefined'].includes(enabled?.toLowerCase() ?? 'true');
+    
+    if (!shouldSeed) {
       return;
     }
 
@@ -23,7 +43,7 @@ export class DemoSeedService implements OnModuleInit {
     const adminEmail = this.config.get<string>('DEMO_ADMIN_EMAIL') ?? 'admin@demo.com';
     const adminName = this.config.get<string>('DEMO_ADMIN_NAME') ?? 'Admin User';
 
-    this.logger.log('Seeding demo data (SEED_DEMO enabled)...');
+    this.logger.log('🌱 Seeding demo data...');
 
     try {
       const tenant = await this.prisma.tenant.upsert({
