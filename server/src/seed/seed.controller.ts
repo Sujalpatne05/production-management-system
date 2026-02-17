@@ -59,14 +59,13 @@ export class SeedController {
         },
       });
 
-      // Create product category
+      // Create product category (global, not tenant-specific)
       const category = await this.prisma.productCategory.upsert({
-        where: { name_tenantId: { name: 'Electronics', tenantId } },
+        where: { name: 'Electronics' },
         update: {},
         create: {
           id: uuidv4(),
           name: 'Electronics',
-          tenantId,
           description: 'Electronic products',
         },
       });

@@ -91,14 +91,13 @@ export class DemoSeedService implements OnModuleInit {
 
       this.logger.log('✅ Demo tenant/user created');
 
-      // Create product category first
+      // Create product category first (global, not tenant-specific)
       const category = await this.prisma.productCategory.upsert({
-        where: { name_tenantId: { name: 'Electronics', tenantId } },
+        where: { name: 'Electronics' },
         update: {},
         create: {
           id: uuidv4(),
           name: 'Electronics',
-          tenantId,
           description: 'Electronic products',
         },
       });
