@@ -30,6 +30,7 @@ import { GrnModule } from './grn/grn.module';
 import { BudgetModule } from './budget/budget.module';
 import { ForecastModule } from './forecast/forecast.module';
 import { redisStore } from 'cache-manager-redis-yet';
+import { DemoSeedService } from './seed/demo-seed.service';
 
 @Module({
   imports: [
@@ -89,6 +90,6 @@ import { redisStore } from 'cache-manager-redis-yet';
     ForecastModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DemoSeedService],
 })
 export class AppModule {}
