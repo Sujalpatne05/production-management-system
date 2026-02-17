@@ -29,6 +29,7 @@ import { QcModule } from './quality-control/qc.module';
 import { GrnModule } from './grn/grn.module';
 import { BudgetModule } from './budget/budget.module';
 import { ForecastModule } from './forecast/forecast.module';
+import { SeedModule } from './seed/seed.module';
 import { redisStore } from 'cache-manager-redis-yet';
 import { DemoSeedService } from './seed/demo-seed.service';
 
@@ -94,6 +95,7 @@ const redisUrl = process.env.REDIS_URL;
     GrnModule,
     BudgetModule,
     ForecastModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService, DemoSeedService],
