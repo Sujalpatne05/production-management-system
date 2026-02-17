@@ -1,10 +1,25 @@
+const resolveEnv = (key: string, fallback?: string) => {
+  const viteEnv = typeof import.meta !== 'undefined' ? (import.meta as any).env?.[key] : undefined;
+  const nodeEnv = typeof process !== 'undefined' ? (process as any).env?.[key] : undefined;
+  return (viteEnv ?? nodeEnv ?? fallback) as string | undefined;
+};
+
 // API Configuration
 export const API_CONFIG = {
   // API Backend Configuration
-  API_URL: process.env.REACT_APP_API_URL || 'http://localhost:3000/api',
-  BASE_URL: process.env.REACT_APP_BASE_URL || 'http://localhost:3000',
-  WS_URL: process.env.REACT_APP_WS_URL || 'ws://localhost:3000',
-  
+  API_URL:
+    resolveEnv('VITE_API_URL') ||
+    resolveEnv('REACT_APP_API_URL') ||
+    'http://localhost:3000/api',
+  BASE_URL:
+    resolveEnv('VITE_BASE_URL') ||
+    resolveEnv('REACT_APP_BASE_URL') ||
+    'http://localhost:3000',
+  WS_URL:
+    resolveEnv('VITE_WS_URL') ||
+    resolveEnv('REACT_APP_WS_URL') ||
+    'ws://localhost:3000',
+
   // Feature Flags
   ENABLE_API: true,
   ENABLE_WEBSOCKET: true,
@@ -29,6 +44,16 @@ export const API_ENDPOINTS = {
     UPDATE: '/users/:id',
     DELETE: '/users/:id',
     ASSIGN_ROLES: '/users/assign-roles',
+  },
+
+  // Roles & Permissions
+  ROLES: {
+    LIST: '/roles',
+    GET: '/roles/:id',
+    CREATE: '/roles',
+    UPDATE: '/roles/:id',
+    DELETE: '/roles/:id',
+    ASSIGN_PERMISSIONS: '/roles/assign-permissions',
   },
   
   // Tenants
@@ -123,6 +148,22 @@ export const API_ENDPOINTS = {
     LIST: '/reports',
     GET: '/reports/:id',
     GENERATE: '/reports/generate',
+  },
+
+  // Forecasting
+  FORECAST: {
+    LIST: '/forecast',
+    CREATE: '/forecast',
+    GET: '/forecast/:id',
+    DASHBOARD: '/forecast/dashboard',
+  },
+
+  // Quality Control
+  QC: {
+    TEMPLATES: '/qc/templates',
+    INSPECTIONS: '/qc/inspections',
+    NON_CONFORMANCE: '/qc/non-conformance',
+    DASHBOARD: '/qc/dashboard',
   },
 };
 

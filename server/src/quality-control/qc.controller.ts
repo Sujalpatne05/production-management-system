@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Body, Param, Request } from '@nestjs/common';
 import { QcService, CreateQcTemplateDto, CreateQcInspectionDto } from './qc.service';
 
-@Controller('api/qc')
+@Controller('qc')
 export class QcController {
   constructor(private qcService: QcService) {}
 

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Check, X } from 'lucide-react';
+import { apiClient } from '@/services/apiClient';
 
 interface Approval {
   id: string;
@@ -21,14 +22,19 @@ export function PendingApprovals() {
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchApprovals = async () => {
       try {
-        const res = await fetch('/api/approvals/pending');
-        if (res.ok) {
-          const data = await res.json();
-          setApprovals(data);
-        }
+        const res = await apiClient.get('/approvals/pending');
+        const data = unwrapData<any[]>(res);
+        setApprovals(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch pending approvals:', err);
       } finally {
@@ -41,15 +47,9 @@ export function PendingApprovals() {
 
   const handleApprove = async (approvalId: string) => {
     try {
-      const res = await fetch(`/api/approvals/${approvalId}/approve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comments: '' })
-      });
-      if (res.ok) {
-        setApprovals(approvals.filter(a => a.id !== approvalId));
-        alert('Approval granted');
-      }
+      await apiClient.post(`/approvals/${approvalId}/approve`, { comments: '' });
+      setApprovals(approvals.filter(a => a.id !== approvalId));
+      alert('Approval granted');
     } catch (err) {
       console.error('Failed to approve:', err);
       alert('Could not approve');
@@ -58,15 +58,9 @@ export function PendingApprovals() {
 
   const handleReject = async (approvalId: string) => {
     try {
-      const res = await fetch(`/api/approvals/${approvalId}/reject`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comments: 'Rejected' })
-      });
-      if (res.ok) {
-        setApprovals(approvals.filter(a => a.id !== approvalId));
-        alert('Request rejected');
-      }
+      await apiClient.post(`/approvals/${approvalId}/reject`, { comments: 'Rejected' });
+      setApprovals(approvals.filter(a => a.id !== approvalId));
+      alert('Request rejected');
     } catch (err) {
       console.error('Failed to reject:', err);
       alert('Could not reject');

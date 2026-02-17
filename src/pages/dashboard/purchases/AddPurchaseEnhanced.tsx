@@ -64,8 +64,8 @@ interface SupplierInfo {
 
 const mockSuppliers: SupplierInfo[] = [
   {
-    id: "1",
-    name: "Industrial Supplies Co",
+    id: "a1a714cb-b4d3-4b90-974e-60ecb290af5a",
+    name: "Global Supplies Inc",
     code: "SUP-001",
     contact: "John Smith",
     email: "john@suppliers.com",
@@ -76,7 +76,7 @@ const mockSuppliers: SupplierInfo[] = [
     lastOrderDate: "2026-01-20",
   },
   {
-    id: "2",
+    id: "91238403-1b5d-4c8e-a9e0-e67f494207be",
     name: "Premium Materials Ltd",
     code: "SUP-002",
     contact: "Sarah Johnson",
@@ -162,10 +162,8 @@ const mockSuppliers: SupplierInfo[] = [
 ];
 
 const products = [
-  { id: "1", name: "MS ANGLE 50x50x5 MM", hsn: "928414" },
-  { id: "2", name: "Steel Rod 12mm", hsn: "928311" },
-  { id: "3", name: "Mild Steel Plate", hsn: "928325" },
-  { id: "4", name: "Stainless Steel Sheet", hsn: "941310" },
+  { id: "3e2c4db9-a1df-4a76-a5b0-b4d1edda2e21", name: "ABS Plastic Pellets", hsn: "928414" },
+  { id: "dedfe5d2-c01d-4a07-8cc2-a03546555f20", name: "Cotton Thread", hsn: "928311" },
 ];
 
 export default function AddPurchaseEnhanced() {
@@ -334,7 +332,7 @@ export default function AddPurchaseEnhanced() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!supplier) {
       toast({ title: "Please select a supplier", variant: "destructive" });
       return;
@@ -346,8 +344,73 @@ export default function AddPurchaseEnhanced() {
       });
       return;
     }
-    toast({ title: "Purchase Order saved successfully" });
-    setTimeout(() => navigate("/dashboard/purchases/list"), 1500);
+
+    try {
+      // Prepare purchase order data - send ONLY required fields
+      const purchaseData = {
+        tenantId: "demo-tenant-id",
+        supplierId: supplier.id,
+        poNo: poNo,
+        purchaseDate: poDate,
+        items: items
+          .filter(item => item.product)
+          .map((item) => ({
+            rawMaterialId: item.product,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+          })),
+      };
+
+      // Get token from localStorage
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        toast({
+          title: "Error",
+          description: "Not authenticated. Please login again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("Sending purchase data:", JSON.stringify(purchaseData, null, 2));
+
+      // Call API to save purchase order
+      const response = await fetch("http://localhost:3000/api/purchases", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(purchaseData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: "Unknown error" }));
+        console.error("API Error Response:", error);
+        toast({
+          title: "Error",
+          description: error.message || JSON.stringify(error) || "Failed to save purchase order",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const savedPO = await response.json();
+      console.log("Saved PO:", savedPO);
+      toast({
+        title: "Success",
+        description: `Purchase Order saved successfully`,
+      });
+
+      setTimeout(() => navigate("/dashboard/purchases/list"), 1500);
+    } catch (error) {
+      console.error("Error saving purchase:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save purchase order",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

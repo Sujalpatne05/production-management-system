@@ -6,20 +6,26 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { Plus } from 'lucide-react';
+import { apiClient } from '@/services/apiClient';
 
 export function BudgetList() {
   const navigate = useNavigate();
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchBudgets = async () => {
       try {
-        const res = await fetch('/api/budget');
-        if (res.ok) {
-          const data = await res.json();
-          setBudgets(Array.isArray(data) ? data : []);
-        }
+        const res = await apiClient.get('/budget');
+        const data = unwrapData<any[]>(res);
+        setBudgets(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch budgets:', err);
       } finally {

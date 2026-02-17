@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { History } from 'lucide-react';
+import { apiClient } from '@/services/apiClient';
 
 interface ApprovalRecord {
   id: string;
@@ -23,14 +24,19 @@ export function ApprovalHistory() {
   const [approvals, setApprovals] = useState<ApprovalRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchApprovals = async () => {
       try {
-        const res = await fetch('/api/approvals/history');
-        if (res.ok) {
-          const data = await res.json();
-          setApprovals(data);
-        }
+        const res = await apiClient.get('/approvals/history');
+        const data = unwrapData<any[]>(res);
+        setApprovals(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch approval history:', err);
       } finally {

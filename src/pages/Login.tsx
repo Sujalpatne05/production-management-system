@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { AuthService } from "@/services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await AuthService.login({ email, password });
       navigate("/dashboard/overview");
     } catch (err) {
       setError("Login failed. Please try again.");
@@ -38,7 +39,7 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await AuthService.login({ email: "admin@demo.com", password: "123456" });
       navigate("/dashboard/overview");
     } catch (err) {
       setError("Demo login failed. Please try again.");

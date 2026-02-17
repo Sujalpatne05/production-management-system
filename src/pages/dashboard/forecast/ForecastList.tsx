@@ -5,20 +5,27 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, TrendingUp } from 'lucide-react';
+import { apiClient } from '@/services/apiClient';
+import { API_ENDPOINTS } from '@/config/apiConfig';
 
 export function ForecastList() {
   const navigate = useNavigate();
   const [forecasts, setForecasts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchForecasts = async () => {
       try {
-        const res = await fetch('/api/forecast');
-        if (res.ok) {
-          const data = await res.json();
-          setForecasts(Array.isArray(data) ? data : []);
-        }
+        const res = await apiClient.get(API_ENDPOINTS.FORECAST.LIST);
+        const data = unwrapData<any[]>(res);
+        setForecasts(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch forecasts:', err);
       } finally {

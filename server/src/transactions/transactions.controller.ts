@@ -43,33 +43,4 @@ export class SalesController {
   }
 }
 
-@Controller('purchases')
-@UseGuards(JwtAuthGuard)
-export class PurchasesController {
-  constructor(private transactionsService: TransactionsService) {}
 
-  @Get()
-  findAll(@Query('tenantId') tenantId?: string) {
-    return this.transactionsService.findAllPurchases(tenantId);
-  }
-
-  @Get('stats/:tenantId')
-  getStats(@Param('tenantId') tenantId: string) {
-    return this.transactionsService.getPurchaseStats(tenantId);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOnePurchase(id);
-  }
-
-  @Post()
-  create(@Body() dto: CreatePurchaseDto) {
-    return this.transactionsService.createPurchase(dto);
-  }
-
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.transactionsService.deletePurchase(id);
-  }
-}

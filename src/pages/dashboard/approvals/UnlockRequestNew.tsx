@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { apiClient } from '@/services/apiClient';
 
 export function UnlockRequestNew() {
   const navigate = useNavigate();
@@ -54,15 +55,7 @@ export function UnlockRequestNew() {
         status: 'pending'
       };
 
-      const res = await fetch('/api/approvals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        throw new Error((await res.json()).message || 'Failed to create unlock request');
-      }
+      await apiClient.post('/approvals', payload);
       navigate('/dashboard/approvals/unlock-requests');
     } catch (err) {
       console.error(err);

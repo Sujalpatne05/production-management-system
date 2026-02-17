@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Body, Param, Request } from '@nestjs/common';
 import { GrnService, CreateGrnDto, CreateGrnLineItemDto } from './grn.service';
 
-@Controller('api/grn')
+@Controller('grn')
 export class GrnController {
   constructor(private grnService: GrnService) {}
 

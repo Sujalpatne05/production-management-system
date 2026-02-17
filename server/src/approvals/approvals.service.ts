@@ -179,7 +179,7 @@ export class ApprovalsService {
 
     // If pending approval, only creator can edit
     if (entity.approvalStatus === ApprovalStatus.PENDING) {
-      return entity.userId === userId || entity.requesterId === userId;
+      return entity.userId === userId;
     }
 
     return false;

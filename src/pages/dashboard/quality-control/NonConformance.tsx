@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus } from "lucide-react";
+import { apiClient } from "@/services/apiClient";
+import { API_ENDPOINTS } from "@/config/apiConfig";
 
 type NCR = {
   id: string;
@@ -18,12 +20,18 @@ export function NonConformance() {
   const [ncrs, setNcrs] = useState<NCR[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("/api/qc/non-conformance");
-        if (!res.ok) throw new Error("Failed to load NCRs");
-        const data = await res.json();
+        const res = await apiClient.get(API_ENDPOINTS.QC.NON_CONFORMANCE);
+        const data = unwrapData<any[]>(res);
         setNcrs(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);

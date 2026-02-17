@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiClient } from "@/services/apiClient";
 
 export function GRNNew() {
   const navigate = useNavigate();
@@ -31,12 +32,7 @@ export function GRNNew() {
         status: status || "pending",
         remarks: notes || undefined,
       };
-      const res = await fetch("/api/grn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to save GRN");
+      await apiClient.post("/grn", payload);
       navigate("/dashboard/grn");
     } catch (err) {
       console.error(err);

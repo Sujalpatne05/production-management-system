@@ -7,7 +7,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { PdfService } from './pdf.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -124,9 +124,9 @@ export class PdfController {
   async generateFinancialStatement(
     @Query('type') type: 'trial-balance' | 'balance-sheet' | 'profit-loss',
     @Query('tenantId') tenantId: string,
+    @Res() res: Response,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Res() res?: Response,
   ) {
     try {
       const html = await this.pdfService.generateFinancialStatement(

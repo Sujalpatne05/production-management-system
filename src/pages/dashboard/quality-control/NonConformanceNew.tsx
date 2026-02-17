@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiClient } from "@/services/apiClient";
+import { API_ENDPOINTS } from "@/config/apiConfig";
 
 export function NonConformanceNew() {
   const navigate = useNavigate();
@@ -24,12 +26,7 @@ export function NonConformanceNew() {
         description: description || title || "",
         severity: severity || "minor",
       };
-      const res = await fetch("/api/qc/non-conformance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to save NCR");
+      await apiClient.post(API_ENDPOINTS.QC.NON_CONFORMANCE, payload);
       navigate("/dashboard/qc/ncr");
     } catch (err) {
       console.error(err);

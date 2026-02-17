@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { BomService, CreateBomDto, CreateBomComponentDto, UpdateBomDto } from './bom.service';
 
-@Controller('api/bom')
+@Controller('bom')
 export class BomController {
   constructor(private bomService: BomService) {}
 

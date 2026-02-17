@@ -19,11 +19,15 @@ export interface AuthResponse {
     id: string;
     email: string;
     fullName: string;
-    roles: string[];
-    tenant: {
-      id: string;
-      name: string;
-    };
+    roles?: {
+      roleId: number;
+      role: string;
+      tenant: {
+        id: string;
+        name: string;
+      };
+      permissions: string[];
+    }[];
   };
 }
 
@@ -37,6 +41,11 @@ export class AuthService {
     if (response.accessToken) {
       apiClient.setToken(response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      const defaultTenant = response.user?.roles?.[0]?.tenant;
+      if (defaultTenant) {
+        localStorage.setItem('tenant', JSON.stringify(defaultTenant));
+      }
     }
     return response;
   }
@@ -46,6 +55,11 @@ export class AuthService {
     if (response.accessToken) {
       apiClient.setToken(response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      const defaultTenant = response.user?.roles?.[0]?.tenant;
+      if (defaultTenant) {
+        localStorage.setItem('tenant', JSON.stringify(defaultTenant));
+      }
     }
     return response;
   }

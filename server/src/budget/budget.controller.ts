@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Body, Param, Request } from '@nestjs/common';
 import { BudgetService, CreateBudgetDto, CreateBudgetLineDto } from './budget.service';
 
-@Controller('api/budget')
+@Controller('budget')
 export class BudgetController {
   constructor(private budgetService: BudgetService) {}
 

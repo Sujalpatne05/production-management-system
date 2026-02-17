@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit2, Trash2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PageHeader from "@/components/PageHeader";
+import { apiClient } from "@/services/apiClient";
 
 interface WorkOrder {
   id: string;
@@ -33,14 +34,19 @@ const MRPWorkOrders = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchWorkOrders = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/mrp/work-orders");
-        if (res.ok) {
-          const data = await res.json();
-          setWorkOrders(Array.isArray(data) ? data : []);
-        }
+        const res = await apiClient.get("/mrp/work-orders");
+        const data = unwrapData<any[]>(res);
+        setWorkOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch work orders:", err);
       } finally {

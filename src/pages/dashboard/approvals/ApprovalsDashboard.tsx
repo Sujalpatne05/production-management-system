@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, LockOpen } from 'lucide-react';
+import { apiClient } from '@/services/apiClient';
 
 export function ApprovalsDashboard() {
   const navigate = useNavigate();
@@ -15,14 +16,19 @@ export function ApprovalsDashboard() {
   });
   const [loading, setLoading] = useState(true);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('/api/approvals/stats');
-        if (res.ok) {
-          const data = await res.json();
-          setStats(data);
-        }
+        const res = await apiClient.get('/approvals/stats');
+        const data = unwrapData<any>(res);
+        setStats(data || { pending: 0, approved: 0, rejected: 0, unlockRequests: 0 });
       } catch (err) {
         console.error('Failed to fetch approval stats:', err);
       } finally {

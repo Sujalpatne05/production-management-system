@@ -87,11 +87,6 @@ export class PdfService {
       include: {
         tenant: true,
         user: true,
-        orderItems: {
-          include: {
-            product: true,
-          },
-        },
       },
     });
 
@@ -440,8 +435,8 @@ export class PdfService {
 <body>
   <div class="header">
     <div class="title">DELIVERY CHALLAN</div>
-    <div class="challan-no">Challan No: ${order.orderNo}</div>
-    <div>Date: ${new Date(order.orderDate).toLocaleDateString()}</div>
+    <div class="challan-no">Challan No: ${order.id}</div>
+    <div>Date: ${new Date(order.createdAt).toLocaleDateString()}</div>
   </div>
 
   <div class="parties">
@@ -467,19 +462,12 @@ export class PdfService {
       </tr>
     </thead>
     <tbody>
-      ${order.orderItems?.map((item: any, index: number) => `
-        <tr>
-          <td class="text-center">${index + 1}</td>
-          <td>${item.product?.name || 'Product'}</td>
-          <td class="text-center">${item.quantity}</td>
-          <td></td>
-        </tr>
-      `).join('') || '<tr><td colspan="4" class="text-center">No items</td></tr>'}
+      <tr><td colspan="4" class="text-center">No items available</td></tr>
     </tbody>
   </table>
 
   <div class="barcode">
-    *${order.orderNo}*
+    *${order.id}*
   </div>
 
   <div><strong>Vehicle Details:</strong> _______________</div>

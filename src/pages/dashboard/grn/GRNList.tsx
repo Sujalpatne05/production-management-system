@@ -5,20 +5,26 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Package } from 'lucide-react';
+import { apiClient } from '@/services/apiClient';
 
 export function GRNList() {
   const navigate = useNavigate();
   const [grns, setGrns] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchGrns = async () => {
       try {
-        const res = await fetch('/api/grn');
-        if (res.ok) {
-          const data = await res.json();
-          setGrns(Array.isArray(data) ? data : []);
-        }
+        const res = await apiClient.get('/grn');
+        const data = unwrapData<any[]>(res);
+        setGrns(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch GRNs:', err);
       } finally {

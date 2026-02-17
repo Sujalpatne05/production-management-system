@@ -97,8 +97,12 @@ export class AuthService {
         email: user.email,
         fullName: user.fullName,
         roles: user.roles.map(ur => ({
+          roleId: ur.roleId,
           role: ur.role.name,
-          tenant: ur.tenant.name,
+          tenant: {
+            id: ur.tenant.id,
+            name: ur.tenant.name,
+          },
           permissions: ur.role.permissions.map(rp => rp.permission.code),
         })),
       },

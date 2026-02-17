@@ -134,10 +134,7 @@ export class ValidationService {
         if (salesCount > 0) references.push(`${salesCount} sale(s)`);
 
         // Check orders
-        const ordersCount = await this.prisma.orderItem.count({
-          where: { productId: entityId },
-        });
-        if (ordersCount > 0) references.push(`${ordersCount} order(s)`);
+        // Order items are not modeled; skip order item references
 
         // Check production
         const productionCount = await this.prisma.production.count({
@@ -162,12 +159,7 @@ export class ValidationService {
 
       case 'account':
         const accountTransactions = await this.prisma.accountingTransaction.count({
-          where: {
-            OR: [
-              { debitAccountId: entityId },
-              { creditAccountId: entityId },
-            ],
-          },
+          where: { accountId: entityId },
         });
         if (accountTransactions > 0) references.push(`${accountTransactions} transaction(s)`);
         break;

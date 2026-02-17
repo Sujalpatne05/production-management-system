@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Plus, Edit2, Trash2, CheckCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import AddFollowUpDialog from "@/components/AddFollowUpDialog";
+import { apiClient } from "@/services/apiClient";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,14 +43,19 @@ const CRMFollowUps = () => {
   const [editingFollowUp, setEditingFollowUp] = useState<FollowUp | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchFollowUps = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/crm/follow-ups");
-        if (res.ok) {
-          const data = await res.json();
-          setFollowUps(Array.isArray(data) ? data : []);
-        }
+        const res = await apiClient.get("/crm/follow-ups");
+        const data = unwrapData<any[]>(res);
+        setFollowUps(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch follow-ups:", err);
       } finally {
@@ -93,13 +99,8 @@ const CRMFollowUps = () => {
 
   const handleAddFollowUp = async (followUpData: Omit<FollowUp, "id">) => {
     try {
-      const res = await fetch("http://localhost:3000/api/crm/follow-ups", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(followUpData),
-      });
-      if (!res.ok) throw new Error("Failed to create follow-up");
-      const newFollowUp = await res.json();
+      const res = await apiClient.post("/crm/follow-ups", followUpData);
+      const newFollowUp = unwrapData<any>(res);
       setFollowUps([newFollowUp, ...followUps]);
       setDialogOpen(false);
     } catch (err) {
@@ -111,16 +112,8 @@ const CRMFollowUps = () => {
   const handleEditFollowUp = async (followUpData: Omit<FollowUp, "id">) => {
     if (!editingFollowUp) return;
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/crm/follow-ups/${editingFollowUp.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(followUpData),
-        }
-      );
-      if (!res.ok) throw new Error("Failed to update follow-up");
-      const updated = await res.json();
+      const res = await apiClient.put(`/crm/follow-ups/${editingFollowUp.id}`, followUpData);
+      const updated = unwrapData<any>(res);
       setFollowUps(followUps.map((f) => (f.id === editingFollowUp.id ? updated : f)));
       setEditingFollowUp(null);
     } catch (err) {
@@ -131,10 +124,7 @@ const CRMFollowUps = () => {
 
   const handleDeleteFollowUp = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/crm/follow-ups/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete follow-up");
+      await apiClient.delete(`/crm/follow-ups/${id}`);
       setFollowUps(followUps.filter((f) => f.id !== id));
       setDeleteConfirm(null);
     } catch (err) {

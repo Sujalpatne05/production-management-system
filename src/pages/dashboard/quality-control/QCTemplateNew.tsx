@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiClient } from "@/services/apiClient";
+import { API_ENDPOINTS } from "@/config/apiConfig";
 
 export function QCTemplateNew() {
   const navigate = useNavigate();
@@ -27,12 +29,7 @@ export function QCTemplateNew() {
           .map((p) => p.trim())
           .filter(Boolean),
       };
-      const res = await fetch("/api/qc/templates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to save template");
+      await apiClient.post(API_ENDPOINTS.QC.TEMPLATES, payload);
       navigate("/dashboard/qc/templates");
     } catch (err) {
       console.error(err);

@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit2, Trash2, Phone, Mail, MapPin } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import AddLeadDialog from "@/components/AddLeadDialog";
+import { apiClient } from "@/services/apiClient";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,14 +53,19 @@ const CRMLeads = () => {
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchLeads = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/crm/leads");
-        if (res.ok) {
-          const data = await res.json();
-          setLeads(Array.isArray(data) ? data : []);
-        }
+        const res = await apiClient.get("/crm/leads");
+        const data = unwrapData<any[]>(res);
+        setLeads(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch leads:", err);
       } finally {
@@ -119,13 +125,8 @@ const CRMLeads = () => {
 
   const handleAddLead = async (leadData: Omit<Lead, "id" | "createdDate">) => {
     try {
-      const res = await fetch("http://localhost:3000/api/crm/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(leadData),
-      });
-      if (!res.ok) throw new Error("Failed to create lead");
-      const newLead = await res.json();
+      const res = await apiClient.post("/crm/leads", leadData);
+      const newLead = unwrapData<any>(res);
       setLeads([newLead, ...leads]);
     } catch (err) {
       console.error(err);
@@ -136,13 +137,8 @@ const CRMLeads = () => {
   const handleEditLead = async (leadData: Omit<Lead, "id" | "createdDate">) => {
     if (!editingLead) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/crm/leads/${editingLead.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(leadData),
-      });
-      if (!res.ok) throw new Error("Failed to update lead");
-      const updated = await res.json();
+      const res = await apiClient.put(`/crm/leads/${editingLead.id}`, leadData);
+      const updated = unwrapData<any>(res);
       setLeads(leads.map((l) => (l.id === editingLead.id ? updated : l)));
       setEditingLead(null);
     } catch (err) {
@@ -153,8 +149,7 @@ const CRMLeads = () => {
 
   const handleDeleteLead = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/crm/leads/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete lead");
+      await apiClient.delete(`/crm/leads/${id}`);
       setLeads(leads.filter((l) => l.id !== id));
       setDeleteConfirm(null);
     } catch (err) {

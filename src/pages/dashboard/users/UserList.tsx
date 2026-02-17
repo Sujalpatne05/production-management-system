@@ -7,7 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useStore } from "@/store/useStore";
+import { apiClient } from "@/services/apiClient";
+import { API_ENDPOINTS } from "@/config/apiConfig";
 import { Plus, Search, Pencil, Trash2, Download } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ const UserList = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [defaultTenantId, setDefaultTenantId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -28,26 +30,129 @@ const UserList = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newUser, setNewUser] = useState({ name: "", email: "", roleId: "", status: "active" as "active" | "inactive" });
 
-  useEffect(() => {
-    Promise.all([
-      fetch("http://localhost:3000/api/users").then(r => r.json()),
-      fetch("http://localhost:3000/api/roles").then(r => r.json())
-    ]).then(([usersData, rolesData]) => {
-      setUsers(usersData);
-      setRoles(rolesData);
-      setLoading(false);
-    }).catch(err => {
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
+  const normalizeUser = (user: any) => {
+    const userRoles = Array.isArray(user.roles) ? user.roles : [];
+    const roleIds = userRoles
+      .map((r: any) => String(r?.roleId ?? r?.role?.id ?? ""))
+      .filter(Boolean);
+    const roleNames = userRoles.map((r: any) => r?.role?.name).filter(Boolean);
+    const tenantId = userRoles.find((r: any) => r?.tenant?.id)?.tenant?.id;
+
+    return {
+      id: user.id,
+      name: user.fullName || user.email || "Unknown",
+      email: user.email,
+      status: user.status || "active",
+      createdAt: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-",
+      roleIds,
+      roleNames,
+      tenantId,
+    };
+  };
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      const [usersResponse, rolesResponse] = await Promise.all([
+        apiClient.get(API_ENDPOINTS.USERS.LIST),
+        apiClient.get(API_ENDPOINTS.ROLES.LIST),
+      ]);
+      const usersData = unwrapData<any[]>(usersResponse);
+      const rolesData = unwrapData<any[]>(rolesResponse);
+      const normalizedUsers = Array.isArray(usersData) ? usersData.map(normalizeUser) : [];
+
+      setUsers(normalizedUsers);
+      setRoles(Array.isArray(rolesData) ? rolesData : []);
+      setDefaultTenantId(normalizedUsers.find((u) => u.tenantId)?.tenantId || null);
+    } catch (err) {
       console.error(err);
+      toast({ title: "Failed to load users", description: "Please check your backend connection.", variant: "destructive" });
+    } finally {
       setLoading(false);
-    });
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
   }, []);
 
-  const filteredUsers = users.filter(user => {
+  const resolveTenantId = (tenantId?: string | null) => {
+    if (tenantId) return tenantId;
+    if (defaultTenantId) return defaultTenantId;
+    if (typeof window !== "undefined") {
+      const storedTenant = localStorage.getItem("tenant");
+      if (storedTenant) {
+        try {
+          const parsed = JSON.parse(storedTenant);
+          if (parsed?.id) return parsed.id as string;
+        } catch {
+          return null;
+        }
+      }
+    }
+    return null;
+  };
+
+  const assignUserRole = async (userId: string, roleId: string, tenantId?: string | null) => {
+    const resolvedTenantId = resolveTenantId(tenantId);
+    if (!resolvedTenantId) {
+      return;
+    }
+    await apiClient.post(API_ENDPOINTS.USERS.ASSIGN_ROLES, {
+      userId,
+      tenantId: resolvedTenantId,
+      roleIds: [Number(roleId)],
+    });
+  };
+
+  const addUser = async (payload: { name: string; email: string; roleId: string; status: "active" | "inactive" }) => {
+    const created = await apiClient.post(API_ENDPOINTS.USERS.CREATE, {
+      email: payload.email,
+      fullName: payload.name,
+      status: payload.status,
+    });
+    const createdUser = unwrapData<any>(created);
+    if (payload.roleId) {
+      await assignUserRole(createdUser.id, payload.roleId, defaultTenantId);
+    }
+    await loadUsers();
+  };
+
+  const updateUser = async (
+    userId: string,
+    payload: { name: string; email: string; roleId: string; status: "active" | "inactive" },
+    tenantId?: string | null
+  ) => {
+    await apiClient.put(API_ENDPOINTS.USERS.UPDATE.replace(":id", userId), {
+      email: payload.email,
+      fullName: payload.name,
+      status: payload.status,
+    });
+    if (payload.roleId) {
+      await assignUserRole(userId, payload.roleId, tenantId ?? defaultTenantId);
+    }
+    await loadUsers();
+  };
+
+  const deleteUser = async (userId: string) => {
+    await apiClient.delete(API_ENDPOINTS.USERS.DELETE.replace(":id", userId));
+    await loadUsers();
+  };
+
+  const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      (user.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.email || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || user.status === statusFilter;
-    const matchesRole = roleFilter === "all" || user.roleId === roleFilter;
+    const matchesRole =
+      roleFilter === "all" || (Array.isArray(user.roleIds) && user.roleIds.includes(roleFilter));
     return matchesSearch && matchesStatus && matchesRole;
   });
 
@@ -57,8 +162,18 @@ const UserList = () => {
   const totalRoles = roles.length;
 
   const getRoleName = (roleId: string) => {
-    const role = roles.find(r => r.id === roleId);
+    const role = roles.find((r) => String(r.id) === roleId);
     return role?.name || "Unknown";
+  };
+
+  const getUserRoleLabel = (user: any) => {
+    if (Array.isArray(user.roleNames) && user.roleNames.length > 0) {
+      return user.roleNames.join(", ");
+    }
+    if (Array.isArray(user.roleIds) && user.roleIds.length > 0) {
+      return getRoleName(user.roleIds[0]);
+    }
+    return "Unassigned";
   };
 
   const handleEdit = (user: typeof users[0]) => {
@@ -66,45 +181,68 @@ const UserList = () => {
     setEditData({
       name: user.name,
       email: user.email,
-      roleId: user.roleId,
+      roleId: Array.isArray(user.roleIds) && user.roleIds.length > 0 ? user.roleIds[0] : "",
       status: user.status,
     });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingUser) return;
-    updateUser(editingUser.id, editData);
-    toast({
-      title: "User Updated",
-      description: "User details have been updated.",
-    });
-    setEditingUser(null);
+    try {
+      await updateUser(editingUser.id, editData, editingUser.tenantId);
+      toast({
+        title: "User Updated",
+        description: "User details have been updated.",
+      });
+      setEditingUser(null);
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Update failed",
+        description: "Unable to update user. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteId) return;
-    deleteUser(deleteId);
-    toast({
-      title: "User Deleted",
-      description: "The user has been deleted.",
-    });
-    setDeleteId(null);
+    try {
+      await deleteUser(deleteId);
+      toast({
+        title: "User Deleted",
+        description: "The user has been deleted.",
+      });
+      setDeleteId(null);
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Delete failed",
+        description: "Unable to delete user.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddUser = () => {
+  const handleAddUser = async () => {
     if (!newUser.name.trim() || !newUser.email.trim() || !newUser.roleId) {
       toast({ title: "Error", description: "Please fill all required fields", variant: "destructive" });
       return;
     }
-    addUser(newUser);
-    toast({ title: "User Created", description: `User "${newUser.name}" has been added.` });
-    setNewUser({ name: "", email: "", roleId: "", status: "active" });
-    setShowAddDialog(false);
+    try {
+      await addUser(newUser);
+      toast({ title: "User Created", description: `User "${newUser.name}" has been added.` });
+      setNewUser({ name: "", email: "", roleId: "", status: "active" });
+      setShowAddDialog(false);
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Create failed", description: "Unable to add user.", variant: "destructive" });
+    }
   };
 
   const exportToCSV = () => {
     const headers = ["Name", "Email", "Role", "Status", "Created At"];
-    const rows = users.map(u => [u.name, u.email, getRoleName(u.roleId), u.status, u.createdAt]);
+    const rows = users.map((u) => [u.name, u.email, getUserRoleLabel(u), u.status, u.createdAt]);
     const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -161,7 +299,7 @@ const UserList = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {roles.map((role) => (
-                        <SelectItem key={role.id} value={role.id}>
+                        <SelectItem key={role.id} value={String(role.id)}>
                           {role.name}
                         </SelectItem>
                       ))}
@@ -227,8 +365,8 @@ const UserList = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
-                {roles.map((role) => (
-                  <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                  {roles.map((role) => (
+                    <SelectItem key={role.id} value={String(role.id)}>{role.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -262,7 +400,7 @@ const UserList = () => {
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{getRoleName(user.roleId)}</Badge>
+                    <Badge variant="secondary">{getUserRoleLabel(user)}</Badge>
                   </TableCell>
                   <TableCell>
                     <Badge className={user.status === "active" ? "bg-green-500/20 text-green-700" : "bg-muted text-muted-foreground"}>
@@ -316,7 +454,7 @@ const UserList = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {roles.map((role) => (
-                    <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                    <SelectItem key={role.id} value={String(role.id)}>{role.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiClient } from "@/services/apiClient";
+import { API_ENDPOINTS } from "@/config/apiConfig";
 
 export function ForecastNew() {
   const navigate = useNavigate();
@@ -30,12 +32,7 @@ export function ForecastNew() {
         endDate: end,
         description: description || undefined,
       };
-      const res = await fetch("/api/forecast", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to save forecast");
+      await apiClient.post(API_ENDPOINTS.FORECAST.CREATE, payload);
       navigate("/dashboard/forecast");
     } catch (err) {
       console.error(err);

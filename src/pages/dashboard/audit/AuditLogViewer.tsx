@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, Download } from 'lucide-react';
+import { apiClient } from '@/services/apiClient';
 
 interface AuditLog {
   id: string;
@@ -25,15 +26,20 @@ export function AuditLogViewer() {
   const [entityFilter, setEntityFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const res = await fetch('/api/audit/logs');
-        if (res.ok) {
-          const data = await res.json();
-          setLogs(data);
-          setFilteredLogs(data);
-        }
+        const res = await apiClient.get('/audit/logs');
+        const data = unwrapData<any[]>(res);
+        setLogs(Array.isArray(data) ? data : []);
+        setFilteredLogs(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch audit logs:', err);
       } finally {

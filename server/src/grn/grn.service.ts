@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Decimal } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 
 export class CreateGrnDto {
@@ -109,15 +110,15 @@ export class GrnService {
     if (!grn) throw new Error('GRN not found');
 
     // Calculate totals
-    const totalAccepted = grn.lineItems.reduce((sum, item) => sum + item.acceptedQuantity, 0);
-    const totalRejected = grn.lineItems.reduce((sum, item) => sum + item.rejectedQuantity, 0);
+    const totalAccepted = grn.lineItems.reduce((sum, item) => sum + Number(item.acceptedQuantity), 0);
+    const totalRejected = grn.lineItems.reduce((sum, item) => sum + Number(item.rejectedQuantity), 0);
 
     return this.prisma.gRN.update({
       where: { id: grnId },
       data: {
         status,
-        acceptedQuantity: totalAccepted,
-        rejectedQuantity: totalRejected,
+        acceptedQuantity: new Decimal(totalAccepted),
+        rejectedQuantity: new Decimal(totalRejected),
       },
       include: { purchase: true, lineItems: true },
     });

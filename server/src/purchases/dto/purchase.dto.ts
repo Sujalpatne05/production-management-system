@@ -2,7 +2,8 @@ import { Type } from 'class-transformer';
 import { IsArray, IsDateString, IsNotEmpty, IsOptional, IsString, ValidateNested, IsUUID, IsNumber, Min, IsIn } from 'class-validator';
 
 class PurchaseItemDto {
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   rawMaterialId: string;
 
   @IsNumber()
@@ -20,13 +21,15 @@ class PurchaseItemDto {
 }
 
 export class CreatePurchaseDto {
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   tenantId: string;
 
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   supplierId: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   userId?: string;
 

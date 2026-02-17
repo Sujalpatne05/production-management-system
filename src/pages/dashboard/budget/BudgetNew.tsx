@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiClient } from "@/services/apiClient";
 
 export function BudgetNew() {
   const navigate = useNavigate();
@@ -28,12 +29,7 @@ export function BudgetNew() {
         startDate: budgetDate,
         description: description || undefined,
       };
-      const res = await fetch("/api/budget", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to save budget");
+      await apiClient.post("/budget", payload);
       navigate("/dashboard/budget");
     } catch (err) {
       console.error(err);

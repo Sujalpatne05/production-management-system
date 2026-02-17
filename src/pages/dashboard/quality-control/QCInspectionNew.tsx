@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiClient } from "@/services/apiClient";
+import { API_ENDPOINTS } from "@/config/apiConfig";
 
 type Template = { id: string; name: string };
 
@@ -21,15 +23,22 @@ export function QCInspectionNew() {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const loadTemplates = async () => {
       try {
-        const res = await fetch("/api/qc/templates");
-        if (!res.ok) throw new Error("Failed to load templates");
-        const data = await res.json();
-        setTemplates(Array.isArray(data) ? data : []);
-        if (Array.isArray(data) && data.length > 0) {
-          setTemplateId(data[0].id);
+        const res = await apiClient.get(API_ENDPOINTS.QC.TEMPLATES);
+        const data = unwrapData<any[]>(res);
+        const templateList = Array.isArray(data) ? data : [];
+        setTemplates(templateList);
+        if (templateList.length > 0) {
+          setTemplateId(templateList[0].id);
         }
       } catch (err) {
         console.error(err);
@@ -55,12 +64,7 @@ export function QCInspectionNew() {
           overall: { passed: resultStatus === "passed", note: notes },
         },
       };
-      const res = await fetch("/api/qc/inspections", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to save inspection");
+      await apiClient.post(API_ENDPOINTS.QC.INSPECTIONS, payload);
       navigate("/dashboard/qc/inspections");
     } catch (err) {
       console.error(err);

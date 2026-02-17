@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LockOpen, Plus, Filter } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { apiClient } from '@/services/apiClient';
 
 interface UnlockRequest {
   id: string;
@@ -29,15 +30,21 @@ export function UnlockRequests() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [impactFilter, setImpactFilter] = useState('all');
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await fetch('/api/approvals/unlock-requests');
-        if (res.ok) {
-          const data = await res.json();
-          setRequests(data);
-          setFilteredRequests(data);
-        }
+        const res = await apiClient.get('/approvals/unlock-requests');
+        const data = unwrapData<any[]>(res);
+        const list = Array.isArray(data) ? data : [];
+        setRequests(list);
+        setFilteredRequests(list);
       } catch (err) {
         console.error('Failed to fetch unlock requests:', err);
       } finally {
@@ -64,15 +71,9 @@ export function UnlockRequests() {
 
   const handleApprove = async (requestId: string) => {
     try {
-      const res = await fetch(`/api/approvals/${requestId}/approve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comments: 'Unlock approved' })
-      });
-      if (res.ok) {
-        setRequests(requests.map(r => r.id === requestId ? { ...r, status: 'approved' } : r));
-        alert('Unlock request approved');
-      }
+      await apiClient.post(`/approvals/${requestId}/approve`, { comments: 'Unlock approved' });
+      setRequests(requests.map(r => r.id === requestId ? { ...r, status: 'approved' } : r));
+      alert('Unlock request approved');
     } catch (err) {
       console.error('Failed to approve:', err);
       alert('Could not approve unlock');
@@ -81,15 +82,9 @@ export function UnlockRequests() {
 
   const handleReject = async (requestId: string) => {
     try {
-      const res = await fetch(`/api/approvals/${requestId}/reject`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comments: 'Unlock denied' })
-      });
-      if (res.ok) {
-        setRequests(requests.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r));
-        alert('Unlock request rejected');
-      }
+      await apiClient.post(`/approvals/${requestId}/reject`, { comments: 'Unlock denied' });
+      setRequests(requests.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r));
+      alert('Unlock request rejected');
     } catch (err) {
       console.error('Failed to reject:', err);
       alert('Could not reject unlock');

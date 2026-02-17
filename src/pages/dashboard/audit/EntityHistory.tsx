@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, History } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { apiClient } from '@/services/apiClient';
 
 interface EntityHistory {
   id: string;
@@ -29,14 +30,19 @@ export function EntityHistory() {
   const [entityTypeFilter, setEntityTypeFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch('/api/audit/entities');
-        if (res.ok) {
-          const data = await res.json();
-          setEntities(data);
-        }
+        const res = await apiClient.get('/audit/entities');
+        const data = unwrapData<any[]>(res);
+        setEntities(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch entity history:', err);
       } finally {

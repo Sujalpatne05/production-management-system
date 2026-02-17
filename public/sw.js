@@ -1,44 +1,32 @@
-/* Simple service worker for caching and offline support */
-const CACHE_NAME = 'iproduction-cache-v1';
-const CORE_URLS = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/icon.svg',
-];
+/* Service worker - Disabled in development */
 
+// Immediately unregister on localhost (development environment)
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_URLS))
-  );
   self.skipWaiting();
+  event.waitUntil(
+    (async () => {
+      // Clear all caches on install
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      await self.registration.unregister();
+    })()
+  );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.map((key) => {
-      if (key !== CACHE_NAME) return caches.delete(key);
-    })))
+    (async () => {
+      // Clear all caches
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      
+      // Unregister immediately
+      await self.registration.unregister();
+    })()
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests and chrome-extension URLs
-  if (event.request.method !== 'GET' || event.request.url.startsWith('chrome-extension://')) {
-    return;
-  }
-  
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetchPromise = fetch(event.request).then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, copy);
-        });
-        return response;
-      }).catch(() => cached);
-      return cached || fetchPromise;
-    })
-  );
+  // Never cache, always fetch fresh
+  event.respondWith(fetch(event.request));
 });

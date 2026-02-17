@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus } from "lucide-react";
+import { apiClient } from "@/services/apiClient";
+import { API_ENDPOINTS } from "@/config/apiConfig";
 
 type Template = {
   id: string;
@@ -17,12 +19,18 @@ export function QCTemplates() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("/api/qc/templates");
-        if (!res.ok) throw new Error("Failed to load templates");
-        const data = await res.json();
+        const res = await apiClient.get(API_ENDPOINTS.QC.TEMPLATES);
+        const data = unwrapData<any[]>(res);
         setTemplates(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);

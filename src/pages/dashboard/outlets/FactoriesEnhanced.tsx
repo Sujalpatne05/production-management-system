@@ -29,6 +29,7 @@ import {
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiClient";
 import {
   Plus,
   Search,
@@ -155,15 +156,21 @@ export default function FactoriesEnhanced() {
     efficiency: 0,
   });
 
+  const unwrapData = <T,>(payload: any): T => {
+    if (payload && typeof payload === "object" && "data" in payload) {
+      return payload.data as T;
+    }
+    return payload as T;
+  };
+
   useEffect(() => {
     const fetchFactories = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/factories");
-        if (res.ok) {
-          const data = await res.json();
-          setFactories(Array.isArray(data) ? data : []);
-          if (data.length > 0) setSelectedFactory(data[0].id);
-        }
+        const res = await apiClient.get("/factories");
+        const data = unwrapData<any[]>(res);
+        const list = Array.isArray(data) ? data : [];
+        setFactories(list);
+        if (list.length > 0) setSelectedFactory(list[0].id);
       } catch (err) {
         console.error("Failed to fetch factories:", err);
       } finally {
@@ -183,13 +190,8 @@ export default function FactoriesEnhanced() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:3000/api/factories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error("Failed to create factory");
-      const newFactory = await res.json();
+      const res = await apiClient.post("/factories", formData);
+      const newFactory = unwrapData<any>(res);
       setFactories([...factories, newFactory]);
       setFormData({
         code: "",

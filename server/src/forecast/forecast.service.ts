@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Decimal } from '@prisma/client/runtime/library';
 
 export class CreateForecastDto {
   name: string;
@@ -61,9 +62,9 @@ export class ForecastService {
         forecastId,
         productId: data.productId,
         month: data.month,
-        forecastedQuantity: BigInt(Math.round(data.forecastedQuantity * 10000)),
-        historicalAvg: BigInt(Math.round((data.historicalAvg || 0) * 10000)),
-        lastYearQuantity: BigInt(Math.round((data.lastYearQuantity || 0) * 10000)),
+        forecastedQuantity: new Decimal(data.forecastedQuantity),
+        historicalAvg: new Decimal(data.historicalAvg || 0),
+        lastYearQuantity: new Decimal(data.lastYearQuantity || 0),
         confidence: data.confidence || 90,
         notes: data.notes,
       },
@@ -74,13 +75,13 @@ export class ForecastService {
   async updateForecastLineItem(lineItemId: string, data: Partial<CreateForecastLineItemDto>) {
     const updateData: any = {};
     if (data.forecastedQuantity !== undefined) {
-      updateData.forecastedQuantity = BigInt(Math.round(data.forecastedQuantity * 10000));
+      updateData.forecastedQuantity = new Decimal(data.forecastedQuantity);
     }
     if (data.historicalAvg !== undefined) {
-      updateData.historicalAvg = BigInt(Math.round(data.historicalAvg * 10000));
+      updateData.historicalAvg = new Decimal(data.historicalAvg);
     }
     if (data.lastYearQuantity !== undefined) {
-      updateData.lastYearQuantity = BigInt(Math.round(data.lastYearQuantity * 10000));
+      updateData.lastYearQuantity = new Decimal(data.lastYearQuantity);
     }
     if (data.confidence !== undefined) {
       updateData.confidence = data.confidence;

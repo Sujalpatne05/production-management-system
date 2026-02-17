@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Decimal, PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePurchaseDto, UpdatePurchaseDto } from './dto/purchase.dto';
 
@@ -84,7 +84,7 @@ export class PurchasesService {
       await this.prisma.purchase.delete({ where: { id } });
       return { message: 'Purchase deleted' };
     } catch (err) {
-      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') {
         throw new NotFoundException('Purchase not found');
       }
       throw err;
@@ -100,9 +100,9 @@ export class PurchasesService {
       return {
         rawMaterialId: item.rawMaterialId,
         quantity: item.quantity,
-        unitPrice: new Prisma.Decimal(item.unitPrice),
-        discount: new Prisma.Decimal(item.discount ?? 0),
-        amount: new Prisma.Decimal(amount),
+        unitPrice: new Decimal(item.unitPrice),
+        discount: new Decimal(item.discount ?? 0),
+        amount: new Decimal(amount),
       };
     });
 
@@ -110,19 +110,19 @@ export class PurchasesService {
       (sum, i) => sum + Number(i.amount),
       0,
     );
-    const subtotal = new Prisma.Decimal(subtotalNumber);
-    const total = new Prisma.Decimal(subtotalNumber + taxAmount);
+    const subtotal = new Decimal(subtotalNumber);
+    const total = new Decimal(subtotalNumber + taxAmount);
 
     return {
       items: normalizedItems,
       subtotal,
-      taxAmount: new Prisma.Decimal(taxAmount),
+      taxAmount: new Decimal(taxAmount),
       total,
     };
   }
 
   private handlePrismaError(err: unknown) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+    if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') {
       throw new Error('Duplicate purchase number for tenant');
     }
     throw err;

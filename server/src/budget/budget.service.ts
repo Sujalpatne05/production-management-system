@@ -102,7 +102,7 @@ export class BudgetService {
     for (const line of budget.lines) {
       const variance = line.budgetAmount.minus(line.actualAmount);
       const variancePercent = line.budgetAmount.toNumber() !== 0 
-        ? variance.dividedBy(line.budgetAmount).multipliedBy(100)
+        ? variance.dividedBy(line.budgetAmount).times(100)
         : new Decimal(0);
 
       await this.prisma.budgetLine.update({
