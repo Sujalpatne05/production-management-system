@@ -32,6 +32,8 @@ import { ForecastModule } from './forecast/forecast.module';
 import { redisStore } from 'cache-manager-redis-yet';
 import { DemoSeedService } from './seed/demo-seed.service';
 
+const redisUrl = process.env.REDIS_URL;
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -53,16 +55,20 @@ import { DemoSeedService } from './seed/demo-seed.service';
         };
       },
     }),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        prefix: config.get<string>('BULLMQ_PREFIX') ?? 'prodmgmt',
-        connection: {
-          url: config.get<string>('REDIS_URL') ?? 'redis://localhost:6379',
-        },
-      }),
-    }),
-    BullModule.registerQueue({ name: 'default' }),
+    ...(redisUrl
+      ? [
+          BullModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (config: ConfigService) => ({
+              prefix: config.get<string>('BULLMQ_PREFIX') ?? 'prodmgmt',
+              connection: {
+                url: config.get<string>('REDIS_URL') ?? 'redis://localhost:6379',
+              },
+            }),
+          }),
+          BullModule.registerQueue({ name: 'default' }),
+        ]
+      : []),
     PrismaModule,
     AuthModule,
     UsersModule,
