@@ -62,7 +62,15 @@ async function main() {
       'inventory.read',
       'reports.view',
     ],
-    User: ['orders.read', 'production.read', 'inventory.read'],
+    User: [
+      'orders.read',
+      'orders.write',
+      'production.read',
+      'production.write',
+      'inventory.read',
+      'inventory.write',
+      'reports.view',
+    ],
   };
 
   for (const [roleName, codes] of Object.entries(rolePermMap)) {

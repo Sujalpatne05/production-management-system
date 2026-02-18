@@ -1,6 +1,6 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, RefreshTokenDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, RefreshTokenDto, SendOTPDto, VerifyOTPDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,5 +21,17 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto.refreshToken);
+  }
+
+  @Post('send-otp')
+  @HttpCode(HttpStatus.OK)
+  async sendOTP(@Body() dto: SendOTPDto) {
+    return this.authService.sendOTP(dto);
+  }
+
+  @Post('verify-otp')
+  @HttpCode(HttpStatus.OK)
+  async verifyOTP(@Body() dto: VerifyOTPDto) {
+    return this.authService.verifyOTP(dto);
   }
 }

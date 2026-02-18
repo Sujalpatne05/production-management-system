@@ -3,15 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Loader2, Factory, TrendingUp, Package, BarChart3, Settings, Boxes } from "lucide-react";
+import { AlertCircle, Loader2, Factory, TrendingUp, Package, BarChart3, Settings, Boxes, UserCircle, Shield, Users } from "lucide-react";
 import { AuthService } from "@/services/authService";
 import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [mode, setMode] = useState<"signin" | "register">("signin");
+  const [step, setStep] = useState<"credentials" | "otp">("credentials");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"user" | "admin" | "super_admin">("user");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [displayText, setDisplayText] = useState("");
@@ -19,9 +25,14 @@ const Login = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   
   // Typing animation for tagline
-  const fullText = "Welcome back! Sign in to continue";
+  const fullText = step === "otp"
+    ? "Enter the verification code sent to your email"
+    : mode === "signin" 
+      ? "Welcome back! Sign in to continue" 
+      : "Create your account to get started";
   useEffect(() => {
     let currentIndex = 0;
+    setDisplayText("");
     const typingInterval = setInterval(() => {
       if (currentIndex <= fullText.length) {
         setDisplayText(fullText.slice(0, currentIndex));
@@ -31,7 +42,7 @@ const Login = () => {
       }
     }, 50);
     return () => clearInterval(typingInterval);
-  }, []);
+  }, [fullText, mode, step]);
   
   // Particle system
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; size: number; duration: number; delay: number }>>([]);
@@ -52,32 +63,122 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    if (!email.trim() || !password.trim()) {
-      const errorMsg = "Please enter email and password";
-      setError(errorMsg);
-      toast({
-        title: "Validation Error",
-        description: errorMsg,
-        variant: "destructive",
-      });
+    // OTP Verification Step
+    if (step === "otp") {
+      if (!otp.trim() || otp.length !== 6) {
+        const errorMsg = "Please enter a valid 6-digit OTP";
+        setError(errorMsg);
+        toast({
+          title: "Validation Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await AuthService.verifyOTP({ email, otp });
+        toast({
+          title: "Success!",
+          description: "Login successful! Redirecting to dashboard...",
+        });
+        setTimeout(() => {
+          navigate("/dashboard/overview");
+        }, 500);
+      } catch (err) {
+        const errorMsg = "Invalid or expired OTP. Please try again.";
+        setError(errorMsg);
+        toast({
+          title: "Verification Failed",
+          description: errorMsg,
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
       return;
+    }
+
+    // Credentials Validation
+    if (mode === "signin") {
+      if (!email.trim() || !password.trim()) {
+        const errorMsg = "Please enter email and password";
+        setError(errorMsg);
+        toast({
+          title: "Validation Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      if (!email.trim() || !password.trim() || !fullName.trim()) {
+        const errorMsg = "Please fill in all required fields";
+        setError(errorMsg);
+        toast({
+          title: "Validation Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        return;
+      }
+      if (password !== confirmPassword) {
+        const errorMsg = "Passwords do not match";
+        setError(errorMsg);
+        toast({
+          title: "Validation Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        return;
+      }
+      if (password.length < 6) {
+        const errorMsg = "Password must be at least 6 characters";
+        setError(errorMsg);
+        toast({
+          title: "Validation Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setLoading(true);
     try {
-      await AuthService.login({ email, password });
-      toast({
-        title: "Success!",
-        description: "Redirecting to dashboard...",
-      });
-      setTimeout(() => {
-        navigate("/dashboard/overview");
-      }, 500);
+      if (mode === "signin") {
+        // Direct login for registered users - no OTP
+        await AuthService.login({ email, password });
+        toast({
+          title: "Success!",
+          description: "Redirecting to dashboard...",
+        });
+        setTimeout(() => {
+          navigate("/dashboard/overview");
+        }, 500);
+      } else {
+        // Register user first
+        const registerResponse = await AuthService.register({ email, password, fullName });
+        toast({
+          title: "Registration Successful!",
+          description: registerResponse.message,
+        });
+        // Then send OTP for email verification
+        await AuthService.sendOTP({ email });
+        toast({
+          title: "OTP Sent!",
+          description: "Please check your email for the verification code.",
+        });
+        setStep("otp");
+      }
     } catch (err) {
-      const errorMsg = "Login failed. Please check your credentials.";
+      const errorMsg = mode === "signin"
+        ? "Login failed. Please check your credentials."
+        : "Registration failed. Email may already be in use.";
       setError(errorMsg);
       toast({
-        title: "Login Failed",
+        title: mode === "signin" ? "Login Failed" : "Registration Failed",
         description: errorMsg,
         variant: "destructive",
       });
@@ -160,39 +261,204 @@ const Login = () => {
             </div>
           )}
 
+          {/* Mode Tabs - Hidden during OTP step */}
+          {step === "credentials" && (
+            <div className="flex gap-2 p-1 bg-gray-100/80 backdrop-blur rounded-lg">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("signin");
+                  setError("");
+                }}
+                className={`flex-1 py-2 px-4 rounded-md font-medium text-sm transition-all duration-300 ${
+                  mode === "signin"
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setError("");
+                }}
+                className={`flex-1 py-2 px-4 rounded-md font-medium text-sm transition-all duration-300 ${
+                  mode === "register"
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Register
+              </button>
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
-            <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-                className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-500 focus:shadow-lg focus:shadow-blue-200/50"
-              />
-            </div>
+            {step === "credentials" ? (
+              <>
+                {/* Full Name Field - Registration Only */}
+                {mode === "register" && (
+                  <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
+                    <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
+                      Full Name
+                    </Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="John Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      disabled={loading}
+                      className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-500 focus:shadow-lg focus:shadow-indigo-200/50"
+                    />
+                  </div>
+                )}
 
-            {/* Password Field */}
-            <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-500 focus:shadow-lg focus:shadow-purple-200/50"
-              />
-            </div>
+                {/* Email Field */}
+                <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                    className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-500 focus:shadow-lg focus:shadow-blue-200/50"
+                  />
+                </div>
+
+                {/* Password Field */}
+                <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                  <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder={mode === "signin" ? "Enter your password" : "Create a password (min 6 characters)"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-500 focus:shadow-lg focus:shadow-purple-200/50"
+                  />
+                </div>
+
+                {/* Confirm Password Field - Registration Only */}
+                {mode === "register" && (
+                  <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+                      Confirm Password
+                    </Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={loading}
+                      className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-500 focus:shadow-lg focus:shadow-purple-200/50"
+                    />
+                  </div>
+                )}
+
+                {/* Role Selector - Registration Only */}
+                {mode === "register" && (
+                  <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                    <Label className="text-sm font-medium text-gray-700">
+                      Select Role
+                    </Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setRole("user")}
+                        disabled={loading}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all duration-300 ${
+                          role === "user"
+                            ? "border-blue-500 bg-blue-50/80 text-blue-700"
+                            : "border-gray-200 bg-white/50 text-gray-600 hover:border-blue-300"
+                        }`}
+                      >
+                        <UserCircle className="w-6 h-6" />
+                        <span className="text-xs font-medium">User</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRole("admin")}
+                        disabled={loading}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all duration-300 ${
+                          role === "admin"
+                            ? "border-purple-500 bg-purple-50/80 text-purple-700"
+                            : "border-gray-200 bg-white/50 text-gray-600 hover:border-purple-300"
+                        }`}
+                      >
+                        <Users className="w-6 h-6" />
+                        <span className="text-xs font-medium">Admin</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRole("super_admin")}
+                        disabled={loading}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all duration-300 ${
+                          role === "super_admin"
+                            ? "border-indigo-500 bg-indigo-50/80 text-indigo-700"
+                            : "border-gray-200 bg-white/50 text-gray-600 hover:border-indigo-300"
+                        }`}
+                      >
+                        <Shield className="w-6 h-6" />
+                        <span className="text-xs font-medium">Super Admin</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {/* OTP Input */}
+                <div className="space-y-2 animate-fade-in-up">
+                  <Label htmlFor="otp" className="text-sm font-medium text-gray-700">
+                    Verification Code
+                  </Label>
+                  <Input
+                    id="otp"
+                    type="text"
+                    placeholder="Enter 6-digit code"
+                    value={otp}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                      setOtp(value);
+                    }}
+                    disabled={loading}
+                    maxLength={6}
+                    className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-500 focus:shadow-lg focus:shadow-green-200/50 text-center text-2xl tracking-widest font-bold"
+                  />
+                  <p className="text-xs text-gray-500 text-center">
+                    Enter the 6-digit code sent to {email}
+                  </p>
+                  <p className="text-xs text-blue-600 text-center mt-1">
+                    {mode === "register" ? "Verify your email to complete registration" : "Verify to login"}
+                  </p>
+                </div>
+
+                {/* Back Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("credentials");
+                    setOtp("");
+                    setError("");
+                  }}
+                  className="w-full text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  ← Back to login
+                </button>
+              </>
+            )}
 
             {/* Submit Button */}
             <Button 
@@ -216,13 +482,21 @@ const Login = () => {
                 />
               ))}
               {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {loading ? "Signing in..." : "Sign In"}
+              {loading 
+                ? (step === "otp" ? "Verifying..." : mode === "signin" ? "Signing in..." : "Creating Account...")
+                : (step === "otp" ? "Verify OTP" : mode === "signin" ? "Sign In" : "Register")
+              }
             </Button>
           </form>
 
           {/* Footer Text */}
           <div className="text-center text-xs text-gray-500 pt-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            Secure production management system
+            {step === "otp"
+              ? "Check your email for the verification code"
+              : mode === "signin" 
+                ? "Secure production management system" 
+                : "Join our secure production management platform"
+            }
           </div>
         </div>
       </div>

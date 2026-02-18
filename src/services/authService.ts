@@ -12,6 +12,16 @@ export interface RegisterRequest {
   fullName: string;
 }
 
+export interface SendOTPRequest {
+  email: string;
+  password?: string;
+}
+
+export interface VerifyOTPRequest {
+  email: string;
+  otp: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -50,17 +60,12 @@ export class AuthService {
     return response;
   }
 
-  static async register(data: RegisterRequest): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
-    if (response.accessToken) {
-      apiClient.setToken(response.accessToken);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      const defaultTenant = response.user?.roles?.[0]?.tenant;
-      if (defaultTenant) {
-        localStorage.setItem('tenant', JSON.stringify(defaultTenant));
-      }
-    }
+  static async register(data: RegisterRequest): Promise<{ message: string; user: any }> {
+    const response = await apiClient.post<{ message: string; user: any }>(
+      API_ENDPOINTS.AUTH.REGISTER,
+      data
+    );
+    // Don't store tokens yet - wait for OTP verification
     return response;
   }
 
@@ -76,6 +81,31 @@ export class AuthService {
     );
     if (response.accessToken) {
       apiClient.setToken(response.accessToken);
+    }
+    return response;
+  }
+
+  static async sendOTP(data: SendOTPRequest): Promise<{ message: string }> {
+    const response = await apiClient.post<{ message: string }>(
+      `${API_ENDPOINTS.AUTH.LOGIN.replace('/login', '/send-otp')}`,
+      data
+    );
+    return response;
+  }
+
+  static async verifyOTP(data: VerifyOTPRequest): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>(
+      `${API_ENDPOINTS.AUTH.LOGIN.replace('/login', '/verify-otp')}`,
+      data
+    );
+    if (response.accessToken) {
+      apiClient.setToken(response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      const defaultTenant = response.user?.roles?.[0]?.tenant;
+      if (defaultTenant) {
+        localStorage.setItem('tenant', JSON.stringify(defaultTenant));
+      }
     }
     return response;
   }
