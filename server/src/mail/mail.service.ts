@@ -26,6 +26,14 @@ export class MailService {
         user: this.configService.get<string>('MAIL_USER'),
         pass: mailPassword,
       },
+      pool: true,
+      maxConnections: 1,
+      maxMessages: 3,
+      rateDelta: 1000,
+      rateLimit: 3,
+      connectionTimeout: 60000, // 60 seconds
+      greetingTimeout: 30000, // 30 seconds
+      socketTimeout: 60000, // 60 seconds
     });
   }
 
@@ -137,19 +145,26 @@ export class MailService {
         subject: mailOptions.subject
       });
       
-      // Add timeout to prevent hanging
+      console.log('🔌 Verifying SMTP connection...');
+      await this.transporter.verify();
+      console.log('✅ SMTP connection verified successfully');
+      
+      // Add timeout to prevent hanging (increased to 60 seconds for Render)
       const sendMailPromise = this.transporter.sendMail(mailOptions);
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Email timeout after 10 seconds')), 10000)
+        setTimeout(() => reject(new Error('Email timeout after 60 seconds')), 60000)
       );
       
       const result = await Promise.race([sendMailPromise, timeoutPromise]);
-      console.log('✅ Email sent successfully!', result);
+      console.log('✅ OTP Email sent successfully!', result);
     } catch (error) {
       console.error('❌ Error sending OTP email:', error);
-      console.error('Error details:', error.message);
-      // Don't throw - just log the error and continue
-      // The OTP is still saved in database, user can try manual entry
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      if (error.code) console.error('Error code:', error.code);
+      if (error.command) console.error('SMTP command:', error.command);
+      if (error.response) console.error('SMTP response:', error.response);
       console.warn('⚠️ OTP saved to database but email delivery failed');
     }
   }
@@ -221,18 +236,26 @@ export class MailService {
     try {
       console.log('📨 Sending welcome email...');
       
-      // Add timeout to prevent hanging
+      console.log('🔌 Verifying SMTP connection...');
+      await this.transporter.verify();
+      console.log('✅ SMTP connection verified successfully');
+      
+      // Add timeout to prevent hanging (increased to 60 seconds for Render)
       const sendMailPromise = this.transporter.sendMail(mailOptions);
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Email timeout after 10 seconds')), 10000)
+        setTimeout(() => reject(new Error('Email timeout after 60 seconds')), 60000)
       );
       
       const result = await Promise.race([sendMailPromise, timeoutPromise]);
       console.log('✅ Welcome email sent successfully!', result);
     } catch (error) {
       console.error('❌ Error sending welcome email:', error);
-      console.error('Error details:', error.message);
-      // Don't throw error for welcome email, it's not critical
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      if (error.code) console.error('Error code:', error.code);
+      if (error.command) console.error('SMTP command:', error.command);
+      if (error.response) console.error('SMTP response:', error.response);
       console.warn('⚠️ Registration successful but welcome email delivery failed');
     }
   }
