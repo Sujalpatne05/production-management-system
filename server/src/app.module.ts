@@ -31,7 +31,6 @@ import { BudgetModule } from './budget/budget.module';
 import { ForecastModule } from './forecast/forecast.module';
 import { SeedModule } from './seed/seed.module';
 import { redisStore } from 'cache-manager-redis-yet';
-import { redisStore } from 'cache-manager-redis-yet';
 import { DemoSeedService } from './seed/demo-seed.service';
 
 const redisUrl = process.env.REDIS_URL;
