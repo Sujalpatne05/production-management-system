@@ -125,16 +125,27 @@ export class MailService {
         to: mailOptions.to,
         subject: mailOptions.subject
       });
-      const result = await this.transporter.sendMail(mailOptions);
-      console.log('✅ Email sent successfully!', result.messageId);
+      
+      // Add timeout to prevent hanging
+      const sendMailPromise = this.transporter.sendMail(mailOptions);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Email timeout after 10 seconds')), 10000)
+      );
+      
+      const result = await Promise.race([sendMailPromise, timeoutPromise]);
+      console.log('✅ Email sent successfully!', result);
     } catch (error) {
       console.error('❌ Error sending OTP email:', error);
       console.error('Error details:', error.message);
-      throw new Error('Failed to send OTP email');
+      // Don't throw - just log the error and continue
+      // The OTP is still saved in database, user can try manual entry
+      console.warn('⚠️ OTP saved to database but email delivery failed');
     }
   }
 
   async sendWelcomeEmail(email: string, fullName: string): Promise<void> {
+    console.log('📧 Attempting to send welcome email to:', email);
+    
     const mailOptions = {
       from: this.configService.get<string>('MAIL_FROM', 'noreply@iproduction.com'),
       to: email,
@@ -197,10 +208,21 @@ export class MailService {
     };
 
     try {
-      await this.transporter.sendMail(mailOptions);
+      console.log('📨 Sending welcome email...');
+      
+      // Add timeout to prevent hanging
+      const sendMailPromise = this.transporter.sendMail(mailOptions);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Email timeout after 10 seconds')), 10000)
+      );
+      
+      const result = await Promise.race([sendMailPromise, timeoutPromise]);
+      console.log('✅ Welcome email sent successfully!', result);
     } catch (error) {
-      console.error('Error sending welcome email:', error);
+      console.error('❌ Error sending welcome email:', error);
+      console.error('Error details:', error.message);
       // Don't throw error for welcome email, it's not critical
+      console.warn('⚠️ Registration successful but welcome email delivery failed');
     }
   }
 }
