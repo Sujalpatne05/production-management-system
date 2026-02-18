@@ -7,13 +7,24 @@ export class MailService {
   private transporter: nodemailer.Transporter;
 
   constructor(private configService: ConfigService) {
+    // Support both MAIL_PASSWORD and MAIL_PASS for backward compatibility
+    const mailPassword = this.configService.get<string>('MAIL_PASSWORD') || 
+                        this.configService.get<string>('MAIL_PASS');
+    
+    console.log('🔧 Mail Service Configuration:');
+    console.log('   Host:', this.configService.get<string>('MAIL_HOST'));
+    console.log('   Port:', this.configService.get<number>('MAIL_PORT'));
+    console.log('   User:', this.configService.get<string>('MAIL_USER'));
+    console.log('   From:', this.configService.get<string>('MAIL_FROM'));
+    console.log('   Has Password:', !!mailPassword);
+    
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('MAIL_HOST', 'smtp.gmail.com'),
       port: this.configService.get<number>('MAIL_PORT', 587),
       secure: false, // true for 465, false for other ports
       auth: {
         user: this.configService.get<string>('MAIL_USER'),
-        pass: this.configService.get<string>('MAIL_PASSWORD'),
+        pass: mailPassword,
       },
     });
   }
