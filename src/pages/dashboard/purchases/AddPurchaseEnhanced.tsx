@@ -203,7 +203,7 @@ export default function AddPurchaseEnhanced() {
   });
 
   // Filter suppliers based on search
-  const supplierSource = availableSuppliers.length ? availableSuppliers : mockSuppliers;
+  const supplierSource = availableSuppliers;
   const filteredSuppliers = supplierSource.filter(
     (s) =>
       s.name.toLowerCase().includes(supplierSearch.toLowerCase()) ||
@@ -211,7 +211,7 @@ export default function AddPurchaseEnhanced() {
       s.contact.toLowerCase().includes(supplierSearch.toLowerCase())
   );
 
-  const handleCreateNewSupplier = () => {
+  const handleCreateNewSupplier = async () => {
     if (!newSupplier.name || !newSupplier.contact || !newSupplier.email) {
       toast({
         title: "Please fill required fields",
@@ -221,37 +221,65 @@ export default function AddPurchaseEnhanced() {
       return;
     }
 
-    // Create new supplier
-    const createdSupplier: SupplierInfo = {
-      id: Date.now().toString(),
-      name: newSupplier.name,
-      code: newSupplier.code || `SUP-${String(supplierSource.length + 1).padStart(3, "0")}`,
-      contact: newSupplier.contact,
-      email: newSupplier.email,
-      rating: 4.0, // Default rating
-      paymentTerms: newSupplier.paymentTerms,
-      address: newSupplier.address,
-      lastOrderAmount: 0,
-      lastOrderDate: "-",
-    };
+    try {
+      const tenantId = AuthService.getStoredTenantId();
+      if (!tenantId) {
+        toast({
+          title: "Error",
+          description: "Tenant not found. Please login again.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    setSupplier(createdSupplier);
-  setAvailableSuppliers((prev) => [...prev, createdSupplier]);
-    setShowNewSupplierForm(false);
-    setNewSupplier({
-      name: "",
-      code: "",
-      contact: "",
-      email: "",
-      phone: "",
-      address: "",
-      paymentTerms: "30 Days",
-    });
-    setSupplierSearch("");
-    toast({
-      title: "Supplier created successfully",
-      description: `${createdSupplier.name} has been added`,
-    });
+      const created = await apiClient.post<any>("/suppliers", {
+        tenantId,
+        name: newSupplier.name,
+        email: newSupplier.email,
+        phone: newSupplier.phone || newSupplier.contact,
+        address: newSupplier.address,
+        city: "",
+        country: "",
+      });
+
+      const createdSupplier: SupplierInfo = {
+        id: created.id,
+        name: created.name,
+        code: newSupplier.code || `SUP-${String(supplierSource.length + 1).padStart(3, "0")}`,
+        contact: newSupplier.contact,
+        email: created.email || newSupplier.email,
+        rating: 4.0,
+        paymentTerms: newSupplier.paymentTerms,
+        address: created.address || newSupplier.address,
+        lastOrderAmount: 0,
+        lastOrderDate: "-",
+      };
+
+      setSupplier(createdSupplier);
+      setAvailableSuppliers((prev) => [createdSupplier, ...prev]);
+      setShowNewSupplierForm(false);
+      setNewSupplier({
+        name: "",
+        code: "",
+        contact: "",
+        email: "",
+        phone: "",
+        address: "",
+        paymentTerms: "30 Days",
+      });
+      setSupplierSearch("");
+      toast({
+        title: "Supplier created successfully",
+        description: `${createdSupplier.name} has been added`,
+      });
+    } catch (error) {
+      console.error("Failed to create supplier:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create supplier",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -390,6 +418,22 @@ export default function AddPurchaseEnhanced() {
 
     if (!supplier) {
       toast({ title: "Please select a supplier", variant: "destructive" });
+      return;
+    }
+    if (availableSuppliers.length === 0) {
+      toast({
+        title: "No suppliers found",
+        description: "Create a supplier first for your tenant.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (availableRawMaterials.length === 0) {
+      toast({
+        title: "No raw materials found",
+        description: "Add raw materials first for your tenant before creating purchases.",
+        variant: "destructive",
+      });
       return;
     }
     if (items.some((item) => !item.product)) {
@@ -838,7 +882,7 @@ export default function AddPurchaseEnhanced() {
                                 <SelectValue placeholder="Select..." />
                               </SelectTrigger>
                               <SelectContent>
-                                {(availableRawMaterials.length ? availableRawMaterials : products).map((prod) => (
+                                {availableRawMaterials.map((prod) => (
                                   <SelectItem key={prod.id} value={prod.id}>
                                     {prod.name}
                                   </SelectItem>
