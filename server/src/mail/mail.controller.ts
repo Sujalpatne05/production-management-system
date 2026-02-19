@@ -12,10 +12,12 @@ export class MailController {
   @Get('config')
   getMailConfig() {
     return {
+      hasBrevoApiKey: !!this.configService.get<string>('BREVO_API_KEY'),
       host: this.configService.get<string>('MAIL_HOST'),
       port: this.configService.get<number>('MAIL_PORT'),
       user: this.configService.get<string>('MAIL_USER'),
       from: this.configService.get<string>('MAIL_FROM'),
+      fromName: this.configService.get<string>('MAIL_FROM_NAME'),
       hasPassword: !!this.configService.get<string>('MAIL_PASSWORD'),
       hasMailPass: !!this.configService.get<string>('MAIL_PASS'),
     };
