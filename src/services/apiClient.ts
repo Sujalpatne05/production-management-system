@@ -68,6 +68,7 @@ class ApiClient {
       const options: RequestInit = {
         method,
         headers: this.getHeaders(customHeaders),
+        credentials: 'include', // Include cookies for cross-origin requests
       };
 
       if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
@@ -96,8 +97,20 @@ class ApiClient {
       }
 
       return responseData as T;
-    } catch (error) {
-      console.error(`API Error [${method} ${endpoint}]:`, error);
+    } catch (error: any) {
+      const errorMsg = error?.message || error?.error || 'API Error';
+      console.error(`API Error [${method} ${url}]:`, errorMsg, error);
+      
+      // Check if it's a CORS error
+      if (errorMsg.includes('Failed to fetch') || errorMsg.includes('CORS')) {
+        console.error('CORS Error: Check backend CORS configuration and API_URL');
+        throw {
+          message: 'API Connection Error: Backend may be unreachable or CORS not configured',
+          statusCode: 0,
+          error: errorMsg,
+        } as ApiError;
+      }
+      
       throw error;
     }
   }

@@ -4,38 +4,60 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const defaultOrigins = ['http://localhost:5173', 'http://localhost:8081', 'http://127.0.0.1:8081'];
+  
+  // Default allowed origins for local development
+  const defaultOrigins = [
+    'http://localhost:5173',
+    'http://localhost:8081',
+    'http://127.0.0.1:8081',
+    'https://localhost:3000',
+    'http://localhost:3000',
+  ];
+  
+  // Get CORS origins from environment variable (for production)
   const envOrigins = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN
         .split(',')
         .map((origin) => origin.trim())
         .filter(Boolean)
-    : undefined;
-
-  const wildcardOrigins = envOrigins
-    ? envOrigins.filter((origin) => origin.startsWith('*.')).map((origin) => origin.slice(1))
     : [];
 
+  // Combine all allowed origins
+  const allOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
+  
+  // Separate wildcard domains from exact origins
+  const exactOrigins = allOrigins.filter((origin) => !origin.includes('*'));
+  const wildcardPatterns = allOrigins.filter((origin) => origin.includes('*'));
+
+  // Convert wildcard patterns (e.g., "*.vercel.app") to regex suffixes
+  const wildcardSuffixes = wildcardPatterns.map((pattern) => pattern.replace('*.', ''));
+
+  // Enable CORS with comprehensive configuration
   app.enableCors({
     origin: (origin, callback) => {
-      const allowList = envOrigins && envOrigins.length > 0 ? envOrigins : defaultOrigins;
-
+      // Allow requests without origin (like mobile apps, Postman, etc.)
       if (!origin) {
         return callback(null, true);
       }
 
-      if (allowList.includes('*') || allowList.includes(origin)) {
+      // Check exact origin match
+      if (exactOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      const isWildcardMatch = wildcardOrigins.some((suffix) => origin.endsWith(suffix));
+      // Check wildcard domain match
+      const isWildcardMatch = wildcardSuffixes.some((suffix) => origin.endsWith(suffix));
       if (isWildcardMatch) {
         return callback(null, true);
       }
 
+      // Origin not allowed
+      console.warn(`CORS: Blocked origin ${origin}`);
       return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
   });
   
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
@@ -43,5 +65,6 @@ async function bootstrap() {
   
   await app.listen(process.env.PORT ?? 3000);
   console.log(`Application is running on: http://localhost:${process.env.PORT ?? 3000}`);
+  console.log(`CORS allowed origins: ${allOrigins.join(', ')}`);
 }
 bootstrap();
