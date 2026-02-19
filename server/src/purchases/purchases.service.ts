@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Decimal, PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePurchaseDto, UpdatePurchaseDto } from './dto/purchase.dto';
@@ -123,7 +123,13 @@ export class PurchasesService {
 
   private handlePrismaError(err: unknown) {
     if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') {
-      throw new Error('Duplicate purchase number for tenant');
+      throw new BadRequestException('Duplicate purchase number for tenant');
+    }
+    if (err instanceof PrismaClientKnownRequestError && err.code === 'P2003') {
+      throw new BadRequestException('Invalid supplier or raw material selected for this tenant');
+    }
+    if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') {
+      throw new NotFoundException('Related record not found while saving purchase');
     }
     throw err;
   }

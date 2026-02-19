@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -168,6 +168,12 @@ const products = [
   { id: "dedfe5d2-c01d-4a07-8cc2-a03546555f20", name: "Cotton Thread", hsn: "928311" },
 ];
 
+const normalizeArray = <T,>(payload: any): T[] => {
+  if (Array.isArray(payload)) return payload;
+  if (payload && typeof payload === "object" && Array.isArray(payload.data)) return payload.data as T[];
+  return [];
+};
+
 export default function AddPurchaseEnhanced() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -180,6 +186,8 @@ export default function AddPurchaseEnhanced() {
   const [supplierSearch, setSupplierSearch] = useState("");
   const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
   const [showNewSupplierForm, setShowNewSupplierForm] = useState(false);
+  const [availableSuppliers, setAvailableSuppliers] = useState<SupplierInfo[]>([]);
+  const [availableRawMaterials, setAvailableRawMaterials] = useState<Array<{ id: string; name: string }>>([]);
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [paymentTerms, setPaymentTerms] = useState("30");
 
@@ -195,7 +203,8 @@ export default function AddPurchaseEnhanced() {
   });
 
   // Filter suppliers based on search
-  const filteredSuppliers = mockSuppliers.filter(
+  const supplierSource = availableSuppliers.length ? availableSuppliers : mockSuppliers;
+  const filteredSuppliers = supplierSource.filter(
     (s) =>
       s.name.toLowerCase().includes(supplierSearch.toLowerCase()) ||
       s.code.toLowerCase().includes(supplierSearch.toLowerCase()) ||
@@ -214,9 +223,9 @@ export default function AddPurchaseEnhanced() {
 
     // Create new supplier
     const createdSupplier: SupplierInfo = {
-      id: (mockSuppliers.length + 1).toString(),
+      id: Date.now().toString(),
       name: newSupplier.name,
-      code: newSupplier.code || `SUP-${String(mockSuppliers.length + 1).padStart(3, "0")}`,
+      code: newSupplier.code || `SUP-${String(supplierSource.length + 1).padStart(3, "0")}`,
       contact: newSupplier.contact,
       email: newSupplier.email,
       rating: 4.0, // Default rating
@@ -227,7 +236,7 @@ export default function AddPurchaseEnhanced() {
     };
 
     setSupplier(createdSupplier);
-    mockSuppliers.push(createdSupplier); // Add to list
+  setAvailableSuppliers((prev) => [...prev, createdSupplier]);
     setShowNewSupplierForm(false);
     setNewSupplier({
       name: "",
@@ -244,6 +253,48 @@ export default function AddPurchaseEnhanced() {
       description: `${createdSupplier.name} has been added`,
     });
   };
+
+  useEffect(() => {
+    const loadDropdownData = async () => {
+      try {
+        const tenantId = AuthService.getStoredTenantId();
+        const tenantQuery = tenantId ? `?tenantId=${tenantId}` : "";
+
+        const [suppliersRes, rawMaterialsRes] = await Promise.allSettled([
+          apiClient.get(`/suppliers${tenantQuery}`),
+          apiClient.get(`/stock/raw-materials${tenantQuery}`),
+        ]);
+
+        if (suppliersRes.status === "fulfilled") {
+          const supplierList = normalizeArray<any>(suppliersRes.value).map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            code: s.code || s.name?.slice(0, 8)?.toUpperCase() || "SUP",
+            contact: s.contact || s.phone || "-",
+            email: s.email || "-",
+            rating: 4,
+            paymentTerms: s.paymentTerms || "30 Days",
+            address: s.address || "-",
+            lastOrderAmount: 0,
+            lastOrderDate: "-",
+          }));
+          setAvailableSuppliers(supplierList);
+        }
+
+        if (rawMaterialsRes.status === "fulfilled") {
+          const rmList = normalizeArray<any>(rawMaterialsRes.value).map((m: any) => ({
+            id: m.id,
+            name: m.name,
+          }));
+          setAvailableRawMaterials(rmList);
+        }
+      } catch (error) {
+        console.error("Failed to load purchase dropdown data:", error);
+      }
+    };
+
+    loadDropdownData();
+  }, []);
 
   // Items
   const [items, setItems] = useState<PurchaseItem[]>([
@@ -544,7 +595,7 @@ export default function AddPurchaseEnhanced() {
                           </div>
                         ) : (
                           <div className="px-4 py-3 text-sm text-gray-500">
-                            {mockSuppliers.length} suppliers available - start typing to filter
+                            {supplierSource.length} suppliers available - start typing to filter
                           </div>
                         )}
                       </div>
@@ -787,7 +838,7 @@ export default function AddPurchaseEnhanced() {
                                 <SelectValue placeholder="Select..." />
                               </SelectTrigger>
                               <SelectContent>
-                                {products.map((prod) => (
+                                {(availableRawMaterials.length ? availableRawMaterials : products).map((prod) => (
                                   <SelectItem key={prod.id} value={prod.id}>
                                     {prod.name}
                                   </SelectItem>
