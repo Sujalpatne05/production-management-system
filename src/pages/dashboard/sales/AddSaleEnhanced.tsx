@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 import {
   Plus,
   Trash2,
@@ -399,12 +401,19 @@ const products = [
   { id: "4", name: "Stainless Steel Sheet", hsn: "941310" },
 ];
 
+const normalizeArray = <T,>(payload: any): T[] => {
+  if (Array.isArray(payload)) return payload;
+  if (payload && typeof payload === "object" && Array.isArray(payload.data)) return payload.data as T[];
+  return [];
+};
+
 export default function AddSaleEnhanced() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Customer Management State
   const [customers, setCustomers] = useState<CustomerInfo[]>([]);
+  const [availableProducts, setAvailableProducts] = useState<Array<{ id: string; name: string }>>([]);
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
     name: "",
@@ -427,7 +436,7 @@ export default function AddSaleEnhanced() {
   const [paymentTerms, setPaymentTerms] = useState("30");
 
   // Add new customer function
-  const handleAddCustomer = () => {
+  const handleAddCustomer = async () => {
     if (!newCustomer.name || !newCustomer.contact || !newCustomer.email || !newCustomer.phone) {
       toast({
         title: "Error",
@@ -437,17 +446,36 @@ export default function AddSaleEnhanced() {
       return;
     }
 
-    const customerId = (customers.length + 1).toString();
-    const customerCode = `CUST-${String(customers.length + 1).padStart(3, "0")}`;
+    const tenantId = AuthService.getStoredTenantId();
+    if (!tenantId) {
+      toast({
+        title: "Error",
+        description: "Tenant not found. Please login again.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    const customerToAdd: CustomerInfo = {
-      id: customerId,
-      code: customerCode,
+    const created = await apiClient.post<any>("/customers", {
+      tenantId,
       name: newCustomer.name,
-      contact: newCustomer.contact,
       email: newCustomer.email,
       phone: newCustomer.phone,
       address: newCustomer.address,
+      city: "",
+      country: "",
+    });
+
+    const customerCode = `CUST-${String(customers.length + 1).padStart(3, "0")}`;
+
+    const customerToAdd: CustomerInfo = {
+      id: created.id,
+      code: customerCode,
+      name: created.name,
+      contact: newCustomer.contact,
+      email: created.email || newCustomer.email,
+      phone: created.phone || newCustomer.phone,
+      address: created.address || newCustomer.address,
       creditLimit: newCustomer.creditLimit,
       outstandingBalance: 0,
       rating: newCustomer.rating,
@@ -503,6 +531,48 @@ export default function AddSaleEnhanced() {
   const [otherCharges, setOtherCharges] = useState(0);
   const [termsConditions, setTermsConditions] = useState("");
   const [internalNotes, setInternalNotes] = useState("");
+
+  useEffect(() => {
+    const loadMasterData = async () => {
+      try {
+        const tenantId = AuthService.getStoredTenantId();
+        if (!tenantId) return;
+
+        const [customersRes, productsRes] = await Promise.allSettled([
+          apiClient.get(`/customers?tenantId=${tenantId}`),
+          apiClient.get(`/products?tenantId=${tenantId}`),
+        ]);
+
+        if (customersRes.status === "fulfilled") {
+          const list = normalizeArray<any>(customersRes.value).map((c: any, index: number) => ({
+            id: c.id,
+            name: c.name,
+            code: c.code || `CUST-${String(index + 1).padStart(3, "0")}`,
+            contact: c.phone || "-",
+            email: c.email || "-",
+            phone: c.phone || "-",
+            rating: 4.5,
+            address: c.address || "-",
+            creditLimit: Number(c.creditLimit || 0),
+            outstandingBalance: 0,
+          }));
+          setCustomers(list);
+        }
+
+        if (productsRes.status === "fulfilled") {
+          const list = normalizeArray<any>(productsRes.value).map((p: any) => ({
+            id: p.id,
+            name: p.name,
+          }));
+          setAvailableProducts(list);
+        }
+      } catch (error) {
+        console.error("Failed to load sales master data:", error);
+      }
+    };
+
+    loadMasterData();
+  }, []);
 
   const calculateItemTotal = (item: SaleItem) => {
     let lineTotal = item.quantity * item.unitPrice;
@@ -569,9 +639,22 @@ export default function AddSaleEnhanced() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const tenantId = AuthService.getStoredTenantId();
+    if (!tenantId) {
+      toast({ title: "Tenant not found. Please login again.", variant: "destructive" });
+      return;
+    }
     if (!customer) {
       toast({ title: "Please select a customer", variant: "destructive" });
+      return;
+    }
+    if (availableProducts.length === 0) {
+      toast({
+        title: "No products found",
+        description: "Add products first for your tenant before creating sales.",
+        variant: "destructive",
+      });
       return;
     }
     if (items.some((item) => !item.product)) {
@@ -581,8 +664,31 @@ export default function AddSaleEnhanced() {
       });
       return;
     }
-    toast({ title: "Sales Invoice saved successfully" });
-    setTimeout(() => navigate("/dashboard/sales/list"), 1500);
+
+    try {
+      const payload = {
+        tenantId,
+        customerId: customer.id,
+        invoiceNo,
+        subtotal: Number(subtotal.toFixed(2)),
+        tax: Number(totalTax.toFixed(2)),
+        total: Number(grandTotal.toFixed(2)),
+        notes: internalNotes || termsConditions || undefined,
+        items: items.map((item) => ({
+          productId: item.product,
+          quantity: item.quantity,
+          price: Number(item.unitPrice),
+          total: Number(calculateItemTotal(item).toFixed(2)),
+        })),
+      };
+
+      await apiClient.post("/sales", payload);
+      toast({ title: "Sales Invoice saved successfully" });
+      setTimeout(() => navigate("/dashboard/sales/list"), 1500);
+    } catch (error: any) {
+      const message = error?.message || "Failed to save sales invoice";
+      toast({ title: "Error", description: message, variant: "destructive" });
+    }
   };
 
   return (

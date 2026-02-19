@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSaleDto, CreatePurchaseDto } from './dto/transaction.dto';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class TransactionsService {
@@ -27,27 +28,37 @@ export class TransactionsService {
   }
 
   async createSale(dto: CreateSaleDto) {
-    return this.prisma.sale.create({
-      data: {
-        tenantId: dto.tenantId,
-        customerId: dto.customerId,
-        invoiceNo: dto.invoiceNo,
-        subtotal: dto.subtotal,
-        taxAmount: dto.tax ?? 0,
-        total: dto.total,
-        notes: dto.notes,
-        items: {
-          create: dto.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: item.price,
-            amount: item.total,
-            discount: 0,
-          })),
+    try {
+      return await this.prisma.sale.create({
+        data: {
+          tenantId: dto.tenantId,
+          customerId: dto.customerId,
+          invoiceNo: dto.invoiceNo,
+          subtotal: dto.subtotal,
+          taxAmount: dto.tax ?? 0,
+          total: dto.total,
+          notes: dto.notes,
+          items: {
+            create: dto.items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: item.price,
+              amount: item.total,
+              discount: 0,
+            })),
+          },
         },
-      },
-      include: { items: true },
-    });
+        include: { items: true },
+      });
+    } catch (err) {
+      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new BadRequestException('Duplicate invoice number for tenant');
+      }
+      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2003') {
+        throw new BadRequestException('Invalid customer or product selected for this tenant');
+      }
+      throw err;
+    }
   }
 
   async deleteSale(id: string) {
