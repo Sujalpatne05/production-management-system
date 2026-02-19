@@ -105,14 +105,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = await this.generateTokens(user.id, user.email);
+    const effectiveUser = await this.ensureUserRoleMapping(user);
+
+    const tokens = await this.generateTokens(effectiveUser.id, effectiveUser.email);
 
     return {
       user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        roles: user.roles.map(ur => ({
+        id: effectiveUser.id,
+        email: effectiveUser.email,
+        fullName: effectiveUser.fullName,
+        roles: effectiveUser.roles.map(ur => ({
           roleId: ur.roleId,
           role: ur.role.name,
           tenant: {
@@ -294,14 +296,15 @@ export class AuthService {
       },
     });
 
-    const tokens = await this.generateTokens(user.id, user.email);
+    const effectiveUser = await this.ensureUserRoleMapping(user);
+    const tokens = await this.generateTokens(effectiveUser.id, effectiveUser.email);
 
     return {
       user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        roles: user.roles.map(ur => ({
+        id: effectiveUser.id,
+        email: effectiveUser.email,
+        fullName: effectiveUser.fullName,
+        roles: effectiveUser.roles.map(ur => ({
           roleId: ur.roleId,
           role: ur.role.name,
           tenant: {
@@ -313,5 +316,54 @@ export class AuthService {
       },
       ...tokens,
     };
+  }
+
+  private async ensureUserRoleMapping(user: any) {
+    if (user.roles?.length > 0) {
+      return user;
+    }
+
+    const defaultTenantId = await this.ensureDefaultTenantForUser(user.id, user.fullName);
+    const defaultRole =
+      (await this.prisma.role.findFirst({ where: { name: 'User' } })) ||
+      (await this.prisma.role.findFirst({ where: { name: 'Admin' } }));
+
+    if (defaultRole) {
+      await this.prisma.userRole.upsert({
+        where: {
+          userId_tenantId_roleId: {
+            userId: user.id,
+            tenantId: defaultTenantId,
+            roleId: defaultRole.id,
+          },
+        },
+        update: {},
+        create: {
+          userId: user.id,
+          tenantId: defaultTenantId,
+          roleId: defaultRole.id,
+        },
+      });
+    }
+
+    return this.prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+            tenant: true,
+          },
+        },
+      },
+    });
   }
 }
