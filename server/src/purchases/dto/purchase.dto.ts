@@ -22,7 +22,7 @@ class PurchaseItemDto {
 
 export class CreatePurchaseDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   tenantId: string;
 
   @IsString()

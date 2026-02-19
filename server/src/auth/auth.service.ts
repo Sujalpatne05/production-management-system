@@ -32,21 +32,28 @@ export class AuthService {
       },
     });
 
-    // If tenantId is provided, assign default role
-    if (tenantId) {
-      const defaultRole = await this.prisma.role.findFirst({
-        where: { name: 'User' },
-      });
+    const resolvedTenantId = tenantId ?? (await this.ensureDefaultTenantForUser(user.id, user.fullName));
 
-      if (defaultRole) {
-        await this.prisma.userRole.create({
-          data: {
+    const defaultRole =
+      (await this.prisma.role.findFirst({ where: { name: 'User' } })) ||
+      (await this.prisma.role.findFirst({ where: { name: 'Admin' } }));
+
+    if (resolvedTenantId && defaultRole) {
+      await this.prisma.userRole.upsert({
+        where: {
+          userId_tenantId_roleId: {
             userId: user.id,
-            tenantId,
+            tenantId: resolvedTenantId,
             roleId: defaultRole.id,
           },
-        });
-      }
+        },
+        update: {},
+        create: {
+          userId: user.id,
+          tenantId: resolvedTenantId,
+          roleId: defaultRole.id,
+        },
+      });
     }
 
     // Send welcome email
@@ -117,6 +124,17 @@ export class AuthService {
       },
       ...tokens,
     };
+  }
+
+  private async ensureDefaultTenantForUser(userId: string, fullName?: string | null): Promise<string> {
+    const tenant = await this.prisma.tenant.create({
+      data: {
+        name: fullName ? `${fullName} Workspace` : 'Default Workspace',
+        status: 'active',
+      },
+    });
+
+    return tenant.id;
   }
 
   async refreshToken(token: string) {

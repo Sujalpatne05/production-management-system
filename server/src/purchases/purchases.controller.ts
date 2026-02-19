@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { PurchasesService } from './purchases.service';
 import { CreatePurchaseDto, UpdatePurchaseDto } from './dto/purchase.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -9,8 +9,9 @@ export class PurchasesController {
   constructor(private readonly purchasesService: PurchasesService) {}
 
   @Get()
-  findAll(@Query('tenantId') tenantId?: string) {
-    return this.purchasesService.findAll(tenantId);
+  findAll(@Query('tenantId') tenantId?: string, @Req() req?: any) {
+    const resolvedTenantId = tenantId || req?.user?.tenants?.[0];
+    return this.purchasesService.findAll(resolvedTenantId);
   }
 
   @Get(':id')
@@ -19,8 +20,12 @@ export class PurchasesController {
   }
 
   @Post()
-  create(@Body() dto: CreatePurchaseDto) {
-    return this.purchasesService.create(dto);
+  create(@Body() dto: CreatePurchaseDto, @Req() req: any) {
+    const resolvedTenantId = dto.tenantId || req?.user?.tenants?.[0];
+    return this.purchasesService.create({
+      ...dto,
+      tenantId: resolvedTenantId,
+    });
   }
 
   @Put(':id')
