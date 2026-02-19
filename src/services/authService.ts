@@ -121,6 +121,32 @@ export class AuthService {
     return user ? JSON.parse(user) : null;
   }
 
+  static getStoredTenant() {
+    const storedTenant = localStorage.getItem('tenant');
+    if (storedTenant) {
+      try {
+        const parsedTenant = JSON.parse(storedTenant);
+        if (parsedTenant?.id) {
+          return parsedTenant;
+        }
+      } catch {
+      }
+    }
+
+    const user = this.getStoredUser();
+    const fallbackTenant = user?.roles?.find((r: any) => r?.tenant?.id)?.tenant;
+    if (fallbackTenant?.id) {
+      localStorage.setItem('tenant', JSON.stringify(fallbackTenant));
+      return fallbackTenant;
+    }
+
+    return null;
+  }
+
+  static getStoredTenantId(): string | null {
+    return this.getStoredTenant()?.id ?? null;
+  }
+
   static getStoredToken(): string | null {
     return localStorage.getItem('accessToken');
   }

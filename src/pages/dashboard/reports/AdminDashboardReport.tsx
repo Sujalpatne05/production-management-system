@@ -52,8 +52,7 @@ const AdminDashboardReport = () => {
       }
 
       try {
-        const tenant = localStorage.getItem("tenant");
-        const tenantId = tenant ? JSON.parse(tenant)?.id : undefined;
+        const tenantId = AuthService.getStoredTenantId() ?? undefined;
         const tenantQuery = tenantId ? `?tenantId=${tenantId}` : "";
 
         const [salesRes, purchasesRes, ordersRes, customersRes, suppliersRes, productsRes, usersRes] = await Promise.allSettled([

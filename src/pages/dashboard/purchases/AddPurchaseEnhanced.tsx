@@ -24,6 +24,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 import {
   Plus,
   Trash2,
@@ -333,14 +335,7 @@ export default function AddPurchaseEnhanced() {
   };
 
   const handleSave = async () => {
-    const storedTenant = localStorage.getItem("tenant");
-    const tenantId = storedTenant ? (() => {
-      try {
-        return JSON.parse(storedTenant)?.id as string | undefined;
-      } catch {
-        return undefined;
-      }
-    })() : undefined;
+    const tenantId = AuthService.getStoredTenantId() ?? undefined;
 
     if (!tenantId) {
       toast({
@@ -392,28 +387,7 @@ export default function AddPurchaseEnhanced() {
 
       console.log("Sending purchase data:", JSON.stringify(purchaseData, null, 2));
 
-      // Call API to save purchase order
-      const response = await fetch("http://localhost:3000/api/purchases", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(purchaseData),
-      });
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: "Unknown error" }));
-        console.error("API Error Response:", error);
-        toast({
-          title: "Error",
-          description: error.message || JSON.stringify(error) || "Failed to save purchase order",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const savedPO = await response.json();
+      const savedPO = await apiClient.post<any>("/purchases", purchaseData);
       console.log("Saved PO:", savedPO);
       toast({
         title: "Success",
