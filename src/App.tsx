@@ -103,6 +103,7 @@ import BackupRestore from "./pages/dashboard/settings/BackupRestore";
 import SaleReport from "./pages/dashboard/reports/SaleReport";
 import PurchaseReport from "./pages/dashboard/reports/PurchaseReport";
 import ProfitLossReport from "./pages/dashboard/reports/ProfitLossReport";
+import AdminDashboardReport from "./pages/dashboard/reports/AdminDashboardReport";
 import SupplierDueReport from "./pages/dashboard/reports/SupplierDueReport";
 import SupplierBalanceReport from "./pages/dashboard/reports/SupplierBalanceReport";
 import SupplierLedger from "./pages/dashboard/reports/SupplierLedger";
@@ -275,6 +276,7 @@ function AppContent() {
                 <Route path="item-setup/products" element={<ProductList />} />
                 
                 {/* Reports */}
+                <Route path="reports/admin-dashboard" element={<AdminDashboardReport />} />
                 <Route path="reports/sale" element={<SaleReport />} />
                 <Route path="reports/purchase" element={<PurchaseReport />} />
                 <Route path="reports/profit-loss" element={<ProfitLossReport />} />

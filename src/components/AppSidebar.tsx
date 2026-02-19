@@ -238,6 +238,7 @@ const menuItems: MenuItem[] = [
     badge: "15+",
     color: "text-red-500",
     subItems: [
+      { title: "Admin Dashboard", url: "/dashboard/reports/admin-dashboard", icon: ShieldCheck, description: "HR/Admin data view" },
       { title: "Sale Report", url: "/dashboard/reports/sale", icon: TrendingUp, description: "Sales analytics" },
       { title: "Purchase Report", url: "/dashboard/reports/purchase", icon: ShoppingBag, description: "Purchase analytics" },
       { title: "Profit & Loss", url: "/dashboard/reports/profit-loss", icon: DollarSign, description: "P&L statement" },
