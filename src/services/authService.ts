@@ -25,6 +25,7 @@ export interface VerifyOTPRequest {
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
+  token?: string;
   user: {
     id: string;
     email: string;
@@ -48,8 +49,9 @@ export interface RefreshTokenRequest {
 export class AuthService {
   static async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials);
-    if (response.accessToken) {
-      apiClient.setToken(response.accessToken);
+    const token = response.accessToken || response.token;
+    if (token) {
+      apiClient.setToken(token);
       localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.user));
       const defaultTenant = response.user?.roles?.[0]?.tenant;
@@ -79,8 +81,9 @@ export class AuthService {
       API_ENDPOINTS.AUTH.REFRESH,
       { refreshToken }
     );
-    if (response.accessToken) {
-      apiClient.setToken(response.accessToken);
+    const token = response.accessToken || response.token;
+    if (token) {
+      apiClient.setToken(token);
     }
     return response;
   }
@@ -98,8 +101,9 @@ export class AuthService {
       `${API_ENDPOINTS.AUTH.LOGIN.replace('/login', '/verify-otp')}`,
       data
     );
-    if (response.accessToken) {
-      apiClient.setToken(response.accessToken);
+    const token = response.accessToken || response.token;
+    if (token) {
+      apiClient.setToken(token);
       localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.user));
       const defaultTenant = response.user?.roles?.[0]?.tenant;
@@ -148,6 +152,6 @@ export class AuthService {
   }
 
   static getStoredToken(): string | null {
-    return localStorage.getItem('accessToken');
+    return localStorage.getItem('accessToken') || localStorage.getItem('token');
   }
 }

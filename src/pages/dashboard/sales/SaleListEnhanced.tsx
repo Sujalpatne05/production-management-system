@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 import {
   Plus,
   Search,
@@ -113,12 +115,78 @@ const mockSales: Sale[] = [
   },
 ];
 
+const normalizeArray = <T,>(payload: any): T[] => {
+  if (Array.isArray(payload)) return payload as T[];
+  if (Array.isArray(payload?.data)) return payload.data as T[];
+  return [];
+};
+
+const normalizeStatus = (status: string): Sale["status"] => {
+  if (status === "draft" || status === "confirmed" || status === "shipped" || status === "delivered" || status === "paid") {
+    return status;
+  }
+  return "draft";
+};
+
 export default function SaleListEnhanced() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [sales, setSales] = useState<Sale[]>(mockSales);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  useEffect(() => {
+    const loadSales = async () => {
+      try {
+        const tenantId = AuthService.getStoredTenantId();
+        if (!tenantId) {
+          setSales(mockSales);
+          return;
+        }
+
+        const [salesRes, customersRes] = await Promise.allSettled([
+          apiClient.get(`/sales?tenantId=${tenantId}`),
+          apiClient.get(`/customers?tenantId=${tenantId}`),
+        ]);
+
+        const salesList = salesRes.status === "fulfilled" ? normalizeArray<any>(salesRes.value) : [];
+        const customersList = customersRes.status === "fulfilled" ? normalizeArray<any>(customersRes.value) : [];
+        const customerById = new Map(customersList.map((customer: any) => [customer.id, customer.name]));
+
+        const mappedSales: Sale[] = salesList.map((sale: any, index: number) => {
+          const invoiceDate = sale.invoiceDate || sale.date || sale.createdAt || new Date().toISOString();
+          const dueDate = sale.dueDate || invoiceDate;
+          return {
+            id: sale.id || `sale-${index + 1}`,
+            invoiceNo: sale.invoiceNo || sale.saleNumber || `INV-${String(index + 1).padStart(3, "0")}`,
+            customer:
+              customerById.get(sale.customerId) ||
+              sale.customerName ||
+              sale.customer ||
+              "Unknown Customer",
+            invoiceDate,
+            dueDate,
+            totalAmount: Number(sale.totalAmount ?? sale.total ?? 0),
+            paidAmount: Number(sale.paidAmount ?? sale.paid ?? 0),
+            status: normalizeStatus(sale.status),
+            items: Array.isArray(sale.items) ? sale.items.length : Number(sale.items ?? 0),
+            lastUpdate: sale.updatedAt || sale.lastUpdate || sale.createdAt || invoiceDate,
+          };
+        });
+
+        setSales(mappedSales);
+      } catch (error: any) {
+        setSales(mockSales);
+        toast({
+          title: "Sales sync issue",
+          description: error?.message || "Showing fallback data",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadSales();
+  }, [toast]);
 
   const filteredSales = sales.filter((s) => {
     const matchesSearch =
@@ -171,6 +239,7 @@ export default function SaleListEnhanced() {
   );
   const totalRevenue = sales.reduce((sum, s) => sum + s.totalAmount, 0);
   const totalCollected = sales.reduce((sum, s) => sum + s.paidAmount, 0);
+  const collectedPercent = totalRevenue > 0 ? (totalCollected / totalRevenue) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -216,7 +285,7 @@ export default function SaleListEnhanced() {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">₹{(totalCollected / 100000).toFixed(1)}L</div>
             <p className="text-xs text-gray-500">
-              {((totalCollected / totalRevenue) * 100).toFixed(0)}% collected
+              {collectedPercent.toFixed(0)}% collected
             </p>
           </CardContent>
         </Card>

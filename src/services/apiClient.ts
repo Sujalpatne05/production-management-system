@@ -24,7 +24,7 @@ class ApiClient {
 
   private loadToken() {
     if (typeof window !== 'undefined') {
-      this.token = localStorage.getItem('accessToken');
+      this.token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     }
   }
 
@@ -32,6 +32,7 @@ class ApiClient {
     this.token = token;
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', token);
+      localStorage.setItem('token', token);
     }
   }
 
@@ -39,6 +40,7 @@ class ApiClient {
     this.token = null;
     if (typeof window !== 'undefined') {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
     }
   }
@@ -94,6 +96,16 @@ class ApiClient {
           statusCode: response.status,
           error: responseData.error,
         } as ApiError;
+      }
+
+      if (
+        responseData &&
+        typeof responseData === 'object' &&
+        'success' in responseData &&
+        responseData.success === true &&
+        'data' in responseData
+      ) {
+        return responseData.data as T;
       }
 
       return responseData as T;

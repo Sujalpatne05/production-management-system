@@ -1,36 +1,53 @@
-# My Project
+# Production Management System
 
-### Project Info
-**URL:** https://lovable.dev/projects/5ebc04a2-c2fb-4a99-bdfe-f7731b9027da
+Web-based production management platform with modular ERP-style workflows.
 
----
+## Requirements
 
-## How to Edit the Code
+- Node.js 18+
+- npm 9+
 
-You can work on this application using several methods depending on your workflow preference.
+## Quick Start
 
-### 1. Edit Through the Project Dashboard
-Open the project using the URL above and start making changes directly.  
-All updates will automatically be saved and committed to the repository.
-
-### 2. Work Locally Using Your Own IDE
-If you prefer local development, clone the repository and push your changes back.  
-Pushed changes will instantly reflect in the project dashboard.
-
-Make sure you have **Node.js & npm** installed (installable via `nvm`).
-
-#### Steps:
 ```bash
-# Step 1: Clone the repository using the project's Git URL
-git clone <YOUR_GIT_URL>
+# 1) Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install dependencies
-npm i
-
-# Step 4: Start the development server with auto-reloading and instant preview
+# 2) Run frontend (Vite)
 npm run dev
+```
+
+Frontend default URL: `http://localhost:8081/`
+
+## Common Scripts
+
+- `npm run dev` - start frontend development server
+- `npm run build` - production build
+- `npm run build:dev` - development-mode build
+- `npm run preview` - preview production build locally
+- `npm run lint` - run ESLint
+
+## Backend / Server Notes
+
+- Additional backend resources exist under `server/` and `backend/`
+- See `server/BACKEND_SETUP.md` and `backend/README.md` for setup options
+
+## Key Documentation
+
+- `START_HERE.md`
+- `QUICK_START.md`
+- `FEATURE_QUICKSTART.md`
+- `TESTING_GUIDE.md`
+- `DOCKER_SETUP.md`
+- `docs/SYSTEM_DOCUMENTATION.md`
+
+## Deployment
+
+- Vercel configuration: `vercel.json`, `VERCEL_DEPLOYMENT_GUIDE.md`
+- Render configuration: `render.json`
+
+## Project Origin
+
+Original dashboard URL: https://lovable.dev/projects/5ebc04a2-c2fb-4a99-bdfe-f7731b9027da
 
 
