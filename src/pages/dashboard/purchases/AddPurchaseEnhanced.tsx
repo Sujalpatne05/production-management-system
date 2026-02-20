@@ -422,17 +422,33 @@ export default function AddPurchaseEnhanced() {
     }
     if (availableSuppliers.length === 0) {
       toast({
-        title: "No suppliers found",
-        description: "Create a supplier first for your tenant.",
+        title: "Database Not Seeded",
+        description: "No suppliers found. Please seed your database first at /dashboard/setup/seed",
         variant: "destructive",
+        action: (
+          <button
+            onClick={() => navigate("/dashboard/setup/seed")}
+            className="text-sm underline"
+          >
+            Seed Now
+          </button>
+        ),
       });
       return;
     }
     if (availableRawMaterials.length === 0) {
       toast({
-        title: "No raw materials found",
-        description: "Add raw materials first for your tenant before creating purchases.",
+        title: "Database Not Seeded",
+        description: "No raw materials found. Please seed your database first at /dashboard/setup/seed",
         variant: "destructive",
+        action: (
+          <button
+            onClick={() => navigate("/dashboard/setup/seed")}
+            className="text-sm underline"
+          >
+            Seed Now
+          </button>
+        ),
       });
       return;
     }
@@ -483,6 +499,30 @@ export default function AddPurchaseEnhanced() {
   return (
     <div className="space-y-6">
       <PageHeader title="Create Purchase Order" />
+      
+      {(availableSuppliers.length === 0 || availableRawMaterials.length === 0) && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-yellow-900 mb-1">Database Not Seeded</h3>
+              <p className="text-sm text-yellow-800 mb-3">
+                {availableSuppliers.length === 0 && "No suppliers found. "}
+                {availableRawMaterials.length === 0 && "No raw materials found. "}
+                You need to seed your database with master data before creating purchase orders.
+              </p>
+              <Button
+                size="sm"
+                onClick={() => navigate("/dashboard/setup/seed")}
+                className="bg-yellow-600 hover:bg-yellow-700"
+              >
+                <DollarSign className="h-4 w-4 mr-2" />
+                Seed Database Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Tabs defaultValue="general" className="space-y-4">
         <TabsList>
