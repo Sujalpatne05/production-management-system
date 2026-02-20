@@ -1,12 +1,13 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -14,10 +15,25 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 const CustomerList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { customers, updateCustomer, deleteCustomer } = useStore();
+  const [customers, setCustomers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingCustomer, setEditingCustomer] = useState<any>(null);
   const [editForm, setEditForm] = useState({ name: "", phone: "", email: "", address: "" });
+
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        const tenantId = AuthService.getStoredTenantId();
+        if (!tenantId) return;
+        const data = await apiClient.get<any[]>(`/customers?tenantId=${tenantId}`);
+        setCustomers(Array.isArray(data) ? data : []);
+      } catch (error: any) {
+        toast({ title: "Error", description: error?.message || "Failed to load customers", variant: "destructive" });
+      }
+    };
+
+    loadCustomers();
+  }, [toast]);
 
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -30,17 +46,27 @@ const CustomerList = () => {
     setEditForm({ name: customer.name, phone: customer.phone, email: customer.email, address: customer.address });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingCustomer) {
-      updateCustomer(editingCustomer.id, editForm);
-      toast({ title: "Success", description: "Customer updated successfully" });
-      setEditingCustomer(null);
+      try {
+        const updated = await apiClient.put<any>(`/customers/${editingCustomer.id}`, editForm);
+        setCustomers(customers.map((item) => (item.id === editingCustomer.id ? updated : item)));
+        toast({ title: "Success", description: "Customer updated successfully" });
+        setEditingCustomer(null);
+      } catch (error: any) {
+        toast({ title: "Error", description: error?.message || "Failed to update customer", variant: "destructive" });
+      }
     }
   };
 
-  const handleDelete = (id: string) => {
-    deleteCustomer(id);
-    toast({ title: "Success", description: "Customer deleted successfully" });
+  const handleDelete = async (id: string) => {
+    try {
+      await apiClient.delete(`/customers/${id}`);
+      setCustomers(customers.filter((item) => item.id !== id));
+      toast({ title: "Success", description: "Customer deleted successfully" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error?.message || "Failed to delete customer", variant: "destructive" });
+    }
   };
 
   return (
@@ -81,8 +107,8 @@ const CustomerList = () => {
                       <TableCell className="font-medium">{customer.name}</TableCell>
                       <TableCell>{customer.phone}</TableCell>
                       <TableCell>{customer.email}</TableCell>
-                      <TableCell className={customer.balance > 0 ? "text-red-500" : "text-green-500"}>
-                        ₹{customer.balance.toFixed(2)}
+                      <TableCell className="text-green-500">
+                        ₹{Number(customer.balance ?? 0).toFixed(2)}
                       </TableCell>
                       <TableCell className="max-w-xs truncate">{customer.address}</TableCell>
                       <TableCell className="text-right">

@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "@/store/useStore";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 import { Plus, Trash2 } from "lucide-react";
 
 const orderSchema = z.object({
@@ -24,7 +25,8 @@ type OrderFormData = z.infer<typeof orderSchema>;
 const AddOrder = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { customers, products, addQuotation, quotations } = useStore();
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [items, setItems] = useState<{ productId: string; quantity: number; price: number }[]>([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -39,6 +41,26 @@ const AddOrder = () => {
     },
   });
 
+  useEffect(() => {
+    const loadMasterData = async () => {
+      try {
+        const tenantId = AuthService.getStoredTenantId();
+        if (!tenantId) return;
+
+        const [customersRes, productsRes] = await Promise.allSettled([
+          apiClient.get<any[]>(`/customers?tenantId=${tenantId}`),
+          apiClient.get<any[]>(`/products?tenantId=${tenantId}`),
+        ]);
+
+        if (customersRes.status === "fulfilled") setCustomers(Array.isArray(customersRes.value) ? customersRes.value : []);
+        if (productsRes.status === "fulfilled") setProducts(Array.isArray(productsRes.value) ? productsRes.value : []);
+      } catch {
+      }
+    };
+
+    loadMasterData();
+  }, []);
+
   const addItem = () => {
     if (!selectedProduct || quantity <= 0) {
       toast({
@@ -52,7 +74,7 @@ const AddOrder = () => {
     const product = products.find((p) => p.id === selectedProduct);
     if (!product) return;
 
-    const itemPrice = price > 0 ? price : product.price;
+    const itemPrice = price > 0 ? price : Number(product.price ?? product.sellingPrice ?? 0);
 
     setItems([...items, { productId: selectedProduct, quantity, price: itemPrice }]);
     setSelectedProduct("");
@@ -66,7 +88,7 @@ const AddOrder = () => {
 
   const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
 
-  const handleSubmit = (data: OrderFormData) => {
+  const handleSubmit = async (data: OrderFormData) => {
     if (items.length === 0) {
       toast({
         title: "Error",
@@ -76,16 +98,17 @@ const AddOrder = () => {
       return;
     }
 
-    const quotationNo = `ORD-₹{String(quotations.length + 1).padStart(3, "0")}`;
-
     try {
-      addQuotation({
-        quotationNo,
-        customerId: data.customerId,
-        items,
+      const tenantId = AuthService.getStoredTenantId();
+      if (!tenantId) {
+        toast({ title: "Error", description: "Tenant not found. Please login again.", variant: "destructive" });
+        return;
+      }
+
+      await apiClient.post("/orders", {
+        tenantId,
+        status: "pending",
         total,
-        validUntil: data.deliveryDate,
-        status: "sent",
       });
 
       toast({

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 import {
   Plus,
   Search,
@@ -139,10 +141,58 @@ const mockOrders: Order[] = [
 export default function OrdersEnhanced() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      try {
+        const tenantId = AuthService.getStoredTenantId();
+        if (!tenantId) {
+          setOrders(mockOrders);
+          return;
+        }
+
+        const data = await apiClient.get<any[]>(`/orders?tenantId=${tenantId}`);
+        const mapped: Order[] = (Array.isArray(data) ? data : []).map((order: any, index: number) => {
+          const orderDate = order.createdAt || new Date().toISOString();
+          const expectedDate = order.updatedAt || orderDate;
+          const totalAmount = Number(order.total ?? 0);
+          return {
+            id: order.id || `order-${index + 1}`,
+            orderNo: order.orderNo || `ORD-${String(index + 1).padStart(6, "0")}`,
+            customer: order.customerName || order.user?.name || "Customer",
+            customerRating: 4.5,
+            orderDate,
+            expectedDate,
+            deliveredDate: order.status === "completed" ? expectedDate : undefined,
+            totalAmount,
+            amountPaid: order.status === "completed" ? totalAmount : 0,
+            status: ["pending", "confirmed", "processing", "ready", "delivered", "completed"].includes(order.status)
+              ? order.status
+              : "pending",
+            items: Number(order.itemsCount ?? 0),
+            priority: "medium",
+            lastUpdate: order.updatedAt || orderDate,
+            satisfaction: undefined,
+          };
+        });
+
+        setOrders(mapped);
+      } catch (error: any) {
+        setOrders(mockOrders);
+        toast({
+          title: "Order sync issue",
+          description: error?.message || "Showing fallback data",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadOrders();
+  }, [toast]);
 
   const filteredOrders = orders.filter((o) => {
     const matchesSearch =

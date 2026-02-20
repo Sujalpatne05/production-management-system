@@ -1,12 +1,13 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil, Trash2, Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "@/store/useStore";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -14,10 +15,25 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 const SupplierList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { suppliers, updateSupplier, deleteSupplier } = useStore();
+  const [suppliers, setSuppliers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingSupplier, setEditingSupplier] = useState<any>(null);
   const [editForm, setEditForm] = useState({ name: "", phone: "", email: "", address: "" });
+
+  useEffect(() => {
+    const loadSuppliers = async () => {
+      try {
+        const tenantId = AuthService.getStoredTenantId();
+        if (!tenantId) return;
+        const data = await apiClient.get<any[]>(`/suppliers?tenantId=${tenantId}`);
+        setSuppliers(Array.isArray(data) ? data : []);
+      } catch (error: any) {
+        toast({ title: "Error", description: error?.message || "Failed to load suppliers", variant: "destructive" });
+      }
+    };
+
+    loadSuppliers();
+  }, [toast]);
 
   const filteredSuppliers = suppliers.filter((supplier) =>
     supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -29,17 +45,27 @@ const SupplierList = () => {
     setEditForm({ name: supplier.name, phone: supplier.phone, email: supplier.email, address: supplier.address });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingSupplier) {
-      updateSupplier(editingSupplier.id, editForm);
-      toast({ title: "Success", description: "Supplier updated successfully" });
-      setEditingSupplier(null);
+      try {
+        const updated = await apiClient.put<any>(`/suppliers/${editingSupplier.id}`, editForm);
+        setSuppliers(suppliers.map((item) => (item.id === editingSupplier.id ? updated : item)));
+        toast({ title: "Success", description: "Supplier updated successfully" });
+        setEditingSupplier(null);
+      } catch (error: any) {
+        toast({ title: "Error", description: error?.message || "Failed to update supplier", variant: "destructive" });
+      }
     }
   };
 
-  const handleDelete = (id: string) => {
-    deleteSupplier(id);
-    toast({ title: "Success", description: "Supplier deleted successfully" });
+  const handleDelete = async (id: string) => {
+    try {
+      await apiClient.delete(`/suppliers/${id}`);
+      setSuppliers(suppliers.filter((item) => item.id !== id));
+      toast({ title: "Success", description: "Supplier deleted successfully" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error?.message || "Failed to delete supplier", variant: "destructive" });
+    }
   };
 
   return (
@@ -80,8 +106,8 @@ const SupplierList = () => {
                       <TableCell className="font-medium">{supplier.name}</TableCell>
                       <TableCell>{supplier.phone}</TableCell>
                       <TableCell>{supplier.email}</TableCell>
-                      <TableCell className={supplier.balance > 0 ? "text-red-500" : "text-green-500"}>
-                        ₹{supplier.balance.toFixed(2)}
+                      <TableCell className="text-green-500">
+                        ₹{Number(supplier.balance ?? 0).toFixed(2)}
                       </TableCell>
                       <TableCell className="max-w-xs truncate">{supplier.address}</TableCell>
                       <TableCell className="text-right">

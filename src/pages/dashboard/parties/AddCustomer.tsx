@@ -8,7 +8,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useStore } from "@/store/useStore";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 
 const customerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,7 +22,6 @@ const customerSchema = z.object({
 const AddCustomer = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { addCustomer } = useStore();
   
   const form = useForm({
     resolver: zodResolver(customerSchema),
@@ -34,10 +34,31 @@ const AddCustomer = () => {
     },
   });
 
-  const handleSubmit = (data: any) => {
-    addCustomer(data);
-    toast({ title: "Success", description: "Customer added successfully" });
-    navigate("/dashboard/parties/customers");
+  const handleSubmit = async (data: any) => {
+    try {
+      const tenantId = AuthService.getStoredTenantId();
+      if (!tenantId) {
+        toast({ title: "Error", description: "Tenant not found. Please login again.", variant: "destructive" });
+        return;
+      }
+
+      await apiClient.post("/customers", {
+        tenantId,
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        address: data.address,
+      });
+
+      toast({ title: "Success", description: "Customer added successfully" });
+      navigate("/dashboard/parties/customers");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to add customer",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
