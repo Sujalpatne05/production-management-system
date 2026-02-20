@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/services/apiClient";
+import { AuthService } from "@/services/authService";
 import {
   Plus,
   Search,
@@ -101,13 +103,98 @@ const mockPurchases: Purchase[] = [
   },
 ];
 
+const normalizeArray = <T,>(payload: any): T[] => {
+  if (Array.isArray(payload)) return payload as T[];
+  if (Array.isArray(payload?.data)) return payload.data as T[];
+  return [];
+};
+
+const normalizeStatus = (status: string): Purchase["status"] => {
+  switch (status) {
+    case "draft":
+      return "draft";
+    case "received":
+      return "received";
+    case "paid":
+      return "paid";
+    case "partial":
+      return "billed";
+    case "unpaid":
+      return "confirmed";
+    case "confirmed":
+      return "confirmed";
+    case "billed":
+      return "billed";
+    default:
+      return "draft";
+  }
+};
+
 export default function PurchaseListEnhanced() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [purchases, setPurchases] = useState<Purchase[]>(mockPurchases);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateRange, setDateRange] = useState("all");
+
+  useEffect(() => {
+    const loadPurchases = async () => {
+      try {
+        const tenantId = AuthService.getStoredTenantId();
+        if (!tenantId) {
+          setPurchases(mockPurchases);
+          return;
+        }
+
+        const [purchaseRes, supplierRes] = await Promise.allSettled([
+          apiClient.get(`/purchases?tenantId=${tenantId}`),
+          apiClient.get(`/suppliers?tenantId=${tenantId}`),
+        ]);
+
+        const purchaseList = purchaseRes.status === "fulfilled" ? normalizeArray<any>(purchaseRes.value) : [];
+        const suppliers = supplierRes.status === "fulfilled" ? normalizeArray<any>(supplierRes.value) : [];
+        const supplierById = new Map(suppliers.map((supplier: any) => [supplier.id, supplier.name]));
+
+        const mappedPurchases: Purchase[] = purchaseList.map((purchase: any, index: number) => {
+          const paidFromPayments = Array.isArray(purchase.payments)
+            ? purchase.payments.reduce((sum: number, payment: any) => sum + Number(payment?.amount ?? 0), 0)
+            : 0;
+
+          const poDate = purchase.purchaseDate || purchase.poDate || purchase.createdAt || new Date().toISOString();
+          const dueDate = purchase.dueDate || poDate;
+
+          return {
+            id: purchase.id || `po-${index + 1}`,
+            poNo: purchase.poNo || purchase.purchaseNumber || `PO-${String(index + 1).padStart(3, "0")}`,
+            supplier:
+              purchase.supplier?.name ||
+              supplierById.get(purchase.supplierId) ||
+              purchase.supplierName ||
+              "Unknown Supplier",
+            poDate,
+            dueDate,
+            totalAmount: Number(purchase.total ?? purchase.totalAmount ?? 0),
+            paidAmount: Number(purchase.paidAmount ?? paidFromPayments),
+            status: normalizeStatus(purchase.status),
+            items: Array.isArray(purchase.items) ? purchase.items.length : Number(purchase.items ?? 0),
+            lastUpdate: purchase.updatedAt || purchase.createdAt || poDate,
+          };
+        });
+
+        setPurchases(mappedPurchases);
+      } catch (error: any) {
+        setPurchases(mockPurchases);
+        toast({
+          title: "Purchase sync issue",
+          description: error?.message || "Showing fallback data",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadPurchases();
+  }, [toast]);
 
   const filteredPurchases = purchases.filter((p) => {
     const matchesSearch =

@@ -460,17 +460,6 @@ export default function AddPurchaseEnhanced() {
           })),
       };
 
-      // Get token from localStorage
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        toast({
-          title: "Error",
-          description: "Not authenticated. Please login again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
       console.log("Sending purchase data:", JSON.stringify(purchaseData, null, 2));
 
       const savedPO = await apiClient.post<any>("/purchases", purchaseData);
