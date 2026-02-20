@@ -99,6 +99,9 @@ import DataImport from "./pages/dashboard/settings/DataImport";
 import RBACManagement from "./pages/dashboard/settings/RBACManagement";
 import BackupRestore from "./pages/dashboard/settings/BackupRestore";
 
+// Setup
+import SeedDatabase from "./pages/dashboard/setup/SeedDatabase";
+
 // Reports - Core
 import SaleReport from "./pages/dashboard/reports/SaleReport";
 import PurchaseReport from "./pages/dashboard/reports/PurchaseReport";
@@ -244,6 +247,9 @@ function AppContent() {
                 
                 {/* Stock */}
                 <Route path="stock" element={<ProductStock />} />
+                
+                {/* Setup */}
+                <Route path="setup/seed" element={<SeedDatabase />} />
                 
                 {/* Store/Inventory */}
                 <Route path="store/material-codes" element={<MaterialCodesEnhanced />} />
