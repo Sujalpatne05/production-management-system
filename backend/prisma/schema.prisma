@@ -1,0 +1,337 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users table
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  username  String?  @unique
+  email     String?  @unique
+  password  String?
+  passwordHash String?
+  role      String   @default("user") // user, admin, super_admin
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([username])
+  @@index([role])
+}
+
+// Attendance table
+model Attendance {
+  id           String   @id @default(cuid())
+  employeeId   String?
+  employeeName String?
+  date         DateTime?
+  inTime       String?
+  outTime      String?
+  status       String?
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([date])
+}
+
+// Orders table
+model Order {
+  id           String   @id @default(cuid())
+  orderNumber  String   @unique
+  customerId   String?
+  customer     String?
+  items        Json?
+  total        Decimal  @db.Decimal(15, 2)
+  paid         Decimal  @default(0) @db.Decimal(15, 2)
+  due          Decimal? @db.Decimal(15, 2)
+  date         DateTime?
+  status       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([date])
+}
+
+// Production table
+model Production {
+  id           String   @id @default(cuid())
+  referenceNo  String?
+  productId    String?
+  quantity     Int?
+  startDate    DateTime?
+  endDate      DateTime?
+  status       String?
+  stage        String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Sales table
+model Sale {
+  id           String   @id @default(cuid())
+  invoiceNo    String   @unique
+  customerId   String?
+  customer     String?
+  items        Json?
+  total        Decimal  @db.Decimal(15, 2)
+  paid         Decimal  @default(0) @db.Decimal(15, 2)
+  due          Decimal? @db.Decimal(15, 2)
+  date         DateTime?
+  status       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([date])
+}
+
+// Purchases table
+model Purchase {
+  id           String   @id @default(cuid())
+  invoiceNo    String?
+  supplierId   String?
+  supplier     String?
+  items        Json?
+  total        Decimal  @db.Decimal(15, 2)
+  paid         Decimal  @default(0) @db.Decimal(15, 2)
+  due          Decimal? @db.Decimal(15, 2)
+  date         DateTime?
+  status       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([date])
+}
+
+// Inventory table
+model Inventory {
+  id           String   @id @default(cuid())
+  sku          String   @unique
+  name         String
+  category     String?
+  quantity     Int      @default(0)
+  unitPrice    Decimal? @db.Decimal(15, 2)
+  reorderLevel Int?
+  supplier     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Expenses table
+model Expense {
+  id            String   @id @default(cuid())
+  categoryId    String?
+  category      String?
+  amount        Decimal  @db.Decimal(15, 2)
+  date          DateTime?
+  description   String?
+  paymentMethod String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Payments table
+model Payment {
+  id            String   @id @default(cuid())
+  type          String?
+  partyId       String?
+  partyName     String?
+  amount        Decimal  @db.Decimal(15, 2)
+  date          DateTime?
+  paymentMethod String?
+  reference     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Payroll table
+model Payroll {
+  id           String   @id @default(cuid())
+  employeeId   String?
+  employeeName String?
+  month        String?
+  basicSalary  Decimal  @db.Decimal(15, 2)
+  bonus        Decimal  @default(0) @db.Decimal(15, 2)
+  deductions   Decimal  @default(0) @db.Decimal(15, 2)
+  netSalary    Decimal  @db.Decimal(15, 2)
+  status       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Outlets table
+model Outlet {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Parties table (Customers & Suppliers)
+model Party {
+  id        String   @id @default(cuid())
+  name      String
+  type      String?
+  phone     String?
+  email     String?
+  address   String?
+  balance   Decimal  @default(0) @db.Decimal(15, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Quotations table
+model Quotation {
+  id           String   @id @default(cuid())
+  quotationNo  String   @unique
+  customerId   String?
+  customer     String?
+  items        Json?
+  total        Decimal  @db.Decimal(15, 2)
+  validUntil   DateTime?
+  status       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Wastes table
+model Waste {
+  id       String   @id @default(cuid())
+  itemId   String?
+  itemName String?
+  type     String?
+  quantity Int?
+  date     DateTime?
+  reason   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Settings table
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Reports table
+model Report {
+  id        String   @id @default(cuid())
+  name      String
+  type      String?
+  data      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Accounting table
+model Accounting {
+  id            String   @id @default(cuid())
+  accountName   String?
+  type          String?
+  balance       Decimal  @default(0) @db.Decimal(15, 2)
+  accountNumber String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Product Categories table
+model ProductCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Raw Material Categories table
+model RMCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Expense Categories table
+model ExpenseCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Non-Inventory Items table
+model NonInventoryItem {
+  id          String   @id @default(cuid())
+  name        String
+  category    String?
+  description String?
+  unitPrice   Decimal? @db.Decimal(15, 2)
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Accounts table
+model Account {
+  id            String   @id @default(cuid())
+  accountName   String
+  accountCode   String   @unique
+  accountType   String?
+  parentAccount String?
+  balance       Decimal  @default(0) @db.Decimal(15, 2)
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([accountCode])
+}
+
+// Transactions table
+model Transaction {
+  id            String   @id @default(cuid())
+  transactionNo String   @unique
+  date          DateTime?
+  accountId     String?
+  debit         Decimal  @default(0) @db.Decimal(15, 2)
+  credit        Decimal  @default(0) @db.Decimal(15, 2)
+  description   String?
+  reference     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([date])
+  @@index([accountId])
+}
+
+// Units table
+model Unit {
+  id        String   @id @default(cuid())
+  name      String
+  symbol    String?
+  type      String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -12,6 +12,7 @@ const Login = () => {
   const { toast } = useToast();
   const [mode, setMode] = useState<"signin" | "register">("signin");
   const [step, setStep] = useState<"credentials" | "otp">("credentials");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -102,8 +103,8 @@ const Login = () => {
 
     // Credentials Validation
     if (mode === "signin") {
-      if (!email.trim() || !password.trim()) {
-        const errorMsg = "Please enter email and password";
+      if (!username.trim() || !password.trim()) {
+        const errorMsg = "Please enter username and password";
         setError(errorMsg);
         toast({
           title: "Validation Error",
@@ -149,7 +150,7 @@ const Login = () => {
     try {
       if (mode === "signin") {
         // Direct login for registered users - no OTP
-        await AuthService.login({ email, password });
+        await AuthService.login({ username, password });
         toast({
           title: "Success!",
           description: "Redirecting to dashboard...",
@@ -317,21 +318,41 @@ const Login = () => {
                   </div>
                 )}
 
-                {/* Email Field */}
-                <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                    Email Address
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-500 focus:shadow-lg focus:shadow-blue-200/50"
-                  />
-                </div>
+                {/* Username Field - Sign In Only */}
+                {mode === "signin" && (
+                  <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
+                    <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                      Username
+                    </Label>
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="admin"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      disabled={loading}
+                      className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-500 focus:shadow-lg focus:shadow-blue-200/50"
+                    />
+                  </div>
+                )}
+
+                {/* Email Field - Registration Only */}
+                {mode === "register" && (
+                  <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                      Email Address
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@company.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={loading}
+                      className="h-11 bg-white/50 backdrop-blur border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-500 focus:shadow-lg focus:shadow-blue-200/50"
+                    />
+                  </div>
+                )}
 
                 {/* Password Field */}
                 <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>

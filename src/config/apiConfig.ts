@@ -10,15 +10,15 @@ export const API_CONFIG = {
   API_URL:
     resolveEnv('VITE_API_URL') ||
     resolveEnv('REACT_APP_API_URL') ||
-    'http://localhost:3000/api',
+    'http://localhost:5000/api',
   BASE_URL:
     resolveEnv('VITE_BASE_URL') ||
     resolveEnv('REACT_APP_BASE_URL') ||
-    'http://localhost:3000',
+    'http://localhost:5000',
   WS_URL:
     resolveEnv('VITE_WS_URL') ||
     resolveEnv('REACT_APP_WS_URL') ||
-    'ws://localhost:3000',
+    'ws://localhost:5000',
 
   // Feature Flags
   ENABLE_API: true,

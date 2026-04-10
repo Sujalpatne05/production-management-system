@@ -2,7 +2,8 @@ import { apiClient } from './apiClient';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 
 export interface LoginRequest {
-  email: string;
+  username?: string;
+  email?: string;
   password: string;
 }
 
@@ -48,15 +49,19 @@ export interface RefreshTokenRequest {
 
 export class AuthService {
   static async login(credentials: LoginRequest): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials);
-    const token = response.accessToken || response.token;
+    const response = await apiClient.post<any>(API_ENDPOINTS.AUTH.LOGIN, credentials);
+    const token = response.token || response.accessToken;
     if (token) {
       apiClient.setToken(token);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      const defaultTenant = response.user?.roles?.[0]?.tenant;
-      if (defaultTenant) {
-        localStorage.setItem('tenant', JSON.stringify(defaultTenant));
+      if (response.refreshToken) {
+        localStorage.setItem('refreshToken', response.refreshToken);
+      }
+      if (response.user) {
+        localStorage.setItem('user', JSON.stringify(response.user));
+        const defaultTenant = response.user?.roles?.[0]?.tenant;
+        if (defaultTenant) {
+          localStorage.setItem('tenant', JSON.stringify(defaultTenant));
+        }
       }
     }
     return response;
@@ -97,18 +102,22 @@ export class AuthService {
   }
 
   static async verifyOTP(data: VerifyOTPRequest): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>(
+    const response = await apiClient.post<any>(
       `${API_ENDPOINTS.AUTH.LOGIN.replace('/login', '/verify-otp')}`,
       data
     );
-    const token = response.accessToken || response.token;
+    const token = response.token || response.accessToken;
     if (token) {
       apiClient.setToken(token);
-      localStorage.setItem('refreshToken', response.refreshToken);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      const defaultTenant = response.user?.roles?.[0]?.tenant;
-      if (defaultTenant) {
-        localStorage.setItem('tenant', JSON.stringify(defaultTenant));
+      if (response.refreshToken) {
+        localStorage.setItem('refreshToken', response.refreshToken);
+      }
+      if (response.user) {
+        localStorage.setItem('user', JSON.stringify(response.user));
+        const defaultTenant = response.user?.roles?.[0]?.tenant;
+        if (defaultTenant) {
+          localStorage.setItem('tenant', JSON.stringify(defaultTenant));
+        }
       }
     }
     return response;
