@@ -320,6 +320,63 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// Register endpoint
+app.post("/api/auth/register", async (req, res) => {
+  const { email, username, password, fullName } = req.body || {};
+  
+  if (!email || !username || !password || !fullName) {
+    return res.status(400).json({ success: false, error: "Email, username, password, and fullName are required" });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, error: "Password must be at least 6 characters" });
+  }
+
+  try {
+    // Check if user already exists
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email },
+          { username },
+        ],
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: "Email or username already in use" });
+    }
+
+    // Create new user
+    const newUser = await prisma.user.create({
+      data: {
+        name: fullName,
+        email,
+        username,
+        password, // In production, hash this with bcrypt
+        role: "user",
+        status: "active",
+      },
+    });
+
+    // Generate token
+    const token = jwt.sign(
+      { id: newUser.id, role: newUser.role, name: newUser.name, email: newUser.email, username: newUser.username },
+      JWT_SECRET,
+      { expiresIn: "8h" }
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      token,
+      user: { id: newUser.id, role: newUser.role, name: newUser.name, email: newUser.email, username: newUser.username },
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get("/api/auth/me", authenticateToken, (req, res) => {
   res.json({ success: true, user: req.user });
 });
