@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: production-management-backend
+    runtime: node
+    plan: free
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_YxGjOeZawt39@ep-mute-forest-a1jh3m4f.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+      - key: JWT_SECRET
+        value: production-erp-secret-key-2024
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
