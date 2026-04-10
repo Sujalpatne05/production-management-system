@@ -16,7 +16,16 @@ const prisma = new PrismaClient();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:8081', 'http://localhost:3000', 'http://127.0.0.1:8081', 'http://127.0.0.1:3000'],
+  origin: [
+    'http://localhost:8081',
+    'http://localhost:3000',
+    'http://127.0.0.1:8081',
+    'http://127.0.0.1:3000',
+    'https://production-management-system.onrender.com',
+    'https://production-management-system-drab.vercel.app',
+    /\.vercel\.app$/,
+    /\.onrender\.com$/,
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -338,8 +347,8 @@ app.post("/api/auth/register", async (req, res) => {
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [
-          { email },
-          { username },
+          { email: email.toLowerCase() },
+          { username: username.toLowerCase() },
         ],
       },
     });
@@ -352,8 +361,8 @@ app.post("/api/auth/register", async (req, res) => {
     const newUser = await prisma.user.create({
       data: {
         name: fullName,
-        email,
-        username,
+        email: email.toLowerCase(),
+        username: username.toLowerCase(),
         password, // In production, hash this with bcrypt
         role: "user",
         status: "active",
@@ -374,7 +383,8 @@ app.post("/api/auth/register", async (req, res) => {
       user: { id: newUser.id, role: newUser.role, name: newUser.name, email: newUser.email, username: newUser.username },
     });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    console.error("Registration error:", err);
+    return res.status(500).json({ success: false, error: err.message || "Registration failed" });
   }
 });
 
