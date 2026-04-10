@@ -4,6 +4,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
+import { setupAdditionalEndpoints } from "./additional-endpoints.js";
 
 dotenv.config();
 
@@ -380,6 +381,9 @@ app.post("/api/auth/register", async (req, res) => {
 app.get("/api/auth/me", authenticateToken, (req, res) => {
   res.json({ success: true, user: req.user });
 });
+
+// Setup additional endpoints (Critical & Important)
+setupAdditionalEndpoints(app, prisma, authenticateToken, authorize, JWT_SECRET);
 
 // 404 handler
 app.use((req, res) => {
