@@ -3,8 +3,8 @@ services:
     name: production-management-backend
     runtime: node
     plan: free
-    buildCommand: cd backend && npm install && npm run build
-    startCommand: cd backend && npm start
+    buildCommand: npm install --prefix backend && npm run build --prefix backend
+    startCommand: npm start --prefix backend
     envVars:
       - key: DATABASE_URL
         value: postgresql://neondb_owner:npg_YxGjOeZawt39@ep-mute-forest-a1jh3m4f.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
