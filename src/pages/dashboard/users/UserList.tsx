@@ -263,68 +263,6 @@ const UserList = () => {
           <Button variant="outline" onClick={exportToCSV}>
             <Download className="h-4 w-4 mr-2" /> Export CSV
           </Button>
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" /> Add User
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Create User</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Full Name *</Label>
-                  <Input
-                    value={newUser.name}
-                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                    placeholder="Enter full name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Email *</Label>
-                  <Input
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    placeholder="Enter email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Role *</Label>
-                  <Select value={newUser.roleId} onValueChange={(value) => setNewUser({ ...newUser, roleId: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roles.map((role) => (
-                        <SelectItem key={role.id} value={String(role.id)}>
-                          {role.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select value={newUser.status} onValueChange={(value: "active" | "inactive") => setNewUser({ ...newUser, status: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
-                <Button onClick={handleAddUser}>Create User</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -19,6 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -112,6 +121,15 @@ const SupplierListEnhanced = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [ratingFilter, setRatingFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newSupplier, setNewSupplier] = useState({
+    name: "",
+    contact: "",
+    email: "",
+    phone: "",
+    address: "",
+    paymentTerms: "30"
+  });
 
   // Filter Suppliers
   const filteredSuppliers = suppliers.filter((sup) => {
@@ -157,6 +175,78 @@ const SupplierListEnhanced = () => {
       toast({
         title: "Success",
         description: "Supplier deleted successfully",
+      });
+    }
+  };
+
+  // Handle Add Supplier
+  const handleAddSupplier = async () => {
+    if (!newSupplier.name || !newSupplier.email) {
+      toast({
+        title: "Error",
+        description: "Please fill all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Call API to create supplier
+      const response = await fetch("http://localhost:5001/api/parties", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({
+          name: newSupplier.name,
+          type: "supplier",
+          email: newSupplier.email,
+          phone: newSupplier.phone,
+          address: newSupplier.address
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success || data.id) {
+        const supplier: Supplier = {
+          id: data.id || Date.now().toString(),
+          code: `SUP-${String(suppliers.length + 1).padStart(3, "0")}`,
+          name: newSupplier.name,
+          contact: newSupplier.name,
+          email: newSupplier.email,
+          phone: newSupplier.phone,
+          address: newSupplier.address,
+          paymentTerms: parseInt(newSupplier.paymentTerms),
+          rating: 4.0,
+          outstandingBalance: 0,
+          totalPurchased: 0
+        };
+
+        setSuppliers([supplier, ...suppliers]);
+        setShowAddDialog(false);
+        setNewSupplier({
+          name: "",
+          contact: "",
+          email: "",
+          phone: "",
+          address: "",
+          paymentTerms: "30"
+        });
+        toast({
+          title: "Success",
+          description: "Supplier added successfully"
+        });
+      } else {
+        throw new Error(data.error || "Failed to add supplier");
+      }
+    } catch (error) {
+      console.error("Error adding supplier:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add supplier",
+        variant: "destructive"
       });
     }
   };
@@ -305,11 +395,21 @@ const SupplierListEnhanced = () => {
         </Button>
 
         <Button
-          onClick={() => navigate("/dashboard/purchases/add")}
+          onClick={() => {
+            setNewSupplier({
+              name: "",
+              contact: "",
+              email: "",
+              phone: "",
+              address: "",
+              paymentTerms: "30"
+            });
+            setShowAddDialog(true);
+          }}
           className="gap-2 bg-blue-600 hover:bg-blue-700"
         >
           <Plus className="h-4 w-4" />
-          Add Purchase
+          Add Supplier
         </Button>
       </div>
 
@@ -426,6 +526,94 @@ const SupplierListEnhanced = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Supplier Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={(open) => {
+        setShowAddDialog(open);
+        if (!open) {
+          setNewSupplier({
+            name: "",
+            contact: "",
+            email: "",
+            phone: "",
+            address: "",
+            paymentTerms: "30"
+          });
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New Supplier</DialogTitle>
+            <DialogDescription>
+              Fill in the supplier details below
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">Supplier Name *</Label>
+              <Input
+                placeholder="e.g., Global Supplies Inc"
+                value={newSupplier.name}
+                onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Email *</Label>
+              <Input
+                type="email"
+                placeholder="contact@supplier.com"
+                value={newSupplier.email}
+                onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Phone</Label>
+              <Input
+                placeholder="+91-XXXX-XXXX-XXXX"
+                value={newSupplier.phone}
+                onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Address</Label>
+              <Input
+                placeholder="Business address"
+                value={newSupplier.address}
+                onChange={(e) => setNewSupplier({ ...newSupplier, address: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Payment Terms (Days)</Label>
+              <Select value={newSupplier.paymentTerms} onValueChange={(value) => setNewSupplier({ ...newSupplier, paymentTerms: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="15">15 Days</SelectItem>
+                  <SelectItem value="30">30 Days</SelectItem>
+                  <SelectItem value="45">45 Days</SelectItem>
+                  <SelectItem value="60">60 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowAddDialog(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddSupplier}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                Add Supplier
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

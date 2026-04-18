@@ -1,0 +1,210 @@
+// Multi-Tenant Schema Addition
+// Add these models to the existing schema.prisma
+
+// Company table
+model Company {
+  id                String   @id @default(cuid())
+  name              String
+  email             String?  @unique
+  phone             String?
+  address           String?
+  website           String?
+  logo              String?
+  subscriptionPlan  String   @default("starter")
+  subscriptionStatus String  @default("active")
+  maxUsers          Int      @default(10)
+  maxStorage        Int      @default(1000) // in MB
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+
+  // Relations
+  admins            CompanyAdmin[]
+  subscriptions     Subscription[]
+  auditLogs         AuditLog[]
+  supportTickets    SupportTicket[]
+  users             User[]
+  
+  @@index([email])
+  @@index([subscriptionStatus])
+}
+
+// Company Admin table
+model CompanyAdmin {
+  id        String   @id @default(cuid())
+  companyId String
+  userId    String
+  role      String   @default("admin") // admin, super_admin
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([companyId])
+  @@index([userId])
+}
+
+// Subscription Plan table
+model SubscriptionPlan {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  billingCycle String  @default("monthly") // monthly, yearly
+  maxUsers    Int
+  maxStorage  Int      // in MB
+  features    Json?    // Array of feature names
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  subscriptions Subscription[]
+
+  @@index([status])
+}
+
+// Subscription table
+model Subscription {
+  id        String   @id @default(cuid())
+  companyId String
+  planId    String
+  startDate DateTime
+  endDate   DateTime?
+  status    String   @default("active") // active, expired, cancelled
+  autoRenew Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  company   Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  plan      SubscriptionPlan  @relation(fields: [planId], references: [id])
+
+  @@index([companyId])
+  @@index([status])
+}
+
+// Audit Log table
+model AuditLog {
+  id            String   @id @default(cuid())
+  companyId     String?
+  userId        String?
+  action        String   // create, update, delete, login, logout
+  resourceType  String   // user, company, order, etc
+  resourceId    String?
+  changes       Json?    // What changed
+  ipAddress     String?
+  userAgent     String?
+  status        String   @default("success") // success, failure
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+
+  // Relations
+  company       Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// Support Ticket table
+model SupportTicket {
+  id          String   @id @default(cuid())
+  companyId   String
+  subject     String
+  description String
+  status      String   @default("open") // open, in_progress, resolved, closed
+  priority    String   @default("medium") // low, medium, high, urgent
+  assignedTo  String?
+  attachments Json?    // Array of file URLs
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  resolvedAt  DateTime?
+
+  // Relations
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  assignee    User?    @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([status])
+  @@index([priority])
+}
+
+// Invoice table
+model Invoice {
+  id            String   @id @default(cuid())
+  companyId     String
+  invoiceNumber String   @unique
+  subscriptionId String?
+  amount        Decimal  @db.Decimal(15, 2)
+  tax           Decimal  @default(0) @db.Decimal(15, 2)
+  total         Decimal  @db.Decimal(15, 2)
+  status        String   @default("pending") // pending, paid, overdue, cancelled
+  dueDate       DateTime
+  paidDate      DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// Payment table (for subscriptions)
+model Payment {
+  id            String   @id @default(cuid())
+  invoiceId     String?
+  companyId     String
+  amount        Decimal  @db.Decimal(15, 2)
+  paymentMethod String   // credit_card, bank_transfer, etc
+  transactionId String?  @unique
+  status        String   @default("pending") // pending, completed, failed
+  failureReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+}
+
+// System Settings table
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json?
+  type      String   @default("string") // string, number, boolean, json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+// API Key table
+model ApiKey {
+  id        String   @id @default(cuid())
+  companyId String?
+  name      String
+  key       String   @unique
+  secret    String   @unique
+  status    String   @default("active")
+  lastUsed  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+}
+
+// Update User model to add company_id
+// Add this to the existing User model:
+// companyId String?
+// company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+// @@index([companyId])
+

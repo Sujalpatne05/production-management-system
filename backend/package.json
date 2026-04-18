@@ -8,7 +8,7 @@
     "start": "node server-prisma.js",
     "start:json": "node server.js",
     "start:prisma": "node server-prisma.js",
-    "dev": "node --watch server-postgres.js",
+    "dev": "node --watch server-prisma.js",
     "dev:json": "node --watch server.js",
     "dev:prisma": "node --watch server-prisma.js",
     "build": "prisma generate",
@@ -17,6 +17,9 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js",
+    "reset:db": "node reset-db.js",
+    "delete:user": "node delete-user.js",
+    "fix:db": "node check-and-fix-db.js",
     "kill-port": "lsof -ti:5000 | xargs kill -9 || true",
     "start:clean": "npm run kill-port && node server.js"
   },

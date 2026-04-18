@@ -552,9 +552,15 @@ const initialState = {
     { id: '2', name: 'Sales User', email: 'sales@company.com', roleId: '2', status: 'active' as const, createdAt: '2024-01-05' },
   ],
   roles: [
-    { id: '1', name: 'Administrator', permissions: ['all'] },
-    { id: '2', name: 'Sales Manager', permissions: ['sales', 'customers', 'quotations'] },
-    { id: '3', name: 'Production Manager', permissions: ['production', 'stock', 'raw-materials'] },
+    { id: '1', name: 'CEO', permissions: ['all'] },
+    { id: '2', name: 'Finance Manager', permissions: ['finance', 'accounting', 'budget'] },
+    { id: '3', name: 'Sales Manager', permissions: ['sales', 'customers', 'quotations', 'orders'] },
+    { id: '4', name: 'Procurement Manager', permissions: ['procurement', 'purchases', 'suppliers'] },
+    { id: '5', name: 'Production Manager', permissions: ['production', 'manufacturing', 'mrp', 'bom'] },
+    { id: '6', name: 'Quality Manager', permissions: ['quality-control', 'inspections'] },
+    { id: '7', name: 'Warehouse Manager', permissions: ['inventory', 'stock', 'warehouse', 'grn'] },
+    { id: '8', name: 'HR Manager', permissions: ['hr', 'employees', 'payroll', 'attendance'] },
+    { id: '9', name: 'System Administrator', permissions: ['all'] },
   ],
   units: [
     { id: '1', name: 'Piece', shortName: 'pcs' },

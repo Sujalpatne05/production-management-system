@@ -447,7 +447,7 @@ export default function FactoriesEnhanced() {
 
         {/* Details Tab */}
         <TabsContent value="details" className="space-y-4">
-          {currentFactory && (
+          {currentFactory ? (
             <>
               <Card>
                 <CardHeader>
@@ -501,8 +501,8 @@ export default function FactoriesEnhanced() {
                       <div className="flex justify-between">
                         <span className="text-sm">Used</span>
                         <span className="font-semibold">
-                          {currentFactory.currentInventory.toLocaleString()} /
-                          {currentFactory.storageCapacity.toLocaleString()}
+                          {(currentFactory?.currentInventory || 0).toLocaleString()} /
+                          {(currentFactory?.storageCapacity || 0).toLocaleString()}
                         </span>
                       </div>
                       <div className="w-full h-3 bg-gray-200 rounded">
@@ -510,19 +510,23 @@ export default function FactoriesEnhanced() {
                           className="h-full bg-blue-500 rounded"
                           style={{
                             width: `${
-                              (currentFactory.currentInventory /
-                                currentFactory.storageCapacity) *
-                              100
+                              currentFactory?.storageCapacity
+                                ? ((currentFactory.currentInventory || 0) /
+                                    currentFactory.storageCapacity) *
+                                  100
+                                : 0
                             }%`,
                           }}
                         />
                       </div>
                       <p className="text-sm text-gray-500">
-                        {Math.round(
-                          (currentFactory.currentInventory /
-                            currentFactory.storageCapacity) *
-                            100
-                        )}
+                        {currentFactory?.storageCapacity
+                          ? Math.round(
+                              ((currentFactory.currentInventory || 0) /
+                                currentFactory.storageCapacity) *
+                                100
+                            )
+                          : 0}
                         % utilization
                       </p>
                     </div>
@@ -538,20 +542,20 @@ export default function FactoriesEnhanced() {
                       <div className="flex items-center justify-between">
                         <span className="text-sm">Production Efficiency</span>
                         <span className="text-2xl font-bold">
-                          {currentFactory.efficiency}%
+                          {currentFactory?.efficiency || 0}%
                         </span>
                       </div>
                       <div className="w-full h-3 bg-gray-200 rounded">
                         <div
                           className={`h-full rounded ${
-                            currentFactory.efficiency > 90
+                            (currentFactory?.efficiency || 0) > 90
                               ? "bg-green-500"
-                              : currentFactory.efficiency > 80
+                              : (currentFactory?.efficiency || 0) > 80
                               ? "bg-yellow-500"
                               : "bg-red-500"
                           }`}
                           style={{
-                            width: `${currentFactory.efficiency}%`,
+                            width: `${currentFactory?.efficiency || 0}%`,
                           }}
                         />
                       </div>
@@ -560,6 +564,12 @@ export default function FactoriesEnhanced() {
                 </Card>
               </div>
             </>
+          ) : (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-gray-500">Select a factory from the list to view details</p>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
 
@@ -611,83 +621,93 @@ export default function FactoriesEnhanced() {
 
         {/* Resources Tab */}
         <TabsContent value="resources" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Machines</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{currentFactory?.machinesCount}</div>
-                <p className="text-xs text-gray-500 mt-1">Total equipment</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total Staff</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {currentFactory?.employeesCount}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Skilled workers</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Production Lines</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {currentFactory?.productionLines}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Active lines</p>
-              </CardContent>
-            </Card>
-          </div>
+          {currentFactory ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Machines</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold">{currentFactory?.machinesCount || 0}</div>
+                    <p className="text-xs text-gray-500 mt-1">Total equipment</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Total Staff</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold">
+                      {currentFactory?.employeesCount || 0}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Skilled workers</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Production Lines</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold">
+                      {currentFactory?.productionLines || 0}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Active lines</p>
+                  </CardContent>
+                </Card>
+              </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Machinery Inventory</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Machine Code</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-mono">MAC-001</TableCell>
-                    <TableCell>CNC Machine</TableCell>
-                    <TableCell>Assembly Line A</TableCell>
-                    <TableCell>
-                      <Badge>Active</Badge>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-mono">MAC-002</TableCell>
-                    <TableCell>Press Machine</TableCell>
-                    <TableCell>Assembly Line A</TableCell>
-                    <TableCell>
-                      <Badge>Active</Badge>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-mono">MAC-003</TableCell>
-                    <TableCell>Welding Robot</TableCell>
-                    <TableCell>Assembly Line B</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">Maintenance</Badge>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Machinery Inventory</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Machine Code</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-mono">MAC-001</TableCell>
+                        <TableCell>CNC Machine</TableCell>
+                        <TableCell>Assembly Line A</TableCell>
+                        <TableCell>
+                          <Badge>Active</Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-mono">MAC-002</TableCell>
+                        <TableCell>Press Machine</TableCell>
+                        <TableCell>Assembly Line A</TableCell>
+                        <TableCell>
+                          <Badge>Active</Badge>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-mono">MAC-003</TableCell>
+                        <TableCell>Welding Robot</TableCell>
+                        <TableCell>Assembly Line B</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">Maintenance</Badge>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-gray-500">Select a factory from the list to view resources</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
 

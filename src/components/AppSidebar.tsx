@@ -63,6 +63,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { filterMenuItemsByRole } from "@/utils/rolePermissions";
 
 interface SubMenuItem {
   title: string;
@@ -94,9 +95,8 @@ const menuItems: MenuItem[] = [
     subItems: [
       { title: "Add Purchase", url: "/dashboard/purchases/add", icon: Plus, description: "Create new purchase" },
       { title: "Purchase List", url: "/dashboard/purchases/list", icon: List, description: "View all purchases" },
-      { title: "Purchase Orders", url: "/dashboard/purchases/purchase-orders", icon: ClipboardList, description: "Manage orders" },
       { title: "Supplier List", url: "/dashboard/purchases/suppliers", icon: Building, description: "Manage suppliers" },
-      { title: "Supplier Payments", url: "/dashboard/supplier-payments/list", icon: DollarSign, description: "Payment tracking" },
+      { title: "Supplier Payments", url: "/dashboard/purchases/supplier-payments", icon: DollarSign, description: "Payment tracking" },
     ],
   },
   {
@@ -263,6 +263,7 @@ const menuItems: MenuItem[] = [
     color: "text-sky-500",
     subItems: [
       { title: "User Directory", url: "/dashboard/users/list", icon: Users, description: "All users" },
+      { title: "User Management", url: "/dashboard/admin/users", icon: UserPlus, description: "Manage company users" },
       { title: "Roles & Permissions", url: "/dashboard/users/roles", icon: Shield, description: "Access control" },
     ],
   },
@@ -330,6 +331,9 @@ const menuItems: MenuItem[] = [
 export function AppSidebar() {
   const { open } = useSidebar();
   const [openItems, setOpenItems] = useState<string[]>([]);
+  
+  // Filter menu items based on user role
+  const filteredMenuItems = filterMenuItemsByRole(menuItems);
 
   const toggleItem = (key: string) => {
     setOpenItems(prev =>
@@ -359,7 +363,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {menuItems.map((item) => (
+              {filteredMenuItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   {item.subItems ? (
                     <Collapsible

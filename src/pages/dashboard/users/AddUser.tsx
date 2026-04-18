@@ -15,13 +15,15 @@ const AddUser = () => {
   
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [roleId, setRoleId] = useState("");
   const [status, setStatus] = useState<"active" | "inactive">("active");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim() || !email.trim() || !roleId) {
+    if (!name.trim() || !email.trim() || !password.trim() || !roleId) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -30,9 +32,28 @@ const AddUser = () => {
       return;
     }
 
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
     addUser({
       name,
       email,
+      password,
       roleId,
       status,
     });
@@ -74,6 +95,30 @@ const AddUser = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter email address"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password *</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password (min 6 characters)"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password *</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm password"
                 required
               />
             </div>

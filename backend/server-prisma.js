@@ -5,6 +5,27 @@ import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
 import { setupAdditionalEndpoints } from "./additional-endpoints.js";
+import { setupFreeEnhancements } from "./free-enhancements.js";
+import { setupMissingModules } from "./missing-modules.js";
+import { setupHRModule } from "./hr-module.js";
+import { setupSupplyChainModule } from "./supply-chain-module.js";
+import { setupMissingEndpointsFix } from "./missing-endpoints-fix.js";
+import { setupSuperAdminModule } from "./super-admin-module.js";
+import { setupAnalyticsModule } from "./analytics-module.js";
+import { setupInventoryModule } from "./inventory-module.js";
+import { setupUserModule } from "./user-module.js";
+import { setupHRConsolidatedModule } from "./hr-consolidated-module.js";
+import { setupCompanyModule } from "./company-module.js";
+import { setupSubscriptionModule } from "./subscription-module.js";
+import { setupAdminManagementModule } from "./admin-management-module.js";
+import { setupAuditModule } from "./audit-module.js";
+import { setupAPIKeysModule } from "./api-keys-module.js";
+import { setupRoleManagementModule } from "./role-management-module.js";
+import { setupDashboardMetricsModule } from "./dashboard-metrics-module.js";
+import { setupCompanyIsolationModule, createCompanyIsolatedCrudEndpoints } from "./company-isolation-module.js";
+import { setupFactoriesModule } from "./factories-module.js";
+import { setupSeedModule } from "./seed-module.js";
+import { setupPurchasesModule } from "./purchases-module.js";
 
 dotenv.config();
 
@@ -116,7 +137,11 @@ const createCrudEndpoints = (resource, model, access = {}) => {
   // GET all records
   app.get(`/api/${resource}`, ...(access.getAll || []), async (req, res) => {
     try {
+      const { type } = req.query;
+      const where = type ? { type } : {};
+      
       const data = await prisma[model].findMany({
+        where,
         take: 100, // Limit to 100 records
       });
       res.json({
@@ -218,16 +243,16 @@ const defaultAccess = {
 
 // Create CRUD endpoints for all resources
 const resources = [
-  { name: "users", model: "user" },
-  { name: "attendance", model: "attendance" },
+  // { name: "users", model: "user" }, // CONSOLIDATED in user-module.js
+  // { name: "attendance", model: "attendance" }, // CONSOLIDATED in hr-consolidated-module.js
   { name: "orders", model: "order" },
   { name: "production", model: "production" },
   { name: "sales", model: "sale" },
-  { name: "purchases", model: "purchase" },
-  { name: "inventory", model: "inventory" },
+  // { name: "purchases", model: "purchase" }, // CONSOLIDATED in purchases-module.js
+  // { name: "inventory", model: "inventory" }, // CONSOLIDATED in inventory-module.js
   { name: "expenses", model: "expense" },
   { name: "payments", model: "payment" },
-  { name: "payroll", model: "payroll" },
+  // { name: "payroll", model: "payroll" }, // CONSOLIDATED in hr-consolidated-module.js
   { name: "outlets", model: "outlet" },
   { name: "parties", model: "party" },
   { name: "quotations", model: "quotation" },
@@ -242,21 +267,11 @@ const resources = [
   { name: "accounts", model: "account" },
   { name: "transactions", model: "transaction" },
   { name: "units", model: "unit" },
+  { name: "factories", model: "factory" },
 ];
 
 resources.forEach((resource) => {
-  if (resource.name === "users") {
-    const usersAccess = {
-      getAll: [authenticateToken, authorize(["admin", "super_admin"])],
-      getOne: [authenticateToken],
-      create: [authenticateToken, authorize(["super_admin"])],
-      update: [authenticateToken, authorize(["super_admin"])],
-      delete: [authenticateToken, authorize(["super_admin"])],
-    };
-    createCrudEndpoints(resource.name, resource.model, usersAccess);
-  } else {
-    createCrudEndpoints(resource.name, resource.model, defaultAccess);
-  }
+  createCompanyIsolatedCrudEndpoints(app, prisma, resource.name, resource.model, defaultAccess, authenticateToken, authorize);
 });
 
 // Health check endpoint
@@ -292,7 +307,10 @@ app.get("/api/all-data", authenticateToken, authorize(["admin", "super_admin"]),
 // Auth routes
 app.post("/api/auth/login", async (req, res) => {
   const { email, username, password } = req.body || {};
+  console.log("🔐 Login attempt:", { email, username, password: password ? "***" : "missing" });
+  
   if (!password || (!email && !username)) {
+    console.log("❌ Missing credentials");
     return res.status(400).json({ success: false, error: "Email or username and password are required" });
   }
   try {
@@ -306,26 +324,52 @@ app.post("/api/auth/login", async (req, res) => {
     });
 
     if (!user) {
+      console.log("❌ User not found:", { email, username });
       return res.status(401).json({ success: false, error: "Invalid credentials" });
     }
+
+    console.log("✅ User found:", { id: user.id, username: user.username, role: user.role, companyId: user.companyId });
 
     const hasHash = !!user.passwordHash;
     const ok = hasHash ? bcrypt.compareSync(password, user.passwordHash) : user.password === password;
     if (!ok) {
+      console.log("❌ Password mismatch");
       return res.status(401).json({ success: false, error: "Invalid credentials" });
     }
 
+    console.log("✅ Password verified");
+
+    // Get company information if user has a company
+    let company = null;
+    if (user.companyId) {
+      company = await prisma.company.findUnique({
+        where: { id: user.companyId },
+        select: { id: true, name: true, email: true, phone: true, address: true }
+      });
+      console.log("✅ Company found:", { id: company?.id, name: company?.name });
+    }
+
     const token = jwt.sign(
-      { id: user.id, role: user.role, name: user.name, email: user.email, username: user.username },
+      { id: user.id, role: user.role, name: user.name, email: user.email, username: user.username, companyId: user.companyId },
       JWT_SECRET,
       { expiresIn: "8h" }
     );
+    console.log("✅ Token generated");
     return res.json({
       success: true,
       token,
-      user: { id: user.id, role: user.role, name: user.name, email: user.email, username: user.username },
+      user: { 
+        id: user.id, 
+        role: user.role, 
+        name: user.name, 
+        email: user.email, 
+        username: user.username,
+        companyId: user.companyId
+      },
+      company: company || null
     });
   } catch (err) {
+    console.error("❌ Login error:", err.message);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -333,6 +377,8 @@ app.post("/api/auth/login", async (req, res) => {
 // Register endpoint
 app.post("/api/auth/register", async (req, res) => {
   const { email, username, password, fullName } = req.body || {};
+  
+  console.log("📝 Registration attempt:", { email, username, fullName });
   
   if (!email || !username || !password || !fullName) {
     return res.status(400).json({ success: false, error: "Email, username, password, and fullName are required" });
@@ -343,31 +389,42 @@ app.post("/api/auth/register", async (req, res) => {
   }
 
   try {
-    // Check if user already exists
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { email: email.toLowerCase() },
-          { username: username.toLowerCase() },
-        ],
-      },
-    });
+    const emailLower = email.toLowerCase().trim();
+    const usernameLower = username.toLowerCase().trim();
+    
+    // Check if email already exists
+    const existingEmail = await prisma.user.findUnique({
+      where: { email: emailLower },
+    }).catch(() => null);
 
-    if (existingUser) {
-      return res.status(400).json({ success: false, error: "Email or username already in use" });
+    if (existingEmail) {
+      console.log("❌ Email already exists:", emailLower);
+      return res.status(400).json({ success: false, error: "Email already in use" });
+    }
+
+    // Check if username already exists
+    const existingUsername = await prisma.user.findUnique({
+      where: { username: usernameLower },
+    }).catch(() => null);
+
+    if (existingUsername) {
+      console.log("❌ Username already exists:", usernameLower);
+      return res.status(400).json({ success: false, error: "Username already in use" });
     }
 
     // Create new user
     const newUser = await prisma.user.create({
       data: {
         name: fullName,
-        email: email.toLowerCase(),
-        username: username.toLowerCase(),
+        email: emailLower,
+        username: usernameLower,
         password, // In production, hash this with bcrypt
         role: "user",
         status: "active",
       },
     });
+
+    console.log("✅ User registered successfully:", newUser.id);
 
     // Generate token
     const token = jwt.sign(
@@ -383,7 +440,8 @@ app.post("/api/auth/register", async (req, res) => {
       user: { id: newUser.id, role: newUser.role, name: newUser.name, email: newUser.email, username: newUser.username },
     });
   } catch (err) {
-    console.error("Registration error:", err);
+    console.error("❌ Registration error:", err.message);
+    console.error("Error details:", err);
     return res.status(500).json({ success: false, error: err.message || "Registration failed" });
   }
 });
@@ -392,8 +450,100 @@ app.get("/api/auth/me", authenticateToken, (req, res) => {
   res.json({ success: true, user: req.user });
 });
 
+// Admin endpoint to clear all users (for testing only)
+app.post("/api/admin/reset-users", async (req, res) => {
+  try {
+    // Delete all users
+    await prisma.user.deleteMany({});
+    console.log("🔄 All users deleted");
+    
+    // Reseed default users
+    await prisma.user.createMany({
+      data: [
+        {
+          name: "Super Admin",
+          username: "superadmin",
+          email: "superadmin@example.com",
+          role: "super_admin",
+          status: "active",
+          password: "password",
+        },
+        {
+          name: "Admin User",
+          username: "admin",
+          email: "admin@example.com",
+          role: "admin",
+          status: "active",
+          password: "password",
+        },
+        {
+          name: "Regular User",
+          username: "user",
+          email: "user@example.com",
+          role: "user",
+          status: "active",
+          password: "password",
+        },
+      ],
+    });
+    console.log("✅ Default users reseeded");
+    
+    return res.json({ success: true, message: "Users reset successfully" });
+  } catch (err) {
+    console.error("❌ Reset error:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Setup consolidated modules
+setupAnalyticsModule(app, prisma, authenticateToken, authorize);
+setupInventoryModule(app, prisma, authenticateToken, authorize);
+setupUserModule(app, prisma, authenticateToken, authorize);
+setupHRConsolidatedModule(app, prisma, authenticateToken, authorize);
+setupCompanyModule(app, prisma, authenticateToken, authorize);
+setupSubscriptionModule(app, prisma, authenticateToken, authorize);
+setupAdminManagementModule(app, prisma, authenticateToken, authorize);
+setupAuditModule(app, prisma, authenticateToken, authorize);
+setupAPIKeysModule(app, prisma, authenticateToken, authorize);
+
 // Setup additional endpoints (Critical & Important)
 setupAdditionalEndpoints(app, prisma, authenticateToken, authorize, JWT_SECRET);
+
+// Setup FREE enhancements (Reusing existing code)
+setupFreeEnhancements(app, prisma, authenticateToken, authorize);
+
+// Setup MISSING MODULES (Complete ERP)
+setupMissingModules(app, prisma, authenticateToken, authorize);
+
+// Setup HR/Payroll Module
+setupHRModule(app, prisma, authenticateToken, authorize);
+
+// Setup Supply Chain Module
+setupSupplyChainModule(app, prisma, authenticateToken, authorize);
+
+// Setup Missing Endpoints Fix (for existing modules)
+setupMissingEndpointsFix(app, prisma, authenticateToken, authorize);
+
+// Setup Super Admin Module (Multi-Tenant Management)
+setupSuperAdminModule(app, prisma, authenticateToken, authorize);
+
+// Setup Role Management Module (Role-Based Access Control)
+setupRoleManagementModule(app, prisma, authenticateToken, authorize);
+
+// Setup Dashboard Metrics Module (Company-Level Analytics)
+setupDashboardMetricsModule(app, prisma, authenticateToken, authorize);
+
+// Setup Company Isolation Module (Multi-Tenant Data Isolation)
+setupCompanyIsolationModule(app, prisma, authenticateToken, authorize);
+
+// Setup Factories Module (Production Facilities Management)
+setupFactoriesModule(app, prisma, authenticateToken, authorize);
+
+// Setup Seed Module (Master Data Seeding)
+setupSeedModule(app, prisma, authenticateToken, authorize);
+
+// Setup Purchases Module (Purchase Orders)
+setupPurchasesModule(app, prisma, authenticateToken, authorize);
 
 // 404 handler
 app.use((req, res) => {

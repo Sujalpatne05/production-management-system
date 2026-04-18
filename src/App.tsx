@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Basic pages
 import Login from "./pages/Login";
@@ -19,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import AddOutlet from "./pages/dashboard/outlets/AddOutlet";
 import OutletsList from "./pages/dashboard/outlets/OutletsList";
 import FactoriesEnhanced from "./pages/dashboard/outlets/FactoriesEnhanced";
+import Factories from "./pages/dashboard/Factories";
 
 // Production (core only)
 import AddProduction from "./pages/dashboard/production/AddProduction";
@@ -27,27 +29,20 @@ import AddProductionEnhanced from "./pages/dashboard/production/AddProductionEnh
 import ProductionListEnhanced from "./pages/dashboard/production/ProductionListEnhanced";
 
 // Orders
-import AddOrder from "./pages/dashboard/orders/AddOrder";
-import OrderList from "./pages/dashboard/orders/OrderList";
+import AddOrderSimple from "./pages/dashboard/orders/AddOrderSimple";
+import OrderListSimple from "./pages/dashboard/orders/OrderListSimple";
 import OrderDetails from "./pages/dashboard/orders/OrderDetails";
-import OrdersEnhanced from "./pages/dashboard/orders/OrdersEnhanced";
 
 // Sales
-import AddSale from "./pages/dashboard/sales/AddSale";
-import AddSaleEnhanced from "./pages/dashboard/sales/AddSaleEnhanced";
-import SaleList from "./pages/dashboard/sales/SaleList";
-import SaleListEnhanced from "./pages/dashboard/sales/SaleListEnhanced";
-import CustomerListEnhanced from "./pages/dashboard/sales/CustomerListEnhanced";
+import AddSaleSimple from "./pages/dashboard/sales/AddSaleSimple";
+import SaleListSimple from "./pages/dashboard/sales/SaleListSimple";
+import CustomerListSimple from "./pages/dashboard/sales/CustomerListSimple";
 
 // Purchases
-import AddPurchase from "./pages/dashboard/purchases/AddPurchase";
-import AddPurchaseEnhanced from "./pages/dashboard/purchases/AddPurchaseEnhanced";
-import PurchaseListEnhanced from "./pages/dashboard/purchases/PurchaseListEnhanced";
-import PurchaseOrdersEnhanced from "./pages/dashboard/purchases/PurchaseOrdersEnhanced";
-import SupplierPaymentsEnhanced from "./pages/dashboard/purchases/SupplierPaymentsEnhanced";
+import AddPurchaseSimple from "./pages/dashboard/purchases/AddPurchaseSimple";
+import PurchaseListSimple from "./pages/dashboard/purchases/PurchaseListSimple";
+import SupplierPaymentsSimple from "./pages/dashboard/purchases/SupplierPaymentsSimple";
 import SupplierListEnhanced from "./pages/dashboard/purchases/SupplierListEnhanced";
-import PurchaseList from "./pages/dashboard/purchases/PurchaseList";
-import PurchaseOrder from "./pages/dashboard/purchases/PurchaseOrder";
 
 // Parties
 import AddCustomer from "./pages/dashboard/parties/AddCustomer";
@@ -81,6 +76,8 @@ import AddRole from "./pages/dashboard/users/AddRole";
 import RoleList from "./pages/dashboard/users/RoleList";
 import AddUser from "./pages/dashboard/users/AddUser";
 import UserList from "./pages/dashboard/users/UserList";
+import ModulesOverview from "./pages/dashboard/admin/ModulesOverview";
+import UserManagement from "./pages/dashboard/admin/UserManagement";
 
 // Accounting
 import AddAccount from "./pages/dashboard/accounting/AddAccount";
@@ -182,6 +179,19 @@ import NotificationsCenter from "./pages/dashboard/notifications/NotificationsCe
 import KeyboardShortcuts from "./components/KeyboardShortcuts";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
+// Super Admin Pages
+import { SuperAdminDashboard } from "./pages/super-admin/SuperAdminDashboard";
+import { CompaniesList } from "./pages/super-admin/companies/CompaniesList";
+import { AddCompany } from "./pages/super-admin/companies/AddCompany";
+import { AdminsList } from "./pages/super-admin/admins/AdminsList";
+import { AddAdmin } from "./pages/super-admin/admins/AddAdmin";
+import { UsersList } from "./pages/super-admin/users/UsersList";
+import { PlansList } from "./pages/super-admin/billing/PlansList";
+import { SubscriptionsList } from "./pages/super-admin/billing/SubscriptionsList";
+import { AuditLogs } from "./pages/super-admin/audit/AuditLogs";
+import { Analytics as SuperAdminAnalytics } from "./pages/super-admin/analytics/Analytics";
+import { SuperAdminOverview as SAOverview } from "./pages/super-admin/dashboard/Overview";
+
 
 function AppContent() {
   return (
@@ -202,10 +212,11 @@ function AppContent() {
                 <Route path="security-question" element={<SecurityQuestion />} />
                 
                 {/* Factories */}
-                <Route path="factories" element={<Navigate to="/dashboard/factories/list" replace />} />
-                <Route path="factories/add" element={<AddOutlet />} />
-                <Route path="factories/list" element={<FactoriesEnhanced />} />
-                <Route path="outlets/*" element={<Navigate to="/dashboard/factories/list" replace />} />
+                <Route path="factories" element={<Factories />} />
+                <Route path="factories/add" element={<Factories />} />
+                <Route path="factories/edit/:id" element={<Factories />} />
+                <Route path="factories/list" element={<Factories />} />
+                <Route path="outlets/*" element={<Navigate to="/dashboard/factories" replace />} />
                 
                 {/* Production */}
                 <Route path="production/add" element={<AddProduction />} />
@@ -223,21 +234,21 @@ function AppContent() {
                 
                 {/* Orders */}
                 <Route path="orders" element={<Navigate to="/dashboard/orders/list" replace />} />
-                <Route path="orders/add" element={<AddOrder />} />
-                <Route path="orders/list" element={<OrdersEnhanced />} />
+                <Route path="orders/add" element={<AddOrderSimple />} />
+                <Route path="orders/list" element={<OrderListSimple />} />
                 <Route path="orders/:orderId" element={<OrderDetails />} />
                 
                 {/* Sales */}
-                <Route path="sales/add" element={<AddSaleEnhanced />} />
-                <Route path="sales/list" element={<SaleListEnhanced />} />
-                <Route path="sales/customers" element={<CustomerListEnhanced />} />
+                <Route path="sales/add" element={<AddSaleSimple />} />
+                <Route path="sales/list" element={<SaleListSimple />} />
+                <Route path="sales/customers" element={<CustomerListSimple />} />
                 
                 {/* Purchases */}
-                <Route path="purchases/add" element={<AddPurchaseEnhanced />} />
-                <Route path="purchases/list" element={<PurchaseListEnhanced />} />
-                <Route path="purchases/purchase-orders" element={<PurchaseOrdersEnhanced />} />
+                <Route path="purchases/add" element={<AddPurchaseSimple />} />
+                <Route path="purchases/list" element={<PurchaseListSimple />} />
                 <Route path="purchases/suppliers" element={<SupplierListEnhanced />} />
-                <Route path="purchases/view/:id" element={<PurchaseOrdersEnhanced />} />
+                <Route path="purchases/supplier-payments" element={<SupplierPaymentsSimple />} />
+                <Route path="purchases/view/:id" element={<PurchaseListSimple />} />
                 
                 {/* Parties */}
                 <Route path="parties/add-customer" element={<AddCustomer />} />
@@ -259,7 +270,6 @@ function AppContent() {
                 
                 {/* Payments */}
                 <Route path="supplier-payments/add" element={<AddSupplierPayment />} />
-                <Route path="supplier-payments/list" element={<SupplierPaymentsEnhanced />} />
                 <Route path="customer-receives/add" element={<AddCustomerReceive />} />
                 <Route path="customer-receives/list" element={<CustomerReceiveList />} />
 
@@ -320,6 +330,10 @@ function AppContent() {
                 <Route path="users/add" element={<AddUser />} />
                 <Route path="users/list" element={<UserList />} />
                 
+                {/* Admin - Modules Overview */}
+                <Route path="admin/modules" element={<ProtectedRoute requiredRoles={['admin', 'super_admin']}><ModulesOverview /></ProtectedRoute>} />
+                <Route path="admin/users" element={<ProtectedRoute requiredRoles={['admin', 'super_admin']}><UserManagement /></ProtectedRoute>} />
+                
                 {/* Notifications */}
                 <Route path="notifications" element={<NotificationsCenter />} />
                 
@@ -375,6 +389,37 @@ function AppContent() {
                 <Route path="settings/rbac" element={<RBACManagement />} />
                 <Route path="backup" element={<BackupRestore />} />
               </Route>
+
+
+
+              {/* Super Admin Routes */}
+              <Route path="/super-admin" element={<ProtectedRoute requiredRoles={['super_admin']}><SuperAdminDashboard /></ProtectedRoute>}>
+                <Route index element={<SAOverview />} />
+                
+                {/* Dashboard */}
+                <Route path="dashboard/overview" element={<SAOverview />} />
+                <Route path="dashboard/analytics" element={<SuperAdminAnalytics />} />
+                
+                {/* Companies */}
+                <Route path="companies" element={<CompaniesList />} />
+                <Route path="companies/add" element={<AddCompany />} />
+                
+                {/* Management */}
+                <Route path="admins" element={<AdminsList />} />
+                <Route path="admins/add" element={<AddAdmin />} />
+                <Route path="users" element={<UsersList />} />
+                
+                {/* Billing */}
+                <Route path="billing/plans" element={<PlansList />} />
+                <Route path="billing/subscriptions" element={<SubscriptionsList />} />
+                
+                {/* Audit */}
+                <Route path="audit-logs/system" element={<AuditLogs />} />
+                
+                {/* Analytics */}
+                <Route path="analytics/platform" element={<SuperAdminAnalytics />} />
+              </Route>
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

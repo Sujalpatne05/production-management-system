@@ -2,7 +2,6 @@ import { apiClient } from './apiClient';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 
 export interface LoginRequest {
-  username?: string;
   email?: string;
   password: string;
 }
@@ -52,15 +51,29 @@ export class AuthService {
     const response = await apiClient.post<any>(API_ENDPOINTS.AUTH.LOGIN, credentials);
     const token = response.token || response.accessToken;
     if (token) {
+      // Store token with all possible names for consistency
+      localStorage.setItem('token', token);
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('authToken', token);
       apiClient.setToken(token);
       if (response.refreshToken) {
         localStorage.setItem('refreshToken', response.refreshToken);
       }
       if (response.user) {
         localStorage.setItem('user', JSON.stringify(response.user));
-        const defaultTenant = response.user?.roles?.[0]?.tenant;
-        if (defaultTenant) {
-          localStorage.setItem('tenant', JSON.stringify(defaultTenant));
+        
+        // Store company information from login response
+        if (response.company) {
+          localStorage.setItem('tenant', JSON.stringify(response.company));
+          console.log('✅ Company stored:', response.company);
+        } else if (response.user?.companyId) {
+          // Fallback: create tenant object from user data
+          const tenant = {
+            id: response.user.companyId,
+            name: response.user.name || 'Company'
+          };
+          localStorage.setItem('tenant', JSON.stringify(tenant));
+          console.log('✅ Tenant created from user data:', tenant);
         }
       }
     }
@@ -70,7 +83,11 @@ export class AuthService {
   static async register(data: RegisterRequest): Promise<{ message: string; user: any }> {
     const response = await apiClient.post<{ message: string; user: any }>(
       API_ENDPOINTS.AUTH.REGISTER,
-      data
+      {
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+      }
     );
     // Don't store tokens yet - wait for OTP verification
     return response;
@@ -95,7 +112,7 @@ export class AuthService {
 
   static async sendOTP(data: SendOTPRequest): Promise<{ message: string }> {
     const response = await apiClient.post<{ message: string }>(
-      `${API_ENDPOINTS.AUTH.LOGIN.replace('/login', '/send-otp')}`,
+      API_ENDPOINTS.AUTH.SEND_OTP,
       data
     );
     return response;
@@ -103,11 +120,15 @@ export class AuthService {
 
   static async verifyOTP(data: VerifyOTPRequest): Promise<AuthResponse> {
     const response = await apiClient.post<any>(
-      `${API_ENDPOINTS.AUTH.LOGIN.replace('/login', '/verify-otp')}`,
+      API_ENDPOINTS.AUTH.VERIFY_OTP,
       data
     );
     const token = response.token || response.accessToken;
     if (token) {
+      // Store token with all possible names for consistency
+      localStorage.setItem('token', token);
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('authToken', token);
       apiClient.setToken(token);
       if (response.refreshToken) {
         localStorage.setItem('refreshToken', response.refreshToken);

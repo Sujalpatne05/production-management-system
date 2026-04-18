@@ -10,15 +10,15 @@ export const API_CONFIG = {
   API_URL:
     resolveEnv('VITE_API_URL') ||
     resolveEnv('REACT_APP_API_URL') ||
-    'http://localhost:5000/api',
+    'http://localhost:5001/api',
   BASE_URL:
     resolveEnv('VITE_BASE_URL') ||
     resolveEnv('REACT_APP_BASE_URL') ||
-    'http://localhost:5000',
+    'http://localhost:5001',
   WS_URL:
     resolveEnv('VITE_WS_URL') ||
     resolveEnv('REACT_APP_WS_URL') ||
-    'ws://localhost:5000',
+    'ws://localhost:5001',
 
   // Feature Flags
   ENABLE_API: true,
@@ -34,6 +34,8 @@ export const API_ENDPOINTS = {
     REGISTER: '/auth/register',
     REFRESH: '/auth/refresh',
     LOGOUT: '/auth/logout',
+    SEND_OTP: '/auth/send-otp',
+    VERIFY_OTP: '/auth/verify-otp',
   },
   
   // Users
@@ -164,6 +166,17 @@ export const API_ENDPOINTS = {
     INSPECTIONS: '/qc/inspections',
     NON_CONFORMANCE: '/qc/non-conformance',
     DASHBOARD: '/qc/dashboard',
+  },
+
+  // Company Admin
+  COMPANY_ADMIN: {
+    USERS: {
+      LIST: '/company-admin/users',
+      GET: '/company-admin/users/:id',
+      CREATE: '/company-admin/users',
+      UPDATE: '/company-admin/users/:id',
+      DELETE: '/company-admin/users/:id',
+    },
   },
 };
 

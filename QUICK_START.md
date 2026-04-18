@@ -1,152 +1,304 @@
-# Quick Start Checklist
+# Quick Start Guide - Multi-Tenant ERP System
 
-## 🚀 Before You Can Run Migrations
+## 🚀 Getting Started
 
-You need **Docker Desktop** or **PostgreSQL installed locally**.
-
-### ❌ Current Status
-Docker Desktop is NOT installed on your computer.
-
----
-
-## 📋 Two Options
-
-### Option A: Docker (Recommended - Easiest)
-
-```
-1. Download & Install Docker Desktop
-   └─ https://www.docker.com/products/docker-desktop
-   
-2. Run these commands:
-   cd C:\Users\sujal\Desktop\Production Management\server
-   docker-compose up -d
-   
-3. Verify containers running:
-   docker-compose ps
-```
-
-### Option B: Local PostgreSQL (No Docker needed)
-
-```
-1. Download & Install PostgreSQL 16
-   └─ https://www.postgresql.org/download/
-   
-2. During install, set password to: "password"
-
-3. Create database:
-   psql -U postgres
-   CREATE DATABASE production_management;
-   \q
-```
-
----
-
-## ⏭️ Once Database is Ready
-
-### Command 1: Run Migrations
+### **1. Start Backend Server**
 ```bash
-cd server
-npx prisma migrate dev --name initial_schema
+cd backend
+npm run dev
+# Server runs on http://localhost:5001
 ```
-⏱️ Takes: ~5 seconds
-📊 Creates: All 40+ database tables
 
-### Command 2: Seed Demo Data
+### **2. Start Frontend Dev Server**
 ```bash
-npx prisma db seed
+npm run dev
+# Frontend runs on http://localhost:8081
 ```
-⏱️ Takes: ~2 seconds
-📦 Adds: Products, customers, suppliers, accounts, etc.
 
-### Command 3: View Database (Optional)
-```bash
-npx prisma studio
+### **3. Open Browser**
 ```
-Opens: http://localhost:5555
-
-### Command 4: Start Backend Server
-```bash
-npm run start:dev
-```
-Runs on: http://localhost:3000
-
----
-
-## 🎯 Full Timeline
-
-```
-Install Docker Desktop (5 min)
-    ↓
-Start containers (30 sec + 10 sec warmup)
-    ↓
-Run migrations (5 sec) ✅
-    ↓
-Seed database (2 sec) ✅
-    ↓
-Start server (10 sec) ✅
-    ↓
-Open http://localhost:3000 in browser ✅
+http://localhost:8081
 ```
 
 ---
 
-## 📝 What Gets Created
+## 🔐 Login Credentials
 
-**Database Tables**: 40+ models
-- Tenants, Users, Roles, Permissions
-- Products, RawMaterials, Stock
-- Sales, Purchases, Orders
-- Productions, Waste Logs
-- Accounts, Transactions
-- Customers, Suppliers
-- And more...
+### **Super Admin** (Full Access)
+```
+Email: superadmin@example.com
+Password: SuperAdmin@123
+```
+- Access: All companies, all modules
+- Dashboard: Super Admin Panel
 
-**Demo Data** (in seed):
-- 4 Roles (Admin, Manager, Supervisor, User)
-- 12 Permissions
-- 1 Tenant: "Demo Company"
-- 1 User: admin@demo.com
-- 3 Products (Smart Speaker, Office Chair, Cotton Fabric)
-- 2 Raw Materials
-- 2 Customers, 2 Suppliers
-- Full Chart of Accounts
+### **Zeptac Technologies Admin**
+```
+Email: sujalpatne583@gmail.com
+Password: Sujal@123
+```
+- Access: Zeptac company only
+- Dashboard: Zeptac Technologies - Company Dashboard
+
+### **Test Company Admin**
+```
+Email: admin@example.com
+Password: Admin@123
+```
+- Access: Test Company only
+- Dashboard: Test Company - Company Dashboard
 
 ---
 
-## ✅ Success Indicators
+## 📊 What You Can Do
 
-When migrations complete, you'll see:
-```
-✔ Your database is now in sync with your Prisma schema.
+### **As Super Admin**
+- ✅ Create new companies
+- ✅ Create company admins
+- ✅ View all companies' data
+- ✅ Manage all users
+- ✅ View audit logs
+- ✅ Access all modules
 
-✔ Generated Prisma Client
+### **As Company Admin**
+- ✅ Manage users in their company
+- ✅ View company dashboard
+- ✅ Create sales, purchases, inventory
+- ✅ View company-specific reports
+- ✅ Cannot access other companies' data
+
+### **As Regular User**
+- ✅ View dashboard
+- ✅ Access assigned modules based on role
+- ✅ Create and manage data
+- ✅ Cannot access other companies' data
+
+---
+
+## 🔒 Data Isolation
+
+**Company A data is completely separate from Company B data**
+
+```
+Company A
+├── Users (only Company A users)
+├── Sales (only Company A sales)
+├── Purchases (only Company A purchases)
+└── All data tagged with Company A ID
+
+Company B
+├── Users (only Company B users)
+├── Sales (only Company B sales)
+├── Purchases (only Company B purchases)
+└── All data tagged with Company B ID
 ```
 
-When seed completes, you'll see:
+**When you login:**
+1. System identifies your company
+2. All data is filtered by your company
+3. You only see your company's data
+4. You cannot access other companies' data
+
+---
+
+## 📝 Common Tasks
+
+### **Create a New Company**
+1. Login as Super Admin
+2. Go to Super Admin → Companies
+3. Click "Add Company"
+4. Fill in company details
+5. Create admin user for company
+6. New company is ready to use
+
+### **Add User to Company**
+1. Login as Company Admin
+2. Go to Dashboard → Users
+3. Click "Add User"
+4. Fill in user details
+5. Select role (Finance Manager, Sales Manager, etc.)
+6. Set password
+7. User is created and can login
+
+### **View Company Dashboard**
+1. Login as Company Admin
+2. Dashboard automatically shows company metrics
+3. Header displays company name
+4. All data is company-specific
+
+### **Switch Companies (Super Admin)**
+1. Login as Super Admin
+2. Go to Super Admin → Companies
+3. Click on company name
+4. View that company's data
+5. Can manage that company
+
+---
+
+## 🎯 Key Features
+
+### **Multi-Tenant Isolation**
+- Each company has separate data
+- Users can only see their company's data
+- Super admin can see all companies
+
+### **Role-Based Access Control**
+- 12 different roles available
+- Each role has specific module access
+- Menu automatically filters based on role
+
+### **Company Dashboard**
+- Shows company-specific metrics
+- Displays company name in header
+- Real-time data from database
+
+### **User Management**
+- Company admins manage their users
+- User limits based on subscription plan
+- Password hashing with bcrypt
+
+### **Audit Logging**
+- All operations logged
+- Company context captured
+- Full compliance trail
+
+---
+
+## 🔧 API Endpoints
+
+### **Authentication**
 ```
-✅ Seeding complete!
+POST /api/auth/login
+  - Login with email/password
+  - Returns: token, user, company
+
+GET /api/auth/me
+  - Get current user info
 ```
 
-When server starts, you'll see:
+### **Company Isolation**
 ```
-[Nest] 12345  - 12/27/2025, 10:00:00 AM     LOG [NestFactory] Starting Nest application...
-[Nest] 12345  - 12/27/2025, 10:00:00 AM     LOG [InstanceLoader] AppModule dependencies initialized
-...
-[Nest] 12345  - 12/27/2025, 10:00:00 AM     LOG [NestApplication] Nest application successfully started
-[Nest] 12345  - 12/27/2025, 10:00:00 AM     LOG Server running on http://localhost:3000
+GET /api/dashboard/metrics?companyId={id}
+  - Get company-specific metrics
+  - Filtered by company
+
+GET /api/sales
+  - Get sales (filtered by user's company)
+
+POST /api/sales
+  - Create sale (auto-assigned to user's company)
+```
+
+### **User Management**
+```
+GET /api/company-admin/users
+  - Get users in company
+
+POST /api/company-admin/users
+  - Create user in company
+
+PUT /api/company-admin/users/:id
+  - Update user
+
+DELETE /api/company-admin/users/:id
+  - Delete user
+```
+
+### **Super Admin**
+```
+GET /api/super-admin/companies
+  - Get all companies
+
+POST /api/super-admin/companies-with-admin
+  - Create company with admin
+
+GET /api/super-admin/users
+  - Get all users
 ```
 
 ---
 
-## 🔑 Login Credentials
+## 📱 Dashboard Sections
 
-**Email**: admin@demo.com
-**Password**: (no password set - set during registration or auth implementation)
+### **Company Admin Dashboard**
+- **Overview**: Company metrics (sales, purchases, profit)
+- **Sales**: Create and manage sales
+- **Purchases**: Create and manage purchases
+- **Inventory**: Manage inventory items
+- **Users**: Manage company users
+- **Reports**: View company reports
+
+### **Super Admin Dashboard**
+- **Companies**: Manage all companies
+- **Admins**: Manage company admins
+- **Users**: Manage all users
+- **Audit Logs**: View all operations
+- **Analytics**: Platform-wide analytics
 
 ---
 
-## 📚 Full Documentation
+## 🛠️ Troubleshooting
 
-See: `DOCKER_SETUP.md` for detailed troubleshooting and alternatives
-See: `SCHEMA_EXTENDED.md` for database schema reference
-See: `IMPLEMENTATION_COMPLETE.md` for API endpoints
+### **Company Name Not Showing**
+1. Clear browser cache
+2. Logout and login again
+3. Check localStorage: `JSON.parse(localStorage.getItem('tenant'))`
+4. Should show company data
+
+### **Cannot See Other Company's Data**
+- This is correct! Data isolation is working
+- You can only see your company's data
+- Super admin can see all companies
+
+### **User Cannot Login**
+1. Check email is correct
+2. Check password is correct
+3. Check user is active (not deactivated)
+4. Check user belongs to a company
+
+### **Dashboard Shows No Data**
+1. New companies start with no data
+2. Create some sales/purchases to see metrics
+3. Dashboard will update automatically
+
+---
+
+## 📚 Documentation
+
+- **IMPLEMENTATION_COMPLETE.md** - Full implementation details
+- **MULTI_TENANT_DATA_ISOLATION_COMPLETE.md** - Data isolation guide
+- **SYSTEM_ARCHITECTURE.md** - System architecture
+- **MULTI_TENANT_QUICK_REFERENCE.md** - Quick reference
+
+---
+
+## ✅ Verification
+
+**To verify everything is working:**
+
+1. ✅ Backend running on port 5001
+2. ✅ Frontend running on port 8081
+3. ✅ Can login with super admin
+4. ✅ Can login with company admin
+5. ✅ Dashboard shows company name
+6. ✅ Dashboard shows company metrics
+7. ✅ Can create users
+8. ✅ Can create sales/purchases
+9. ✅ Data is isolated by company
+10. ✅ Audit logs are created
+
+---
+
+## 🎉 You're Ready!
+
+The multi-tenant ERP system is ready to use. Start by:
+
+1. Login as Super Admin
+2. Create a new company
+3. Create company admin
+4. Login as company admin
+5. Explore the dashboard
+6. Create some data
+7. Verify data isolation
+
+**Enjoy your multi-tenant ERP system!**

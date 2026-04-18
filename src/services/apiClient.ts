@@ -98,16 +98,7 @@ class ApiClient {
         } as ApiError;
       }
 
-      if (
-        responseData &&
-        typeof responseData === 'object' &&
-        'success' in responseData &&
-        responseData.success === true &&
-        'data' in responseData
-      ) {
-        return responseData.data as T;
-      }
-
+      // Return the full response as-is
       return responseData as T;
     } catch (error: any) {
       const errorMsg = error?.message || error?.error || 'API Error';

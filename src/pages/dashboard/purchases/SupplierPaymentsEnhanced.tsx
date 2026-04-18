@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -19,6 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import PageHeader from "@/components/PageHeader";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -158,6 +166,13 @@ const mockSupplierBalances: SupplierBalance[] = [
 export default function SupplierPaymentsEnhanced() {
   const { toast } = useToast();
   const [payments, setPayments] = useState<Payment[]>(mockPayments);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [newPayment, setNewPayment] = useState({
+    supplier: "",
+    amount: "",
+    method: "bank-transfer",
+    dueDate: ""
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [methodFilter, setMethodFilter] = useState("all");
@@ -333,7 +348,7 @@ export default function SupplierPaymentsEnhanced() {
           </SelectContent>
         </Select>
 
-        <Button className="gap-2 w-full md:w-auto">
+        <Button onClick={() => setShowPaymentDialog(true)} className="gap-2 w-full md:w-auto">
           <Plus className="h-4 w-4" />
           New Payment
         </Button>
@@ -592,6 +607,89 @@ export default function SupplierPaymentsEnhanced() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* New Payment Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record New Payment</DialogTitle>
+            <DialogDescription>
+              Add a new supplier payment
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">Supplier *</Label>
+              <Select value={newPayment.supplier} onValueChange={(value) => setNewPayment({ ...newPayment, supplier: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select supplier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockSupplierBalances.map(sup => (
+                    <SelectItem key={sup.supplierId} value={sup.supplierId}>
+                      {sup.supplierName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Amount *</Label>
+              <Input
+                type="number"
+                placeholder="0.00"
+                value={newPayment.amount}
+                onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Payment Method</Label>
+              <Select value={newPayment.method} onValueChange={(value) => setNewPayment({ ...newPayment, method: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="cheque">Cheque</SelectItem>
+                  <SelectItem value="credit">Credit</SelectItem>
+                  <SelectItem value="upi">UPI</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Due Date</Label>
+              <Input
+                type="date"
+                value={newPayment.dueDate}
+                onChange={(e) => setNewPayment({ ...newPayment, dueDate: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowPaymentDialog(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!newPayment.supplier || !newPayment.amount) {
+                    toast({ title: "Error", description: "Please fill all required fields", variant: "destructive" });
+                    return;
+                  }
+                  toast({ title: "Success", description: "Payment recorded successfully" });
+                  setShowPaymentDialog(false);
+                  setNewPayment({ supplier: "", amount: "", method: "bank-transfer", dueDate: "" });
+                }}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                Record Payment
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
